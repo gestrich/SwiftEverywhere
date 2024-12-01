@@ -1,5 +1,5 @@
 {
-  "originHash" : "ee15a612c569352a659a78ae1018ba49158d6fa78657c39d00d7c1d7144f31f4",
+  "originHash" : "3f2adb487afa696da36975df1d42f251f50833a3758bd84093a54ceb80822257",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/uraimo/SwiftyGPIO.git",
       "state" : {
-        "revision" : "b86215de6ecde8e6649590978164a5532ef7a975",
-        "version" : "1.4.4"
+        "revision" : "8b78a143f2651abddd5b2b6d055a132f04d1c618",
+        "version" : "2.0.0-beta9"
       }
     }
   ],

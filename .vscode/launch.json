@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:SwiftEverywhere}",
+            "name": "Debug SwiftEverywhere",
+            "program": "${workspaceFolder:SwiftEverywhere}/.build/debug/SwiftEverywhere",
+            "preLaunchTask": "swift: Build Debug SwiftEverywhere"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:SwiftEverywhere}",
+            "name": "Release SwiftEverywhere",
+            "program": "${workspaceFolder:SwiftEverywhere}/.build/release/SwiftEverywhere",
+            "preLaunchTask": "swift: Build Release SwiftEverywhere"
+        }
+    ]
+}
