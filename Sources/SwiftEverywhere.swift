@@ -10,10 +10,12 @@ import SwiftyGPIO
 @main
 struct SwiftEverywhere {
     static func main() async throws -> Void {
-        try await Task.self .sleep(for: .seconds(1))
-        Self.setGPIO(on: true)
-        try await Task.self .sleep(for: .seconds(1))
-        Self.setGPIO(on: false)
+        while true {
+            Self.setGPIO(on: true)
+            try await Task.self .sleep(for: .seconds(1))
+            Self.setGPIO(on: false)
+            try await Task.self .sleep(for: .seconds(1))
+        }
     }
     
     static func setGPIO(on: Bool) {
