@@ -11,11 +11,12 @@ import SwiftyGPIO
 struct SwiftEverywhere: ParsableCommand {
     mutating func run() throws {
         Self.readGPIO()
+        Self.setGPIO()
     }
     
     static func readGPIO() {
         let gpios = SwiftyGPIO.GPIOs(for:.RaspberryPi4)
-        guard let gp = gpios[.P2] else {
+        guard let gp = gpios[.P21] else {
             print("Could not read GPIO")
             return
         }
@@ -24,7 +25,10 @@ struct SwiftEverywhere: ParsableCommand {
     
     static func setGPIO() {
         let gpios = SwiftyGPIO.GPIOs(for:.RaspberryPi4)
-        let gp = gpios[.P2]!
+        guard let gp = gpios[.P21] else {
+            print("Could not read GPIO")
+            return
+        }
         gp.value = .max
     }
 }
