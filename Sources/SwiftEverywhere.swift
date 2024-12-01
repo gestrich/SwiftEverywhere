@@ -8,9 +8,10 @@ import ArgumentParser
 import SwiftyGPIO
 
 @main
-struct SwiftEverywhere: ParsableCommand {
-    mutating func run() throws {
+struct SwiftEverywhere {
+    static func main() async throws -> Void {
         Self.readGPIO()
+        try await Task.self .sleep(for: .seconds(1))
         Self.setGPIO()
         Self.readGPIO()
     }

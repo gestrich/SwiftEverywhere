@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "SwiftEverywhere",
+    platforms: [.macOS(.v15)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
         .package(url: "https://github.com/uraimo/SwiftyGPIO.git", from: "1.0.0")
