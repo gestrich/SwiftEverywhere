@@ -12,6 +12,7 @@ struct SwiftEverywhere: ParsableCommand {
     mutating func run() throws {
         Self.readGPIO()
         Self.setGPIO()
+        Self.readGPIO()
     }
     
     static func readGPIO() {
@@ -29,6 +30,7 @@ struct SwiftEverywhere: ParsableCommand {
             print("Could not read GPIO")
             return
         }
-        gp.value = .max
+	gp.direction = .OUT
+        gp.value =  1
     }
 }
