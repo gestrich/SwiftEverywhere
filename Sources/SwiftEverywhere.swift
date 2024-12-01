@@ -23,7 +23,7 @@ struct SwiftEverywhere {
             print("The value changed, current value:" + String(gpio.value))
         }  
         sleep(2)
-        gpio.clearListeners()
+//        gpio.clearListeners()
         gp.pull = .up
             gp.onChange{ gpio in
             
