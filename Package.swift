@@ -8,7 +8,8 @@ let package = Package(
     platforms: [.macOS(.v15)],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
-        .package(url: "https://github.com/uraimo/SwiftyGPIO.git", from: "1.0.0")
+        .package(url: "https://github.com/gestrich/SwiftyGPIO", branch: "bugfix/2024-12-pi-memory-address")
+        // .package(path: "../SwiftyGPIO")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.

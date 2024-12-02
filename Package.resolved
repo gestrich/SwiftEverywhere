@@ -1,5 +1,5 @@
 {
-  "originHash" : "f636dbe44036c7d3370dc2f2263f368d4bf727c19823e38c1c47f1837ab57297",
+  "originHash" : "732dd756235097b5fe0ceed86b1f9db7703cb452b96d88e1b14b5e31c402398a",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -13,10 +13,10 @@
     {
       "identity" : "swiftygpio",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/uraimo/SwiftyGPIO.git",
+      "location" : "https://github.com/gestrich/SwiftyGPIO",
       "state" : {
-        "revision" : "b86215de6ecde8e6649590978164a5532ef7a975",
-        "version" : "1.4.4"
+        "branch" : "bugfix/2024-12-pi-memory-address",
+        "revision" : "083b24db5d5c533e8b7a9b288313061ba596e8c8"
       }
     }
   ],
