@@ -11,7 +11,8 @@ import SwiftyGPIO
 @main
 struct SwiftEverywhere {
     static func main() throws -> Void {
-        try LEDExample().start()
+        // try LEDExample().start()
+        MPCExample().start()
         RunLoop.main.run()
     }
 }

@@ -54,15 +54,20 @@ struct MPCExample {
         return Double(outputCode) * voltageReference / 1024.0
     }
     
-    func start() {
-        
+    var boardType: SupportedBoard {
+        return .RaspberryPi4_2024
+    }
 
-        
+    func start() {
         repeatWithInterval(interval: 1) { [self] in
             print("Raspberry Pi Tests Beginning")
             
             //Reset from command line with `gpio -g mode 17 out`
-            let gpOut = GPIO(name: "P17",id: 17)
+            let gpios = SwiftyGPIO.GPIOs(for: boardType)
+            guard let gpOut = gpios[.P17] else {
+                print("Could not read GPIO")
+                return
+            }
             
             gpOut.direction = .OUT
             
