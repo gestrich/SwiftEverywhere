@@ -11,8 +11,9 @@ import SwiftyGPIO
 @main
 struct SwiftEverywhere {
     static func main() throws -> Void {
-        // try LEDExample().start()
-        MPCExample().start()
+        let boardType = SupportedBoard.RaspberryPi4_2024
+        // try LEDExample(boardType: boardType).start()
+        MPCExample(boardType: boardType).start()
         RunLoop.main.run()
     }
 }

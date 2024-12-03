@@ -6,16 +6,17 @@
 //
 
 import Foundation
-import SwiftyGPIO
+@preconcurrency import SwiftyGPIO
 
 struct LEDExample {
+    let boardType: SupportedBoard
         func start() throws -> Void {
-            Self.montitorButtonPress()
-            Self.setupBlink()
+            montitorButtonPress()
+            setupBlink()
             RunLoop.main.run()
         }
 
-        static func setupBlink() {
+        func setupBlink() {
             let timer = Timer(timeInterval: 1, repeats: true, block: { timer in
                 let gpios = SwiftyGPIO.GPIOs(for: boardType)
                 guard let gpLED = gpios[.P21] else {
@@ -27,7 +28,7 @@ struct LEDExample {
             RunLoop.main.add(timer, forMode: .default)
         }
 
-        static func montitorButtonPress() {
+        func montitorButtonPress() {
             let gpios = SwiftyGPIO.GPIOs(for: boardType)
             guard let gpInput = gpios[.P26] else {
                 print("Could not read GPIO")
@@ -40,7 +41,7 @@ struct LEDExample {
             }
         }
 
-        static func setLED(on: Bool) {
+        func setLED(on: Bool) {
             let gpios = SwiftyGPIO.GPIOs(for: boardType)
             guard let gp = gpios[.P21] else {
                 print("Could not read GPIO")
@@ -49,9 +50,5 @@ struct LEDExample {
 
             gp.direction = .OUT
             gp.value = on ? 1 : 0
-        }
-
-        static var boardType: SupportedBoard {
-            return .RaspberryPi4_2024
         }
     }

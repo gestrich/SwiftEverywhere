@@ -6,9 +6,10 @@
 //
 
 import Foundation
-import SwiftyGPIO
+@preconcurrency import SwiftyGPIO
 
-struct MPCExample {
+struct MPCExample: Sendable {
+    let boardType: SupportedBoard
     //Repeat Method
     func repeatWithInterval(interval: UInt32, block:@escaping @Sendable () -> Void ){
         let queue = DispatchQueue.global()
@@ -52,10 +53,6 @@ struct MPCExample {
     
     func mcpVoltage(outputCode: UInt64, voltageReference: Double) -> Double {
         return Double(outputCode) * voltageReference / 1024.0
-    }
-    
-    var boardType: SupportedBoard {
-        return .RaspberryPi4_2024
     }
 
     func start() {
