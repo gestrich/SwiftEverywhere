@@ -11,12 +11,12 @@ I installed Raspberry Pi OS (64-bit), using the [Raspberry Pi Imager](https://ww
 When you reach the option to set "customizations":
 
 
-
-
-
-
 ## Local Development
 
 * Download Visual Studio Code
 * Install the Microsoft Remote - SSH to run on Pi from Mac
+
+## Run
+
+nohup swift run > output.log 2>&1 &
 
