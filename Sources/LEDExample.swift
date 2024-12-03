@@ -13,7 +13,6 @@ struct LEDExample {
         func start() throws -> Void {
             montitorButtonPress()
             setupBlink()
-            RunLoop.main.run()
         }
 
         func setupBlink() {
