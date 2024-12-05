@@ -34,15 +34,15 @@ struct MPCExample: Sendable {
 
     func printValues() {
         // SPI
-        let voltage0Percent = getVoltage(channel: 0)
+        let voltagePercent = getVoltage(channel: 0)
 
-        if voltage0Percent > 15 {
+        if voltagePercent > 15 {
             setLight(on: true)
         } else {
             setLight(on: false)
         }
 
-        print("\u{1B}[1A\u{1B}[KLight: \(voltage0Percent)%")
+        print("\u{1B}[1A\u{1B}[KLight: \(voltagePercent)%")
     }
 
     func montitorButtonPress() {

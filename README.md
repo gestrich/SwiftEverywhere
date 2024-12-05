@@ -20,3 +20,44 @@ When you reach the option to set "customizations":
 
 nohup swift run > output.log 2>&1 &
 
+##  Create a systemd Service File
+
+sudo vi /etc/systemd/system/swift_everywhere.service
+
+```
+[Unit]
+Description=Swift Everywhere Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/bash run.sh
+WorkingDirectory=/home/bill/SwiftEverywhere
+Restart=always
+User=bill
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Reload systemd to Recognize the New Service
+sudo systemctl daemon-reload
+
+### Start the Service
+sudo systemctl start swift_everywhere.service
+
+### Enable the Service to Run on Boot
+
+sudo systemctl enable my_service.service
+
+### Get Status
+
+sudo systemctl status swift_everywhere.service
+
+### Stop and Restart the Service
+
+sudo systemctl stop my_service.service
+sudo systemctl restart my_service.service
+
+### Log Output
+
+sudo journalctl -u my_service.service
