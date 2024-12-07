@@ -8,10 +8,10 @@
 import Foundation
 @preconcurrency import SwiftyGPIO
 
-struct MPCExample: Sendable {
+public struct MPCExample: Sendable {
     let boardType: SupportedBoard
     let ledGPIO: GPIO
-    init?(boardType: SupportedBoard) {
+    public init?(boardType: SupportedBoard) {
         self.boardType = boardType
         let gpios = SwiftyGPIO.GPIOs(for: boardType)
         guard let ledGPIO = gpios[.P21] else {
@@ -22,7 +22,7 @@ struct MPCExample: Sendable {
         self.ledGPIO = ledGPIO
     }
 
-    func start() {
+    public func start() {
         let timer = Timer(
             timeInterval: 0.2, repeats: true,
             block: { timer in

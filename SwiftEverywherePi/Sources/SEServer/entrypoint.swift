@@ -1,11 +1,14 @@
-import Vapor
 import Logging
 import NIOCore
 import NIOPosix
+import SEGPIO
+import SwiftyGPIO
+import Vapor
 
 @main
 enum Entrypoint {
     static func main() async throws {
+        startGPIOServices()
         var env = try Environment.detect()
         try LoggingSystem.bootstrap(from: &env)
         
@@ -27,5 +30,14 @@ enum Entrypoint {
         }
         try await app.execute()
         try await app.asyncShutdown()
+    }
+    
+    static func startGPIOServices() {
+        let boardType = SupportedBoard.RaspberryPi4_2024
+        // let ledExample = LEDExample(boardType: boardType)
+        // try ledExample.start()
+        let mpcExample = MPCExample(boardType: boardType)
+        mpcExample?.start()
+        RunLoop.main.run()
     }
 }

@@ -15,33 +15,35 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "SwiftEverywherePi",
+            name: "SEGPIOService",
             dependencies: [
+                "SEGPIO",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "SwiftyGPIO", package: "SwiftyGPIO")
             ]
         ),
-        .executableTarget(
-            name: "App",
+        .target(
+            name: "SEGPIO",
             dependencies: [
-                .product(name: "Vapor", package: "vapor"),
+                .product(name: "SwiftyGPIO", package: "SwiftyGPIO")
+            ]
+        ),
+        .executableTarget(
+            name: "SEServer",
+            dependencies: [
                 .product(name: "NIOCore", package: "swift-nio"),
                 .product(name: "NIOPosix", package: "swift-nio"),
-            ],
-            swiftSettings: swiftSettings
+                "SEGPIO",
+                .product(name: "SwiftyGPIO", package: "SwiftyGPIO"),
+                .product(name: "Vapor", package: "vapor"),
+            ]
         ),
         .testTarget(
-            name: "AppTests",
+            name: "SEServerTests",
             dependencies: [
-                .target(name: "App"),
+                .target(name: "SEServer"),
                 .product(name: "XCTVapor", package: "vapor"),
-            ],
-            swiftSettings: swiftSettings
+            ]
         )
     ]
 )
-
-var swiftSettings: [SwiftSetting] { [
-//    .enableUpcomingFeature("DisableOutwardActorInference"),
-//    .enableExperimentalFeature("StrictConcurrency"),
-] }

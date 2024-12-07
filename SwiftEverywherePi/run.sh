@@ -1,1 +1,1 @@
-swift run 
+swift run SECommandLine

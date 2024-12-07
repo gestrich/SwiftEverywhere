@@ -6,6 +6,7 @@
 
 import ArgumentParser
 import Foundation
+import SEGPIO
 import SwiftyGPIO
 
 @main

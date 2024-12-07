@@ -18,7 +18,6 @@ When you reach the option to set "customizations":
 * Download Visual Studio Code
 * Install the Microsoft Remote - SSH to run on Pi from Mac
 
-
 nohup swift run > output.log 2>&1 &
 
 ##  Create a systemd Service File
