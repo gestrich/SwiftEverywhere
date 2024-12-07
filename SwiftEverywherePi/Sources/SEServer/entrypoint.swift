@@ -38,6 +38,6 @@ enum Entrypoint {
         // try ledExample.start()
         let mpcExample = MPCExample(boardType: boardType)
         mpcExample?.start()
-        RunLoop.main.run()
+        // RunLoop.main.run()
     }
 }

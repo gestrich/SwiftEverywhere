@@ -35,6 +35,42 @@
             "name": "Release App",
             "program": "${workspaceFolder:SwiftEverywherePi}/.build/release/App",
             "preLaunchTask": "swift: Build Release App"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:SwiftEverywherePi}",
+            "name": "Debug SEServer",
+            "program": "${workspaceFolder:SwiftEverywherePi}/.build/debug/SEServer",
+            "preLaunchTask": "swift: Build Debug SEServer"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:SwiftEverywherePi}",
+            "name": "Release SEServer",
+            "program": "${workspaceFolder:SwiftEverywherePi}/.build/release/SEServer",
+            "preLaunchTask": "swift: Build Release SEServer"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:SwiftEverywherePi}",
+            "name": "Debug SEGPIOService",
+            "program": "${workspaceFolder:SwiftEverywherePi}/.build/debug/SEGPIOService",
+            "preLaunchTask": "swift: Build Debug SEGPIOService"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:SwiftEverywherePi}",
+            "name": "Release SEGPIOService",
+            "program": "${workspaceFolder:SwiftEverywherePi}/.build/release/SEGPIOService",
+            "preLaunchTask": "swift: Build Release SEGPIOService"
         }
     ]
 }
