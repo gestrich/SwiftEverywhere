@@ -72,4 +72,4 @@ http://<ip address>:<port>
 
 ### Running
 
-swift run App serve --env production --hostname "0.0.0.0" --port "8080"
+swift run SEServer serve --env production --hostname "0.0.0.0" --port "8080"

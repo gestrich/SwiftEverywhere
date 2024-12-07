@@ -1,1 +1,1 @@
-swift run SECommandLine
+swift run SEGPIOService
