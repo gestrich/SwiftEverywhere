@@ -1,0 +1,40 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:SwiftEverywherePi}",
+            "name": "Debug SwiftEverywherePi",
+            "program": "${workspaceFolder:SwiftEverywherePi}/.build/debug/SwiftEverywherePi",
+            "preLaunchTask": "swift: Build Debug SwiftEverywherePi"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:SwiftEverywherePi}",
+            "name": "Release SwiftEverywherePi",
+            "program": "${workspaceFolder:SwiftEverywherePi}/.build/release/SwiftEverywherePi",
+            "preLaunchTask": "swift: Build Release SwiftEverywherePi"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:SwiftEverywherePi}",
+            "name": "Debug App",
+            "program": "${workspaceFolder:SwiftEverywherePi}/.build/debug/App",
+            "preLaunchTask": "swift: Build Debug App"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:SwiftEverywherePi}",
+            "name": "Release App",
+            "program": "${workspaceFolder:SwiftEverywherePi}/.build/release/App",
+            "preLaunchTask": "swift: Build Release App"
+        }
+    ]
+}
