@@ -10,7 +10,6 @@ I installed Raspberry Pi OS (64-bit), using the [Raspberry Pi Imager](https://ww
 
 When you reach the option to set "customizations":
 
-
 ## Local Development
 
 * Download Visual Studio Code
@@ -47,7 +46,7 @@ sudo systemctl start swift_everywhere.service
 
 ### Enable the Service to Run on Boot
 
-sudo systemctl enable my_service.service
+sudo systemctl enable swift_everywhere.service
 
 ### Get Status
 
@@ -55,9 +54,9 @@ sudo systemctl status swift_everywhere.service
 
 ### Stop and Restart the Service
 
-sudo systemctl stop my_service.service
-sudo systemctl restart my_service.service
+sudo systemctl stop swift_everywhere.service
+sudo systemctl restart swift_everywhere.service
 
 ### Log Output
 
-sudo journalctl -u my_service.service
+sudo journalctl -u swift_everywhere.service

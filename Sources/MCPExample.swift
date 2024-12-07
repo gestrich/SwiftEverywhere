@@ -10,16 +10,16 @@ import Foundation
 
 struct MPCExample: Sendable {
     let boardType: SupportedBoard
-    let gpOut: GPIO
+    let ledGPIO: GPIO
     init?(boardType: SupportedBoard) {
         self.boardType = boardType
         let gpios = SwiftyGPIO.GPIOs(for: boardType)
-        guard let gpOut = gpios[.P21] else {
+        guard let ledGPIO = gpios[.P21] else {
             print("Could not read GPIO")
             return nil
         }
-        self.gpOut = gpOut
-        gpOut.direction = .OUT
+        ledGPIO.direction = .OUT
+        self.ledGPIO = ledGPIO
     }
 
     func start() {
@@ -33,16 +33,16 @@ struct MPCExample: Sendable {
     }
 
     func printValues() {
-        // SPI
-        let voltagePercent = getVoltage(channel: 0)
-
-        if voltagePercent > 15 {
+                // SPI
+        let voltage0Percent = getVoltage(channel: 0)
+        let voltage1Percent = getVoltage(channel: 1)
+        if voltage0Percent > 15 {
             setLight(on: true)
         } else {
             setLight(on: false)
         }
 
-        print("\u{1B}[1A\u{1B}[KLight: \(voltagePercent)%")
+        print("\u{1B}[1A\u{1B}[KChannel0: \(voltage0Percent)%, Channel1: \(voltage1Percent)%")
     }
 
     func montitorButtonPress() {
@@ -56,9 +56,6 @@ struct MPCExample: Sendable {
         gpInput.onFalling { gpio in
             print("Button Pressed Down")
         }
-        // gpInput.onChange { gpio in
-        //     print("Value Changed:" + String(gpio.value))
-        // }
     }
 
     func getVoltage(channel: UInt8) -> Int {
@@ -69,10 +66,11 @@ struct MPCExample: Sendable {
     }
 
     func setLight(on: Bool) {
-        gpOut.value = on ? 1 : 0
+        ledGPIO.value = on ? 1 : 0
     }
 
     func mcpReadData(a2dChannel: CUnsignedChar) -> UInt64 {
+        // TODO: hardwareSPIs returned nil when using the Raspberry 4 board type here.
         let spis = SwiftyGPIO.hardwareSPIs(for: .RaspberryPiPlusZero)!
         let spi = spis[0]
 
@@ -106,5 +104,4 @@ struct MPCExample: Sendable {
     func mcpVoltage(outputCode: UInt64, voltageReference: Double) -> Double {
         return Double(outputCode) * voltageReference / 1024.0
     }
-
 }
