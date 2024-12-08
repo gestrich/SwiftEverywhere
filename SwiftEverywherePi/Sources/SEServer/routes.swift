@@ -7,14 +7,14 @@ func routes(_ app: Application) throws {
         "It works!"
     }
 
-    app.get("led") { req async -> Bool in
+    app.get("led") { req in
         let gpios = SwiftyGPIO.GPIOs(for: .RaspberryPi4)
         guard let ledGPIO = gpios[.P21] else {
             print("Could not read GPIO")
-            return false
+            throw RoutesError.gpioError
         }
         ledGPIO.direction = .OUT
-        return ledGPIO.value == 1 ? true : false
+        return LEDState(on: ledGPIO.value == 1 ? true : false)
     }
     
     app.post("led") { request in
@@ -29,11 +29,11 @@ func routes(_ app: Application) throws {
         }
         ledGPIO.direction = .OUT
         ledGPIO.value = state.on ? 1 : 0
-        return "Done"
+        return state
     }
 }
 
-struct LEDState: Codable {
+struct LEDState: Content {
     let on: Bool
 }
 

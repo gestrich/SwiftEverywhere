@@ -11,7 +11,11 @@ import Foundation
 public struct MPCExample: Sendable {
     let boardType: SupportedBoard
     let ledGPIO: GPIO
-    public init?(boardType: SupportedBoard) {
+    
+    public typealias PollingScheduler = @Sendable (_ initialDelay: TimeInterval, _ delay: TimeInterval, _ task: @escaping @Sendable () -> Void) -> Void
+    let pollingScheduler: PollingScheduler
+
+    public init?(boardType: SupportedBoard, pollingScheduler: @escaping PollingScheduler) {
         self.boardType = boardType
         let gpios = SwiftyGPIO.GPIOs(for: boardType)
         guard let ledGPIO = gpios[.P21] else {
@@ -20,32 +24,24 @@ public struct MPCExample: Sendable {
         }
         ledGPIO.direction = .OUT
         self.ledGPIO = ledGPIO
+        self.pollingScheduler = pollingScheduler
     }
 
     public func start() {
-        let timer = Timer(
-            timeInterval: 0.2, repeats: true,
-            block: { timer in
-                printValues()
-            })
-        RunLoop.main.add(timer, forMode: .default)
-        montitorButtonPress()
+        pollingScheduler(1.0, 1.0) {
+            printValues()
+        }
+        monitorButtonPress()
     }
 
     func printValues() {
-                // SPI
+        // SPI
         let voltage0Percent = getVoltage(channel: 0)
         let voltage1Percent = getVoltage(channel: 1)
-        if voltage0Percent > 15 {
-            setLight(on: true)
-        } else {
-            setLight(on: false)
-        }
-
         print("\u{1B}[1A\u{1B}[KChannel0: \(voltage0Percent)%, Channel1: \(voltage1Percent)%")
     }
 
-    func montitorButtonPress() {
+    func monitorButtonPress() {
         let gpios = SwiftyGPIO.GPIOs(for: boardType)
         guard let gpInput = gpios[.P26] else {
             print("Could not read GPIO")
