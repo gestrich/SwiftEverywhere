@@ -21,7 +21,7 @@ func routes(_ app: Application, mpc: MPCExample) throws {
     }
 }
 
-extension LEDState: @retroactive Content {
+extension LEDState: Content {
     
 }
 

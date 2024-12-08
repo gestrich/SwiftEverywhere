@@ -1,4 +1,4 @@
-FROM swift:5.9.1-amazonlinux2
+FROM swift:6.0-amazonlinux2
 
 RUN yum -y install \
      git \
