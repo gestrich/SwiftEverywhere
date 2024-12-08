@@ -1,0 +1,125 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Swift Application
+
+Globals:
+  Function:
+    Timeout: 10
+    CodeUri: . 
+    Handler: swift.bootstrap
+    Runtime: provided.al2
+    MemorySize: 512
+
+Resources:
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: SwiftEverywhere
+      AttributeDefinitions:
+        - AttributeName: partition
+          AttributeType: S
+        - AttributeName: uploadDate
+          AttributeType: S
+      KeySchema:
+        - AttributeName: partition
+          KeyType: HASH
+        - AttributeName: uploadDate
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  SwiftEverywhereAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'content-type'"
+        AllowOrigin: "'*'"
+        AllowCredentials: "'*'"
+  SwiftEverywhereLambda:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Architectures:
+      - arm64
+      Events:
+        MacM1Get:
+          Type: Api
+          Properties:
+            Path: /macM1
+            Method: get
+            RestApiId: !Ref SwiftEverywhereAPI
+        MacM1Post:
+          Type: Api
+          Properties:
+            Path: /macM1
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
+        MacM3Get:
+          Type: Api
+          Properties:
+            Path: /macM3
+            Method: get
+            RestApiId: !Ref SwiftEverywhereAPI
+        MacM3Post:
+          Type: Api
+          Properties:
+            Path: /macM3
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
+        DogLightGet:
+          Type: Api
+          Properties:
+            Path: /dogLight
+            Method: get
+            RestApiId: !Ref SwiftEverywhereAPI
+        DogLightPost:
+          Type: Api
+          Properties:
+            Path: /dogLight
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
+        DogFeedGet:
+          Type: Api
+          Properties:
+            Path: /dogFeed
+            Method: get
+            RestApiId: !Ref SwiftEverywhereAPI
+        DogFeedPost:
+          Type: Api
+          Properties:
+            Path: /dogFeed
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
+        AirConditionerGet:
+          Type: Api
+          Properties:
+            Path: /airConditioner
+            Method: get
+            RestApiId: !Ref SwiftEverywhereAPI
+        AirConditionerPost:
+          Type: Api
+          Properties:
+            Path: /airConditioner
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
+        HostGet:
+          Type: Api
+          Properties:
+            Path: /host
+            Method: get
+            RestApiId: !Ref SwiftEverywhereAPI
+        HostPost:
+          Type: Api
+          Properties:
+            Path: /host
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
+      Policies:
+      - AmazonDynamoDBFullAccess
+Outputs:
+  ApiEndpoint:
+    Description: "API endpoint URL"
+    Value: !Sub "https://${SwiftEverywhereAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod"

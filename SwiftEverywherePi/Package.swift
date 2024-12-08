@@ -11,7 +11,8 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
         .package(url: "https://github.com/gestrich/SwiftyGPIO", branch: "bugfix/2024-12-pi-memory-address"),
         // .package(path: "../SwiftyGPIO")
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.99.3")
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.99.3"),
+        .package(path: "../SwiftEverywhereCommon")
     ],
     targets: [
         .executableTarget(
@@ -34,6 +35,7 @@ let package = Package(
                 .product(name: "NIOCore", package: "swift-nio"),
                 .product(name: "NIOPosix", package: "swift-nio"),
                 "SEGPIO",
+                .product(name: "SECommon", package: "SwiftEverywhereCommon"),
                 .product(name: "SwiftyGPIO", package: "SwiftyGPIO"),
                 .product(name: "Vapor", package: "vapor"),
             ]

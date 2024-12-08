@@ -1,0 +1,10 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "swift-everywhere"
+resolve_s3 = true
+s3_prefix = "swift-everywhere"
+region = "us-east-1"
+profile = "production"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = []

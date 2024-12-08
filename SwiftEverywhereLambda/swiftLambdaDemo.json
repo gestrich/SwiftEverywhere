@@ -1,0 +1,15 @@
+{
+  "postgres": {
+    "name":"docker",
+    "identifier":"sugar",
+    "host":"localhost",
+    "port":5432,
+    "tableName":"sugar",
+    "username":"docker",
+    "userPassword":"docker"
+  },
+  "s3": {
+    "bucketName": "org.gestrich.sandbox",
+    "endpoint": "http://127.0.0.1:9000"
+  }
+}

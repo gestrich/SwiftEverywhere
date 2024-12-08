@@ -1,0 +1,24 @@
+name: Prod Deploy
+
+on:
+  push:
+    branches:
+      - "main"
+  workflow_call:
+jobs:
+  test:
+    name: Test
+    uses: ./.github/workflows/test.yml
+    if: true 
+    secrets: inherit
+  deploy:
+    name: Prod Deploy
+    needs: test
+    if: success()
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: prod
+      dockerPlatformName: linux/amd64 
+      productName: SugarMonitorLambda 
+      lambdaName: SugarMonitor 
+    secrets: inherit
