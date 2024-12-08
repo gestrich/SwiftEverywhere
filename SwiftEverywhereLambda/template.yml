@@ -45,76 +45,16 @@ Resources:
       Architectures:
       - arm64
       Events:
-        MacM1Get:
+        ledGet:
           Type: Api
           Properties:
-            Path: /macM1
+            Path: /led
             Method: get
             RestApiId: !Ref SwiftEverywhereAPI
-        MacM1Post:
+        ledPost:
           Type: Api
           Properties:
-            Path: /macM1
-            Method: post
-            RestApiId: !Ref SwiftEverywhereAPI
-        MacM3Get:
-          Type: Api
-          Properties:
-            Path: /macM3
-            Method: get
-            RestApiId: !Ref SwiftEverywhereAPI
-        MacM3Post:
-          Type: Api
-          Properties:
-            Path: /macM3
-            Method: post
-            RestApiId: !Ref SwiftEverywhereAPI
-        DogLightGet:
-          Type: Api
-          Properties:
-            Path: /dogLight
-            Method: get
-            RestApiId: !Ref SwiftEverywhereAPI
-        DogLightPost:
-          Type: Api
-          Properties:
-            Path: /dogLight
-            Method: post
-            RestApiId: !Ref SwiftEverywhereAPI
-        DogFeedGet:
-          Type: Api
-          Properties:
-            Path: /dogFeed
-            Method: get
-            RestApiId: !Ref SwiftEverywhereAPI
-        DogFeedPost:
-          Type: Api
-          Properties:
-            Path: /dogFeed
-            Method: post
-            RestApiId: !Ref SwiftEverywhereAPI
-        AirConditionerGet:
-          Type: Api
-          Properties:
-            Path: /airConditioner
-            Method: get
-            RestApiId: !Ref SwiftEverywhereAPI
-        AirConditionerPost:
-          Type: Api
-          Properties:
-            Path: /airConditioner
-            Method: post
-            RestApiId: !Ref SwiftEverywhereAPI
-        HostGet:
-          Type: Api
-          Properties:
-            Path: /host
-            Method: get
-            RestApiId: !Ref SwiftEverywhereAPI
-        HostPost:
-          Type: Api
-          Properties:
-            Path: /host
+            Path: /led
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
       Policies:

@@ -2,10 +2,10 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:SwiftEverywhereApp/SwiftEverywhereApp.xcodeproj">
+      location = "group:SECommon">
    </FileRef>
    <FileRef
-      location = "group:SwiftEverywhereCommon">
+      location = "group:SwiftEverywhereApp/SwiftEverywhereApp.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:SwiftEverywhereLambda">

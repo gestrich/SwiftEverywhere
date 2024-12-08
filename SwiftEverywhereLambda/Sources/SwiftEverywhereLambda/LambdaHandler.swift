@@ -14,7 +14,7 @@ public struct LambdaHandler: ByteBufferLambdaHandler {
 
     public func handle(context: Lambda.Context, event: ByteBuffer) -> EventLoopFuture<ByteBuffer?> {
         let handlers: [AnyLambdaHandler] = [
-            CreateUserHandler().erased(),
+//            CreateUserHandler().erased(),
             APIGWHandler().erased(),
         ]
         let dynamicHandler = DynamicLambdaHandler(handlers: handlers)

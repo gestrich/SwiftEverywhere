@@ -5,6 +5,7 @@
 //  Created by Bill Gestrich on 12/2/24.
 //
 
+import SECommon
 import Foundation
 @preconcurrency import SwiftyGPIO
 
@@ -100,4 +101,33 @@ public struct MPCExample: Sendable {
     func mcpVoltage(outputCode: UInt64, voltageReference: Double) -> Double {
         return Double(outputCode) * voltageReference / 1024.0
     }
+}
+
+extension MPCExample: PiClientAPI {
+    public func getLEDState() async throws -> SECommon.LEDState {
+        let gpios = SwiftyGPIO.GPIOs(for: .RaspberryPi4)
+        guard let ledGPIO = gpios[.P21] else {
+            print("Could not read GPIO")
+            throw RoutesError.gpioError
+        }
+        ledGPIO.direction = .OUT
+        return LEDState(on: ledGPIO.value == 1 ? true : false)
+    }
+    
+    public func updateLEDState(on: Bool) async throws -> SECommon.LEDState {
+        let gpios = SwiftyGPIO.GPIOs(for: .RaspberryPi4)
+        guard let ledGPIO = gpios[.P21] else {
+            print("Could not read GPIO")
+            throw RoutesError.gpioError
+        }
+        let state = LEDState(on: on)
+        ledGPIO.direction = .OUT
+        ledGPIO.value = state.on ? 1 : 0
+        return state
+    }
+}
+
+enum RoutesError: LocalizedError {
+    case unexpectedBody
+    case gpioError
 }

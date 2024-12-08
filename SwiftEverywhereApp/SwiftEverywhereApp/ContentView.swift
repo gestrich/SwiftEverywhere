@@ -1,7 +1,8 @@
+import SECommon
 import SwiftUI
 
 struct ContentView: View {
-    @State var led: LEDResponse = LEDResponse(on: false)
+    @State var ledState: LEDState = LEDState(on: false)
     @State private var showSettings = false
     @AppStorage("serverURL") private var serverURL: String = ""
     @State var viewLoaded = false
@@ -19,7 +20,7 @@ struct ContentView: View {
                 }
             } label: {
                 Group {
-                    if led.on {
+                    if ledState.on {
                         Image(systemName: "lightbulb.fill")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -51,32 +52,32 @@ struct ContentView: View {
         }
     }
 
+    @MainActor
     func loadLEDState() async throws {
-        guard let url = URL(string: "\(serverURL)/led") else {
-            print("Invalid URL")
-            return
+        guard let apiClient else {
+            throw ContentViewError.missingBaseURL
         }
-        let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
-        let value = try JSONDecoder().decode(LEDResponse.self, from: data)
-        self.led = value
+        self.ledState = try await apiClient.getLEDState()
     }
 
     @MainActor
     func toggleLEDState() async throws {
-        guard let url = URL(string: "\(serverURL)/led") else {
-            print("Invalid URL")
-            return
+        guard let apiClient else {
+            throw ContentViewError.missingBaseURL
         }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let newState = LEDResponse(on: !led.on)
-        let encodedData = try JSONEncoder().encode(newState)
-        request.httpBody = encodedData
-
-        let (data, _) = try await URLSession.shared.data(for: request)
-        self.led = try JSONDecoder().decode(LEDResponse.self, from: data)
+        ledState = try await apiClient.updateLEDState(on: !ledState.on)
+    }
+    
+    var apiClient: PiClientAPIImplementation? {
+        guard let url = URL(string: "\(serverURL)") else {
+            return nil
+        }
+        
+        return PiClientAPIImplementation(baseURL: url)
+    }
+    
+    enum ContentViewError: Error {
+        case missingBaseURL
     }
 }
 
@@ -108,8 +109,4 @@ struct SettingsView: View {
 
 #Preview {
     ContentView()
-}
-
-struct LEDResponse: Codable {
-    let on: Bool
 }
