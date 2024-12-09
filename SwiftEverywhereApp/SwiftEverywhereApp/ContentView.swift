@@ -60,6 +60,19 @@ struct ContentView: View {
                         showSettings = true
                     }
                 }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        Task {
+                            try await loadLEDState()
+                        }
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                    }
+
+                    Button("Settings") {
+                        showSettings = true
+                    }
+                }
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView(urlStore: urlStore)
