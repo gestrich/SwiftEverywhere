@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "SwiftEverywhereLambda",
+    name: "SwiftEverywhere",
     platforms: [
         .iOS(.v16), .macOS(.v14)
     ],
@@ -40,7 +40,6 @@ let package = Package(
                 .target(name: "SwiftServerApp")
             ]
         ),
-        
         .target(
             name: "SwiftServerApp",
             dependencies: [
