@@ -30,7 +30,7 @@ After=network.target
 
 [Service]
 ExecStart=/usr/bin/bash run.sh
-WorkingDirectory=/home/bill/SwiftEverywhere
+WorkingDirectory=/home/bill/SwiftEverywhere/SwiftEverywhere
 Restart=always
 User=bill
 
