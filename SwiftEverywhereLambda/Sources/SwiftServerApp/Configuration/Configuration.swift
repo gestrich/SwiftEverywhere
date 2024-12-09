@@ -9,8 +9,8 @@ import Foundation
 
 struct Configuration: Codable {
 
+    let piConfiguration: PiConfiguration
     let s3: S3Configuration
-    let postgres: PostgresConfiguration
     
     static func loadConfiguration(fileURL: URL) throws -> Configuration {
         let data = try Data(contentsOf: fileURL)

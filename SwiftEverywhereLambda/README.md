@@ -8,3 +8,4 @@ An example lambda with DynamoDB storage and APIGW
 
 * sam build;
 * sam deploy;
+* After deploy, add your Raspberry pi url to Secrets manager for "pi-url"

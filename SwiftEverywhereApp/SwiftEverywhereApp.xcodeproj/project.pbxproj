@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A94811482D06725100CD8AE9 /* SECommon in Frameworks */ = {isa = PBXBuildFile; productRef = A94811472D06725100CD8AE9 /* SECommon */; };
 		A99D25C32D0638CF005C7B4C /* SECommon in Frameworks */ = {isa = PBXBuildFile; productRef = A99D25C22D0638CF005C7B4C /* SECommon */; };
 		A9C4784E2D06077F0037C47A /* SECommon in Frameworks */ = {isa = PBXBuildFile; productRef = A9C4784D2D06077F0037C47A /* SECommon */; };
 /* End PBXBuildFile section */
@@ -70,6 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A94811482D06725100CD8AE9 /* SECommon in Frameworks */,
 				A9C4784E2D06077F0037C47A /* SECommon in Frameworks */,
 				A99D25C32D0638CF005C7B4C /* SECommon in Frameworks */,
 			);
@@ -134,6 +136,7 @@
 			packageProductDependencies = (
 				A9C4784D2D06077F0037C47A /* SECommon */,
 				A99D25C22D0638CF005C7B4C /* SECommon */,
+				A94811472D06725100CD8AE9 /* SECommon */,
 			);
 			productName = SwiftEverywhereApp;
 			productReference = A9620FB72D0462D800D1A5B2 /* SwiftEverywhereApp.app */;
@@ -218,7 +221,7 @@
 			mainGroup = A9620FAE2D0462D800D1A5B2;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				A99D25C12D0638CF005C7B4C /* XCLocalSwiftPackageReference "../SECommon" */,
+				A94811462D06725100CD8AE9 /* XCLocalSwiftPackageReference "../SwiftEverywhereLambda" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A9620FB82D0462D800D1A5B2 /* Products */;
@@ -587,13 +590,17 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		A99D25C12D0638CF005C7B4C /* XCLocalSwiftPackageReference "../SECommon" */ = {
+		A94811462D06725100CD8AE9 /* XCLocalSwiftPackageReference "../SwiftEverywhereLambda" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../SECommon;
+			relativePath = ../SwiftEverywhereLambda;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A94811472D06725100CD8AE9 /* SECommon */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SECommon;
+		};
 		A99D25C22D0638CF005C7B4C /* SECommon */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SECommon;

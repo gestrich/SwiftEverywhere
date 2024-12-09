@@ -5,8 +5,8 @@
 //  Created by Bill Gestrich on 12/2/24.
 //
 
-import SECommon
 import Foundation
+import SECommon
 @preconcurrency import SwiftyGPIO
 
 public struct MPCExample: Sendable {

@@ -10,7 +10,6 @@ import Foundation
 public class ConfigurationService {
 
     private let configFileURL = Configuration.localConfigFileURL()
-    private static let postgresUserPasswordIdentifierKey = "mops/swift-lambda-sample/password" //TODO: Pass this key from environment
     private let secretsService: SecretsService
 
     public init(secretsService: SecretsService) {
@@ -25,36 +24,21 @@ public class ConfigurationService {
         return try Configuration.loadConfiguration(fileURL: configFileURL)
     }
 
-    //MARK: AWS Credentials 
-
-    //MARK: Postgres
-
-    public func postgresConfiguration() async throws -> PostgresConfiguration {
+    // MARK: AWS Credentials
+    
+    // MARK: Pi
+    
+    public func piConfiguration() async throws -> PiConfiguration {
         if let configuration = try await configurationFromFile() {
-            return configuration.postgres
+            return configuration.piConfiguration
         } else {
-            return try await postgresConfigurationFromEnvironment()
+            return try await piConfigurationFromEnvironment()
         }
     }
-
-    private func postgresConfiguration(fileURL: URL) async throws -> PostgresConfiguration {
-        let data = try Data(contentsOf: fileURL)
-        return try JSONDecoder().decode(PostgresConfiguration.self, from: data)
-    }
-
-    private func postgresConfigurationFromEnvironment() async throws -> PostgresConfiguration {
-
-        let databaseName = try getEnvironmentVariable(key: "POSTGRES_DBNAME")
-        let databaseIdentifier = "swift-sample-app" //TODO: Should this be configurable from environment?
-        let databaseHost = try getEnvironmentVariable(key: "POSTGRES_HOST")
-        let databasePortString = try getEnvironmentVariable(key: "POSTGRES_PORT")
-        guard let port = Int(databasePortString) else {
-            throw ConfigurationError.typeConversion("Could not convert port to Int: \(databasePortString)")
-        }
-        let tableName = "swift-sample-app" // try getEnvironmentVariable(key: "POSTGRES_TABLE_NAME")
-        let databaseUserName = try getEnvironmentVariable(key: "POSTGRES_USER_NAME")
-        let databasePassword = try await secretsService.getSecret(identifier: Self.postgresUserPasswordIdentifierKey)
-        return PostgresConfiguration(name: databaseName, identifier: databaseIdentifier, host: databaseHost, port: port, tableName: tableName, userName: databaseUserName, userPassword: databasePassword)
+    
+    private func piConfigurationFromEnvironment() async throws -> PiConfiguration {
+        let piURL = try await secretsService.getSecret(identifier: "pi-url")
+        return PiConfiguration(url: piURL)
     }
 
     //MARK: S3

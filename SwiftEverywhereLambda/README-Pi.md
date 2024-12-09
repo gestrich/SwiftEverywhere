@@ -1,6 +1,5 @@
 # SwiftEverywhere
 
-
 ## Overview
 
 This demonstrates using Swift with a Raspberry Pi

@@ -11,6 +11,7 @@ import AWSLambdaRuntime
 import Foundation
 import NIO
 import NIOHelpers
+import SECommon
 import SwiftServerApp
 
 struct APIGWHandler: EventLoopLambdaHandler {
@@ -31,10 +32,10 @@ struct APIGWHandler: EventLoopLambdaHandler {
 
         //TODO: The Lambda.InitializationContext can hold resources that can be reused on every request.
         //It may be more performant to use that to hold onto our database connections.
-//        let services = ServiceComposer(eventLoop: context.eventLoop)
+        let services = ServiceComposer(eventLoop: context.eventLoop)
 
         do {
-            let response = try await route(event: event)
+            let response = try await route(event: event, app: services.app)
 //            try await services.shutdown()
             return response
         } catch {
@@ -46,8 +47,8 @@ struct APIGWHandler: EventLoopLambdaHandler {
         }
     }
 
-    func route(event: In) async throws -> APIGateway.Response {
-//    func route(event: In, app: SwiftServerApp) async throws -> APIGateway.Response {
+//    func route(event: In) async throws -> APIGateway.Response {
+    func route(event: In, app: SwiftServerApp) async throws -> APIGateway.Response {
 
         let leadingPathPart = "" // Use this if you there a leading part in your path, like "api" or "stage"
 
@@ -66,11 +67,14 @@ struct APIGWHandler: EventLoopLambdaHandler {
         case "led":
             switch event.httpMethod {
             case .GET:
-//                try await app.resetDatabase()
-                return try "LED Get REquested".apiGatewayOkResponse()
+                return try await app.getLEDState().apiGatewayOkResponse()
             case .POST:
-                // try await app.initializeDatabase()
-                return try "LED Post Requested".apiGatewayOkResponse()
+                guard let bodyData = event.bodyData() else {
+                    throw APIGWHandlerError.general(description: "Missing body data")
+                }
+
+                let ledState = try JSONDecoder().decode(LEDState.self, from: bodyData)
+                return try await app.updateLEDState(ledState).apiGatewayOkResponse()
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }
@@ -124,17 +128,5 @@ extension String {
         }
 
         return result
-    }
-}
-
-extension User {
-    func applyCreateUserRequest(_ createUser: CreateUser) {
-        email = createUser.email
-        password = createUser.password
-        firstName = createUser.firstName
-        lastName = createUser.lastName
-        nickName = createUser.nickName
-        phone = createUser.phone
-        slackID = createUser.slackID
     }
 }

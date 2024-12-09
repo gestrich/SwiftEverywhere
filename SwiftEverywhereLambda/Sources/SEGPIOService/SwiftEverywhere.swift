@@ -6,6 +6,7 @@
 
 import ArgumentParser
 import Foundation
+import SECommon
 import SEGPIO
 import SwiftyGPIO
 

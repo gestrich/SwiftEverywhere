@@ -23,12 +23,10 @@ let package = Package(
         .package(url: "https://github.com/gestrich/swift-server-utilities.git", "0.1.4"..<"0.2.0"),
 
         .package(url: "https://github.com/swift-server/swift-aws-lambda-runtime.git", "0.5.1"..<"1.0.0"),
-.package(url: "https://github.com/gestrich/SwiftyGPIO", branch: "bugfix/2024-12-pi-memory-address"),
-// .package(path: "../SwiftyGPIO")
-.package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
-        .package(url: "https://github.com/vapor/fluent-postgres-driver.git", "2.2.0"..<"3.0.0"),
-        .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", "4.0.0"..<"5.0.0"),
-	.package(url: "https://github.com/vapor/vapor.git", from: "4.99.3"),
+        .package(url: "https://github.com/gestrich/SwiftyGPIO", branch: "bugfix/2024-12-pi-memory-address"),
+        // .package(path: "../SwiftyGPIO")
+        .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.99.3"),
     ],
     targets: [
         .target(
@@ -46,8 +44,6 @@ let package = Package(
         .target(
             name: "SwiftServerApp",
             dependencies: [
-                .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
-                .product(name: "FluentSQLiteDriver", package: "fluent-sqlite-driver"),
                 "SECommon",
                 .product(name: "SotoS3", package: "soto"),
                 .product(name: "SotoSecretsManager", package: "soto"),
@@ -57,6 +53,7 @@ let package = Package(
             name: "SEGPIOService",
             dependencies: [
                 "SEGPIO",
+                "SECommon",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "SwiftyGPIO", package: "SwiftyGPIO")
             ]

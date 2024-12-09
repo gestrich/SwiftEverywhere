@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SECommon
 import SotoS3
 import SotoSecretsManager
 import SwiftServerApp
@@ -21,7 +22,7 @@ class ServiceComposer {
     let configurationService: ConfigurationService
     let cloudDataService: CloudDataStore
     let secretsService: SecretsService
-    let userStoreService: UserStoreProduction
+    let piClientSource: () async throws -> PiClientAPI
 
     private static func getEnvironmentVariable(key: String) -> String? {
         guard let rawVal = getenv(key) else {
@@ -54,17 +55,16 @@ class ServiceComposer {
 
         let cloudStoreFactory = CloudStoreFactory(configurationService: configurationService, awsClient: awsClient)
         self.cloudDataService = CloudDataStoreProduction(cloudStoreFactory: cloudStoreFactory.createCloudStore)
+        
+        let piClientFactory = PiClientFactory(configurationService: configurationService)
+        self.piClientSource = piClientFactory.createClientApiImplementation
 
-        let userStoreFactory = UserStoreFactory(configurationService: self.configurationService, eventLoop: eventLoop)
-        self.userStoreService = UserStoreProduction(userStoreFactory: userStoreFactory.createUserStore)
-
-        let app = SwiftServerApp(cloudDataStore: cloudDataService, userStore: userStoreService)
+        let app = SwiftServerApp(cloudDataStore: cloudDataService, piClientSource: piClientFactory.createClientApiImplementation)
         self.app = app
     }
     
     func shutdown() async throws {
         try await awsClient.shutdown()
-        try await userStoreService.shutdown()
     }
 }
 
@@ -79,13 +79,11 @@ struct CloudStoreFactory {
     }
 }
 
-struct UserStoreFactory {
-
+struct PiClientFactory {
     let configurationService: ConfigurationService
-    let eventLoop: EventLoop
 
-    func createUserStore() async throws -> UserStore {
-        let configuration = try await configurationService.postgresConfiguration()
-        return try await UserStorePostgres(eventLoop: eventLoop, configuration: configuration)
+    func createClientApiImplementation() async throws -> PiClientAPI {
+        let configuration = try await configurationService.piConfiguration()
+        return PiClientAPIImplementation(baseURL: URL(string: configuration.url)!)
     }
 }

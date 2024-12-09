@@ -2,15 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:SECommon">
-   </FileRef>
-   <FileRef
       location = "group:SwiftEverywhereApp/SwiftEverywhereApp.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:SwiftEverywhereLambda">
-   </FileRef>
-   <FileRef
-      location = "group:SwiftEverywherePi">
    </FileRef>
 </Workspace>

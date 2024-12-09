@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "SEServer"
-               BuildableName = "SEServer"
-               BlueprintName = "SEServer"
-               ReferencedContainer = "container:">
+               BlueprintIdentifier = "A9620FB62D0462D800D1A5B2"
+               BuildableName = "SwiftEverywhereApp.app"
+               BlueprintName = "SwiftEverywhereApp"
+               ReferencedContainer = "container:SwiftEverywhereApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -29,6 +29,30 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
       shouldAutocreateTestPlan = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A9620FC62D0462D900D1A5B2"
+               BuildableName = "SwiftEverywhereAppTests.xctest"
+               BlueprintName = "SwiftEverywhereAppTests"
+               ReferencedContainer = "container:SwiftEverywhereApp.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A9620FD02D0462D900D1A5B2"
+               BuildableName = "SwiftEverywhereAppUITests.xctest"
+               BlueprintName = "SwiftEverywhereAppUITests"
+               ReferencedContainer = "container:SwiftEverywhereApp.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -44,10 +68,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "SEServer"
-            BuildableName = "SEServer"
-            BlueprintName = "SEServer"
-            ReferencedContainer = "container:">
+            BlueprintIdentifier = "A9620FB62D0462D800D1A5B2"
+            BuildableName = "SwiftEverywhereApp.app"
+            BlueprintName = "SwiftEverywhereApp"
+            ReferencedContainer = "container:SwiftEverywhereApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -61,10 +85,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "SEServer"
-            BuildableName = "SEServer"
-            BlueprintName = "SEServer"
-            ReferencedContainer = "container:">
+            BlueprintIdentifier = "A9620FB62D0462D800D1A5B2"
+            BuildableName = "SwiftEverywhereApp.app"
+            BlueprintName = "SwiftEverywhereApp"
+            ReferencedContainer = "container:SwiftEverywhereApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

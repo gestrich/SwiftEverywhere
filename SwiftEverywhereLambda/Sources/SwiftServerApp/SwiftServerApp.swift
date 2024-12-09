@@ -6,87 +6,30 @@
 //
 
 import Foundation
+import SECommon
 
 public struct SwiftServerApp {
     
+    public typealias PiClientSource = () async throws -> PiClientAPI
+    
     let cloudDataStore: CloudDataStore?
-    let userStore: UserStore?
+    let piClientSource: () async throws -> PiClientAPI
     let s3FileKey = "hello-world.text"
     
-    public init(cloudDataStore: CloudDataStore? = nil, userStore: UserStore?) {
+    public init(cloudDataStore: CloudDataStore? = nil, piClientSource: @escaping PiClientSource) {
         self.cloudDataStore = cloudDataStore
-        self.userStore = userStore
+        self.piClientSource = piClientSource
     }
     
+    // MARK: Pi Service
     
-    //MARK: Database Service
-
-    public func initializeDatabase() async throws {
-        guard let userStore else {
-            throw LambdaDemoError.missingService(name: "userDatabaseService")
-        }
-        //TODO: This should not delete the database contents.
-        try await userStore.wipeAndInitialize()
+    public func getLEDState() async throws -> LEDState {
+        return try await piClientSource().getLEDState()
     }
-
-    public func resetDatabase() async throws {
-        guard let userStore else {
-            throw LambdaDemoError.missingService(name: "userDatabaseService")
-        }
-
-        try await userStore.wipeAndInitialize()
-    }
-
     
-    //MARK: User Service
-
-    public func createUser(_ createUserRequest: CreateUser) async throws -> String {
-        guard let userStore else {
-            throw LambdaDemoError.missingService(name: "userDatabaseService")
-        }
-
-        try await userStore.createUser(createUserRequest.toUser())
-
-        guard let user = try await userStore.getUsers().first else {
-            throw LambdaDemoError.unexpectedError(description: "Unexpected for Postgres not to return user.")
-        }
-        
-        return "Inserted and Read User: \(user.firstName) \(user.lastName)"
+    public func updateLEDState(_ state: LEDState) async throws -> LEDState {
+        return try await piClientSource().updateLEDState(on: state.on)
     }
-
-    public func getUser(id: String) async throws -> User? {
-        guard let userStore else {
-            throw LambdaDemoError.missingService(name: "userDatabaseService")
-        }
-
-        guard let uuid = UUID(uuidString: id) else {
-            throw LambdaDemoError.unexpectedError(description: "Invalid uuid: \(id).")
-        }
-        return try await userStore.getUser(id: uuid)
-    }
-
-    public func getUsers() async throws -> [User] {
-        guard let userStore else {
-            throw LambdaDemoError.missingService(name: "userDatabaseService")
-        }
-        return try await userStore.getUsers()
-    }
-
-    public func updateUser(_ user: User) async throws -> User {
-        guard let userStore else {
-            throw LambdaDemoError.missingService(name: "userDatabaseService")
-        }
-
-        return try await userStore.updateUser(user)
-    }
-
-    public func deleteUser(_ user: User) async throws {
-        guard let userStore else {
-            throw LambdaDemoError.missingService(name: "userDatabaseService")
-        }
-        try await userStore.deleteUser(user)
-    }
-
     
     //MARK: S3 Service
     

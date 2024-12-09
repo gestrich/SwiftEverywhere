@@ -11,6 +11,11 @@ Globals:
     MemorySize: 512
 
 Resources:
+  PiUrlSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: pi-url
+      Description: Secret to store the Pi URL
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -59,6 +64,14 @@ Resources:
             RestApiId: !Ref SwiftEverywhereAPI
       Policies:
       - AmazonDynamoDBFullAccess
+      - Statement:
+            Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pi-url*"
+      Environment:
+        Variables:
+          PI_URL_SECRET_NAME: "pi-url"
 Outputs:
   ApiEndpoint:
     Description: "API endpoint URL"
