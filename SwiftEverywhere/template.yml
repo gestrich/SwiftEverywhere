@@ -62,6 +62,18 @@ Resources:
             Path: /led
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
+        HostGet:
+          Type: Api
+          Properties:
+            Path: /host
+            Method: get
+            RestApiId: !Ref SwiftEverywhereAPI
+        HostPost:
+          Type: Api
+          Properties:
+            Path: /host
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
       Policies:
       - AmazonDynamoDBFullAccess
       - Statement:

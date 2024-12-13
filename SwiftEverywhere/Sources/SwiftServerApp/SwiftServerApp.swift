@@ -14,14 +14,28 @@ public struct SwiftServerApp {
     
     let cloudDataStore: CloudDataStore?
     let piClientSource: () async throws -> PiClientAPI
+    let dynamoStore: DynamoStoreService
     let s3FileKey = "hello-world.text"
     
-    public init(cloudDataStore: CloudDataStore? = nil, piClientSource: @escaping PiClientSource) {
+    public init(
+        cloudDataStore: CloudDataStore? = nil,
+        piClientSource: @escaping PiClientSource,
+        dynamoStore: DynamoStoreService
+    ) {
         self.cloudDataStore = cloudDataStore
         self.piClientSource = piClientSource
+        self.dynamoStore = dynamoStore
     }
     
     // MARK: Pi Service
+    
+    public func getHost() async throws -> Host? {
+        return try await dynamoStore.getLatestHost()
+    }
+    
+    public func updateHost(host: Host) async throws -> Host {
+        return try await dynamoStore.storeHost(host)
+    }
     
     public func getLEDState() async throws -> LEDState {
         return try await piClientSource().getLEDState()

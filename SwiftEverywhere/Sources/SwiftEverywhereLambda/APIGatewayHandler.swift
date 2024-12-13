@@ -29,7 +29,6 @@ struct APIGWHandler: EventLoopLambdaHandler {
 
     //Async variant
     func handle(context: Lambda.Context, event: APIGateway.Request) async throws -> APIGateway.Response {
-
         //TODO: The Lambda.InitializationContext can hold resources that can be reused on every request.
         //It may be more performant to use that to hold onto our database connections.
         let services = ServiceComposer(eventLoop: context.eventLoop)
@@ -78,6 +77,19 @@ struct APIGWHandler: EventLoopLambdaHandler {
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }
+        case "host":
+            switch event.httpMethod {
+            case .GET:
+                return try await app.getHost().apiGatewayOkResponse()
+            case .POST:
+                guard let bodyData = event.bodyData() else {
+                    throw APIGWHandlerError.general(description: "Missing body data")
+                }
+                let host = try JSONDecoder().decode(Host.self, from: bodyData)
+                return try await app.updateHost(host: host).apiGatewayOkResponse()
+            default:
+                throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
+            }
         default:
             return try "Path Not Found: \(firstComponent)".createAPIGatewayJSONResponse(statusCode: .notFound)
         }
@@ -96,7 +108,7 @@ enum APIGWHandlerError: LocalizedError {
 }
 
 extension Encodable {
-    //TODO: There is some overlap in the swift-server-utilities method name.
+    // TODO: There is some overlap in the swift-server-utilities method name.
     func apiGatewayOkResponse() throws -> APIGateway.Response {
         return try createAPIGatewayJSONResponse(statusCode: .ok)
     }

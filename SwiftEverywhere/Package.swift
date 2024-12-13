@@ -21,7 +21,6 @@ let package = Package(
         .package(url: "https://github.com/soto-project/soto.git", "6.8.0"..<"7.0.0"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
         .package(url: "https://github.com/gestrich/swift-server-utilities.git", "0.1.4"..<"0.2.0"),
-
         .package(url: "https://github.com/swift-server/swift-aws-lambda-runtime.git", "0.5.1"..<"1.0.0"),
         .package(url: "https://github.com/gestrich/SwiftyGPIO", branch: "bugfix/2024-12-pi-memory-address"),
         // .package(path: "../SwiftyGPIO")
@@ -44,6 +43,7 @@ let package = Package(
             name: "SwiftServerApp",
             dependencies: [
                 "SECommon",
+                .product(name: "SotoDynamoDB", package: "soto"),
                 .product(name: "SotoS3", package: "soto"),
                 .product(name: "SotoSecretsManager", package: "soto"),
             ]

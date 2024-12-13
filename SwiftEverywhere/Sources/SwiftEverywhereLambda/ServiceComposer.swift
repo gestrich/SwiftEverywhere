@@ -7,6 +7,7 @@
 
 import Foundation
 import SECommon
+import SotoDynamoDB
 import SotoS3
 import SotoSecretsManager
 import SwiftServerApp
@@ -22,6 +23,7 @@ class ServiceComposer {
     let configurationService: ConfigurationService
     let cloudDataService: CloudDataStore
     let secretsService: SecretsService
+    let dynamoStore: DynamoStoreService
     let piClientSource: () async throws -> PiClientAPI
 
     private static func getEnvironmentVariable(key: String) -> String? {
@@ -56,10 +58,12 @@ class ServiceComposer {
         let cloudStoreFactory = CloudStoreFactory(configurationService: configurationService, awsClient: awsClient)
         self.cloudDataService = CloudDataStoreProduction(cloudStoreFactory: cloudStoreFactory.createCloudStore)
         
+        self.dynamoStore = DynamoStoreService(db: DynamoDB(client: awsClient), tableName: "SwiftEverywhere")
+        
         let piClientFactory = PiClientFactory(configurationService: configurationService)
         self.piClientSource = piClientFactory.createClientApiImplementation
 
-        let app = SwiftServerApp(cloudDataStore: cloudDataService, piClientSource: piClientFactory.createClientApiImplementation)
+        let app = SwiftServerApp(cloudDataStore: cloudDataService, piClientSource: piClientFactory.createClientApiImplementation, dynamoStore: dynamoStore)
         self.app = app
     }
     
