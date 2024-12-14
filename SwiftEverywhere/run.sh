@@ -27,10 +27,6 @@ run_pi() {
         echo "Error: 'apiGatewayURL' is missing in the configuration file."
         exit 1
     fi
-    if [[ -z "$port" ]]; then
-        echo "Error: 'port' is missing in the configuration file."
-        exit 1
-    fi
 
     # Kill existing server instance on the specified port
     kill_existing_server "$port"
@@ -40,7 +36,7 @@ run_pi() {
 
     # Run the Swift server
     echo "Starting Swift server on port $port..."
-    swift run SEServer serve --env production --hostname "0.0.0.0" --port "$port"
+    swift run SEServer serve --env production --hostname "0.0.0.0" --port 8080 
 }
 
 # Function to upload the host details
