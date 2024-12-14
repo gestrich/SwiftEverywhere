@@ -29,7 +29,10 @@ Description=Swift Everywhere Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/bash run.sh
+ExecStart=/usr/bin/bash run.sh runPi
+StandardOutput=journal
+StandardError=journal
+Environment="LC_ALL=C.UTF-8"
 WorkingDirectory=/home/bill/SwiftEverywhere/SwiftEverywhere
 Restart=always
 User=bill
@@ -65,18 +68,18 @@ sudo journalctl -u swift_everywhere.service
 
 Create a new service file for uploadScript.sh:
 ```
-sudo vi /etc/systemd/system/uploadScript.timer
+sudo vi /etc/systemd/system/uploadScript.service
 ```
 Add the following:
 
 ```
 [Unit]
-Description=Run uploadScript.sh every hour
+Description=Upload host information every hour
 After=network.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/bash /home/bill/SwiftEverywhere/SwiftEverywhere/uploadScript.sh
+ExecStart=/usr/bin/bash run.sh upload_host
 WorkingDirectory=/home/bill/SwiftEverywhere/SwiftEverywhere
 User=bill
 

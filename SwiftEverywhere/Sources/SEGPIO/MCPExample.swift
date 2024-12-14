@@ -131,7 +131,7 @@ extension MPCExample: PiClientAPI {
         throw RoutesError.unsupportedMethod
     }
     
-    public func updateHost(ipAddress: String) async throws -> SECommon.Host {
+    public func updateHost(ipAddress: String, port: String) async throws -> SECommon.Host {
         throw RoutesError.unsupportedMethod
     }
 }
