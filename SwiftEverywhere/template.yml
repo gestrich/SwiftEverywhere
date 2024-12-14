@@ -42,7 +42,7 @@ Resources:
         AllowHeaders: "'content-type'"
         AllowOrigin: "'*'"
         AllowCredentials: "'*'"
-  SwiftEverywhereLambda:
+  SELambda:
     Type: AWS::Serverless::Function
     Metadata:
       BuildMethod: makefile

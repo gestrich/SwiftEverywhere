@@ -136,9 +136,8 @@ extension MPCExample: PiClientAPI {
     }
 }
 
-enum RoutesError: LocalizedError {
+private enum RoutesError: LocalizedError {
     case unexpectedBody
     case gpioError
     case unsupportedMethod
-    
 }

@@ -12,8 +12,8 @@ let package = Package(
             name: "SECommon",
             targets: ["SECommon"]),
         .executable(
-            name: "SwiftEverywhereLambda",
-            targets: ["SwiftEverywhereLambda"]
+            name: "SELambda",
+            targets: ["SELambda"]
         )
     ],
     
@@ -31,17 +31,11 @@ let package = Package(
         .target(
             name: "SECommon"),
         .executableTarget(
-            name: "SwiftEverywhereLambda",
+            name: "SELambda",
             dependencies: [
                 .product(name: "AWSLambdaHelpers", package: "swift-server-utilities"),
                 .product(name: "AWSLambdaRuntime", package: "swift-aws-lambda-runtime"),
                 .product(name: "NIOHelpers", package: "swift-server-utilities"),
-                .target(name: "SwiftServerApp")
-            ]
-        ),
-        .target(
-            name: "SwiftServerApp",
-            dependencies: [
                 "SECommon",
                 .product(name: "SotoDynamoDB", package: "soto"),
                 .product(name: "SotoS3", package: "soto"),
@@ -49,41 +43,25 @@ let package = Package(
             ]
         ),
         .executableTarget(
-            name: "SEGPIOService",
-            dependencies: [
-                "SEGPIO",
-                "SECommon",
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "SwiftyGPIO", package: "SwiftyGPIO")
-            ]
-        ),
-        .target(
-            name: "SEGPIO",
-            dependencies: [
-                .product(name: "SwiftyGPIO", package: "SwiftyGPIO")
-            ]
-        ),
-        .executableTarget(
-            name: "SEServer",
+            name: "SEPi",
             dependencies: [
                 .product(name: "NIOCore", package: "swift-nio"),
                 .product(name: "NIOPosix", package: "swift-nio"),
-                "SEGPIO",
                 "SECommon",
                 .product(name: "SwiftyGPIO", package: "SwiftyGPIO"),
                 .product(name: "Vapor", package: "vapor"),
             ]
         ),
         .testTarget(
-            name: "SwiftServerAppTests",
+            name: "SELambdaTests",
             dependencies: [
-                .target(name: "SwiftServerApp")
+                .target(name: "SELambda")
             ]
         ),
         .testTarget(
-            name: "SEServerTests",
+            name: "SEPiTests",
             dependencies: [
-                .target(name: "SEServer"),
+                .target(name: "SEPi"),
                 .product(name: "XCTVapor", package: "vapor"),
             ]
         )

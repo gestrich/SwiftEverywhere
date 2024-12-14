@@ -1,4 +1,3 @@
-import SEGPIO
 import Vapor
 
 // configures your application

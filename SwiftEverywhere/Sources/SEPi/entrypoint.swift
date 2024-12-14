@@ -1,7 +1,6 @@
 import Logging
 import NIOCore
 import NIOPosix
-import SEGPIO
 import SwiftyGPIO
 import Vapor
 

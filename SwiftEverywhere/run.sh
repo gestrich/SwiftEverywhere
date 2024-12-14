@@ -38,9 +38,9 @@ run_pi() {
     # Export the API_GATEWAY_URL environment variable
     export API_GATEWAY_URL="$apiGatewayURL"
 
-    # Run the Swift server
+    # Run SEPi server
     echo "Starting Swift server on port $port..."
-    swift run SEServer serve --env production --hostname "0.0.0.0" --port "$port"
+    swift run SEPi serve --env production --hostname "0.0.0.0" --port "$port"
 }
 
 # Function to upload the host details
