@@ -21,6 +21,12 @@ public struct DynamoStoreService {
         self.tableName = tableName
     }
     
+    func getItemsInPastMinutes<T: DynamoPartitioned>(type: T.Type, minutes: Int, referenceDate: Date) async throws -> [T] {
+        let interval = TimeInterval(minutes) * -60
+        let date = referenceDate.addingTimeInterval(interval)
+        return try await getItems(type: T.self, oldestDate: date, latestDate: referenceDate)
+    }
+    
     // Assumes the items use iso 8601 dates for their sort key.
     func getItems<T: DynamoPartitioned>(type: T.Type, oldestDate: Date, latestDate: Date) async throws -> [T] {
         let oldestDateAsString = Utils.iso8601Formatter.string(from: oldestDate)
@@ -56,29 +62,19 @@ public struct DynamoStoreService {
     
     // MARK: DynamoHost
     
-    public func getLatestHost() async throws -> DynamoHost? {
+    func getLatest<T: DynamoPartitioned>(type: T.Type) async throws -> T? {
         // TODO: Need a way to get the last IP address without using time based query
-        return try await self.getHostsInPastMinutes(60 * 60 * 24 * 365, referenceDate: Date()).last
+        return try await getItemsInPastMinutes(type: T.self, minutes: 60 * 60 * 24 * 365, referenceDate: Date()).last
     }
     
-    public func storeHost(_ host: DynamoHost) async throws -> DynamoHost {
+    func store<T: DynamoPartitioned>(type: T.Type, item: T) async throws -> T {
         let input = DynamoDB.PutItemCodableInput(
-            item: host,
+            item: item,
             tableName: tableName)
         _ = try await db.putItem(input)
-        return host
+        // TODO: Should return what was stored
+        return item
     }
-    
-    public func getHostsInPastMinutes(_ minutes: Int, referenceDate: Date) async throws -> [DynamoHost] {
-        let interval = TimeInterval(minutes) * -60
-        let date = referenceDate.addingTimeInterval(interval)
-        return try await self.getHostsSinceDate(oldestDate: date, latestDate: referenceDate)
-    }
-    
-    public func getHostsSinceDate(oldestDate: Date, latestDate: Date) async throws -> [DynamoHost] {
-        return try await getItems(type: DynamoHost.self, oldestDate: oldestDate, latestDate: latestDate)
-    }
-    
 }
 
 protocol DynamoPartitioned: Codable{

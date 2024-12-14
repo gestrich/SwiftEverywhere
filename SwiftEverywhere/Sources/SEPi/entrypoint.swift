@@ -24,7 +24,7 @@ enum Entrypoint {
         let boardType = SupportedBoard.RaspberryPi4_2024
         // let ledExample = LEDExample(boardType: boardType)
         // try ledExample.start()
-        let mpcExample = MPCExample(
+        let mpcExample = PiController(
             boardType: boardType,
             pollingScheduler: { initialDelay, delay, task in
                 app.eventLoopGroup.next().scheduleRepeatedTask(initialDelay: .seconds(Int64(initialDelay)), delay: .seconds(Int64(delay))) { _ in

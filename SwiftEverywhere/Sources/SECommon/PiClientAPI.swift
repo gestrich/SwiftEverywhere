@@ -12,4 +12,6 @@ public protocol PiClientAPI {
     func updateLEDState(on: Bool) async throws -> LEDState
     func getHost() async throws -> Host
     func updateHost(ipAddress: String, port: Int) async throws -> Host
+    func getLightSensorReading() async throws -> LightSensorReading
+    func updateLightSensorReading(value: Double) async throws -> LightSensorReading
 }

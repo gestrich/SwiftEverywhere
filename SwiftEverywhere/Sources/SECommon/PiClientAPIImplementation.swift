@@ -11,7 +11,6 @@ import FoundationNetworking
 #endif
 
 public struct PiClientAPIImplementation: PiClientAPI {
-    
     let baseURL: URL
     
     public init(baseURL: URL) {
@@ -54,6 +53,26 @@ public struct PiClientAPIImplementation: PiClientAPI {
 
         let (data, _) = try await URLSession.shared.data(for: request)
         return try JSONDecoder().decode(LEDState.self, from: data)
+    }
+    
+    public func getLightSensorReading() async throws -> LightSensorReading {
+        let url = baseURL.appending(component: "lightSensorReading")
+        let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
+        return try JSONDecoder().decode(LightSensorReading.self, from: data)
+    }
+    
+    public func updateLightSensorReading(value: Double) async throws -> LightSensorReading {
+        let url = baseURL.appending(component: "lightSensorReading")
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let newState = LightSensorReading(uploadDate: Date(), value: value)
+        let encodedData = try JSONEncoder().encode(newState)
+        request.httpBody = encodedData
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        return try JSONDecoder().decode(LightSensorReading.self, from: data)
     }
     
     enum APIImplelmentationError: Error {

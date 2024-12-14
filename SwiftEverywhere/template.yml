@@ -50,6 +50,18 @@ Resources:
       Architectures:
       - arm64
       Events:
+        HostGet:
+          Type: Api
+          Properties:
+            Path: /host
+            Method: get
+            RestApiId: !Ref SwiftEverywhereAPI
+        HostPost:
+          Type: Api
+          Properties:
+            Path: /host
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
         ledGet:
           Type: Api
           Properties:
@@ -62,16 +74,16 @@ Resources:
             Path: /led
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
-        HostGet:
+        lightSensorGet:
           Type: Api
           Properties:
-            Path: /host
+            Path: /lightSensorReading
             Method: get
             RestApiId: !Ref SwiftEverywhereAPI
-        HostPost:
+        lightSensorPost:
           Type: Api
           Properties:
-            Path: /host
+            Path: /lightSensorReading
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
       Policies:

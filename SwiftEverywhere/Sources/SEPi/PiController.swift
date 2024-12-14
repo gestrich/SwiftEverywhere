@@ -1,5 +1,5 @@
 //
-//  MPCExample.swift
+//  PiController.swift
 //  SwiftEverywherePi
 //
 //  Created by Bill Gestrich on 12/2/24.
@@ -9,7 +9,7 @@ import Foundation
 import SECommon
 @preconcurrency import SwiftyGPIO
 
-public struct MPCExample: Sendable {
+public struct PiController: Sendable {
     let boardType: SupportedBoard
     let ledGPIO: GPIO
     
@@ -37,9 +37,15 @@ public struct MPCExample: Sendable {
 
     func printValues() {
         // SPI
-        let voltage0Percent = getVoltage(channel: 0)
-        let voltage1Percent = getVoltage(channel: 1)
-        print("\u{1B}[1A\u{1B}[KChannel0: \(voltage0Percent)%, Channel1: \(voltage1Percent)%")
+        print("\u{1B}[1A\u{1B}[KChannel0: \(soundSensorValue())%, Channel1: \(lightSensorValue())%")
+    }
+    
+    func lightSensorValue() -> Int {
+        return getVoltage(channel: 0)
+    }
+    
+    func soundSensorValue() -> Int {
+        return getVoltage(channel: 1)
     }
 
     func monitorButtonPress() {
@@ -103,8 +109,15 @@ public struct MPCExample: Sendable {
     }
 }
 
-extension MPCExample: PiClientAPI {
-
+extension PiController: PiClientAPI {
+    public func getHost() async throws -> SECommon.Host {
+        throw RoutesError.unsupportedMethod
+    }
+    
+    public func updateHost(ipAddress: String, port: Int) async throws -> SECommon.Host {
+        throw RoutesError.unsupportedMethod
+    }
+    
     public func getLEDState() async throws -> SECommon.LEDState {
         let gpios = SwiftyGPIO.GPIOs(for: .RaspberryPi4)
         guard let ledGPIO = gpios[.P21] else {
@@ -127,11 +140,12 @@ extension MPCExample: PiClientAPI {
         return state
     }
     
-    public func getHost() async throws -> SECommon.Host {
-        throw RoutesError.unsupportedMethod
+    public func getLightSensorReading() async throws -> SECommon.LightSensorReading {
+        let value = getVoltage(channel: 1)
+        return LightSensorReading(uploadDate: Date(), value: Double(value))
     }
     
-    public func updateHost(ipAddress: String, port: Int) async throws -> SECommon.Host {
+    public func updateLightSensorReading(value: Double) async throws -> SECommon.LightSensorReading {
         throw RoutesError.unsupportedMethod
     }
 }

@@ -62,6 +62,19 @@ struct APIGWHandler: EventLoopLambdaHandler {
         }
 
         switch firstComponent {
+        case "host":
+            switch event.httpMethod {
+            case .GET:
+                return try await app.getHost().apiGatewayOkResponse()
+            case .POST:
+                guard let bodyData = event.bodyData() else {
+                    throw APIGWHandlerError.general(description: "Missing body data")
+                }
+                let host = try JSONDecoder().decode(Host.self, from: bodyData)
+                return try await app.updateHost(host: host).apiGatewayOkResponse()
+            default:
+                throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
+            }
         case "led":
             switch event.httpMethod {
             case .GET:
@@ -76,16 +89,17 @@ struct APIGWHandler: EventLoopLambdaHandler {
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }
-        case "host":
+        case "lightSensorReading":
             switch event.httpMethod {
             case .GET:
-                return try await app.getHost().apiGatewayOkResponse()
+                return try await app.piClientSource().getLightSensorReading().apiGatewayOkResponse()
             case .POST:
                 guard let bodyData = event.bodyData() else {
                     throw APIGWHandlerError.general(description: "Missing body data")
                 }
-                let host = try JSONDecoder().decode(Host.self, from: bodyData)
-                return try await app.updateHost(host: host).apiGatewayOkResponse()
+
+                let reading = try JSONDecoder().decode(LightSensorReading.self, from: bodyData)
+                return try await app.dynamoStore.store(type: DynamoLightSensorReading.self, item: DynamoLightSensorReading(reading: reading)).apiGatewayOkResponse()
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }

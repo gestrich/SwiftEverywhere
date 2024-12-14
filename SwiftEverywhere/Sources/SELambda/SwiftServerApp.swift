@@ -30,12 +30,12 @@ public struct SwiftServerApp {
     // MARK: Pi Service
     
     public func getHost() async throws -> SECommon.Host? {
-        return try await dynamoStore.getLatestHost()?.toHost()
+        return try await dynamoStore.getLatest(type: DynamoHost.self)?.toHost()
     }
     
     public func updateHost(host: SECommon.Host) async throws -> SECommon.Host {
         let dynamoHost = DynamoHost(host: host)
-        return try await dynamoStore.storeHost(dynamoHost).toHost()
+        return try await dynamoStore.store(type: DynamoHost.self, item: dynamoHost).toHost()
     }
     
     public func getLEDState() async throws -> LEDState {
