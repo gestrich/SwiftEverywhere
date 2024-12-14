@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+# Kill existing server instance if any
+lsof -i :8080 | awk '{system("kill -9 " $2)}'
+
 # Define the configuration file path
 CONFIG_FILE=".configuration.json"
 
