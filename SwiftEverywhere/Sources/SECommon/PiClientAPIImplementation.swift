@@ -36,7 +36,7 @@ public struct PiClientAPIImplementation: PiClientAPI {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = hostData
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, _) = try await URLSession.shared.data(for: request)
         return try JSONDecoder().decode(Host.self, from: data)
     }
     

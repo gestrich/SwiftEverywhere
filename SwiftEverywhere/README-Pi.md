@@ -69,6 +69,14 @@ This is out of the scope of this guide but your api endpoint will look like:
 
 http://<ip address>:<port>
 
+### Setup configuration
+
+sudo apt-get install jq
+Add a .configuration file to SwiftEverywhere package directory with the following:
+{
+    "apiGatewayURL": "https://<api gw url>"
+}
+
 ### Running
 
-swift run SEServer serve --env production --hostname "0.0.0.0" --port "8080"
+./run.sh

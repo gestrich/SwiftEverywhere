@@ -24,16 +24,19 @@ func routes(_ app: Application, mpc: MPCExample) throws {
         guard let data = request.body.data else {
             throw RoutesError.unexpectedBody
         }
-        let hostUpdate = try JSONDecoder().decode(HostUpdate.self, from: data)
-        let client = PiClientAPIImplementation(baseURL: URL(string: hostUpdate.updateURL)!)
-        // TODO: Why is it saying `Host` is not able to be returned?
-        return try await client.updateHost(ipAddress: hostUpdate.host.ipAddress)
+        
+        guard let apiGatewayEnvValue = Environment.get("API_GATEWAY_URL") else {
+            throw RoutesError.missingAPIGatewayURL
+        }
+        
+        guard let apiGatewayURL = URL(string: apiGatewayEnvValue) else {
+            throw RoutesError.missingAPIGatewayURL
+        }
+        
+        let host = try JSONDecoder().decode(Host.self, from: data)
+        let client = PiClientAPIImplementation(baseURL: apiGatewayURL)
+        return try await client.updateHost(ipAddress: host.ipAddress)
     }
-}
-
-struct HostUpdate: Codable {
-    let updateURL: String
-    let host: SECommon.Host
 }
 
 extension SECommon.Host: Content {
@@ -46,4 +49,5 @@ extension LEDState: Content {
 
 enum RoutesError: LocalizedError {
     case unexpectedBody
+    case missingAPIGatewayURL
 }
