@@ -19,17 +19,13 @@ public struct PiClientAPIImplementation: PiClientAPI {
     }
     
     public func getHost() async throws -> Host {
-        guard let url = URL(string: "\(baseURL)/led") else {
-            throw APIImplelmentationError.invalidURL
-        }
+        let url = baseURL.appending(component: "led")
         let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
         return try JSONDecoder().decode(Host.self, from: data)
     }
     
     public func updateHost(ipAddress: String, port: Int) async throws -> SECommon.Host {
-        guard let url = URL(string: "\(baseURL)/host") else {
-            throw APIImplelmentationError.invalidURL
-        }
+        let url = baseURL.appending(component: "host")
         let host = Host(ipAddress: ipAddress, port: port, uploadDate: Date())
         let hostData = try JSONEncoder().encode(host)
         var request = URLRequest(url: url)
@@ -41,18 +37,13 @@ public struct PiClientAPIImplementation: PiClientAPI {
     }
     
     public func getLEDState() async throws -> LEDState {
-        guard let url = URL(string: "\(baseURL)/led") else {
-            throw APIImplelmentationError.invalidURL
-        }
+        let url = baseURL.appending(component: "led")
         let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
         return try JSONDecoder().decode(LEDState.self, from: data)
     }
 
     public func updateLEDState(on: Bool) async throws -> LEDState {
-        guard let url = URL(string: "\(baseURL)/led") else {
-            print("Invalid URL")
-            throw APIImplelmentationError.invalidURL
-        }
+        let url = baseURL.appending(component: "led")
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
