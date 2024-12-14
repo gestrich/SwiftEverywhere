@@ -26,7 +26,7 @@ public struct PiClientAPIImplementation: PiClientAPI {
         return try JSONDecoder().decode(Host.self, from: data)
     }
     
-    public func updateHost(ipAddress: String, port: String) async throws -> SECommon.Host {
+    public func updateHost(ipAddress: String, port: Int) async throws -> SECommon.Host {
         guard let url = URL(string: "\(baseURL)/host") else {
             throw APIImplelmentationError.invalidURL
         }

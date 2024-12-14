@@ -12,7 +12,7 @@ import SotoDynamoDB
 public struct DynamoHost: Codable {
     
     public let ipAddress: String
-    public let port: String
+    public let port: Int
     
     // These must match here and in the AWS SAM template.yml too
     public let uploadDate: String // Must be String type (aws RANGE) for sorting with this

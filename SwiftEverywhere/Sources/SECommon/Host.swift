@@ -9,10 +9,10 @@ import Foundation
 
 public struct Host: Codable {
     public let ipAddress: String
-    public let port: String
+    public let port: Int
     public let uploadDate: Date
     
-    public init(ipAddress: String, port: String, uploadDate: Date){
+    public init(ipAddress: String, port: Int, uploadDate: Date){
         self.ipAddress = ipAddress
         self.port = port
         self.uploadDate = uploadDate
