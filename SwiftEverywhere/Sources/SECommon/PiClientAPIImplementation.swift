@@ -11,10 +11,27 @@ import FoundationNetworking
 #endif
 
 public struct PiClientAPIImplementation: PiClientAPI {
+    
     let baseURL: URL
     
     public init(baseURL: URL) {
         self.baseURL = baseURL
+    }
+    
+    public func getHost() async throws -> Host {
+        guard let url = URL(string: "\(baseURL)/led") else {
+            throw APIImplelmentationError.invalidURL
+        }
+        let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
+        return try JSONDecoder().decode(Host.self, from: data)
+    }
+    
+    public func updateHost(ipAddress: String) async throws -> SECommon.Host {
+        guard let url = URL(string: "\(baseURL)/host") else {
+            throw APIImplelmentationError.invalidURL
+        }
+        let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
+        return try JSONDecoder().decode(Host.self, from: data)
     }
     
     public func getLEDState() async throws -> LEDState {

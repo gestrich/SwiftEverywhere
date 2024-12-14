@@ -104,6 +104,7 @@ public struct MPCExample: Sendable {
 }
 
 extension MPCExample: PiClientAPI {
+
     public func getLEDState() async throws -> SECommon.LEDState {
         let gpios = SwiftyGPIO.GPIOs(for: .RaspberryPi4)
         guard let ledGPIO = gpios[.P21] else {
@@ -125,9 +126,19 @@ extension MPCExample: PiClientAPI {
         ledGPIO.value = state.on ? 1 : 0
         return state
     }
+    
+    public func getHost() async throws -> SECommon.Host {
+        throw RoutesError.unsupportedMethod
+    }
+    
+    public func updateHost(ipAddress: String) async throws -> SECommon.Host {
+        throw RoutesError.unsupportedMethod
+    }
 }
 
 enum RoutesError: LocalizedError {
     case unexpectedBody
     case gpioError
+    case unsupportedMethod
+    
 }

@@ -54,14 +54,14 @@ public struct DynamoStoreService {
         return try await db.query(input)
     }
     
-    // MARK: Host
+    // MARK: DynamoHost
     
-    public func getLatestHost() async throws -> Host? {
+    public func getLatestHost() async throws -> DynamoHost? {
         // TODO: Need a way to get the last IP address without using time based query
         return try await self.getHostsInPastMinutes(60 * 60 * 24 * 365, referenceDate: Date()).last
     }
     
-    public func storeHost(_ host: Host) async throws -> Host {
+    public func storeHost(_ host: DynamoHost) async throws -> DynamoHost {
         let input = DynamoDB.PutItemCodableInput(
             item: host,
             tableName: tableName)
@@ -69,14 +69,14 @@ public struct DynamoStoreService {
         return host
     }
     
-    public func getHostsInPastMinutes(_ minutes: Int, referenceDate: Date) async throws -> [Host] {
+    public func getHostsInPastMinutes(_ minutes: Int, referenceDate: Date) async throws -> [DynamoHost] {
         let interval = TimeInterval(minutes) * -60
         let date = referenceDate.addingTimeInterval(interval)
         return try await self.getHostsSinceDate(oldestDate: date, latestDate: referenceDate)
     }
     
-    public func getHostsSinceDate(oldestDate: Date, latestDate: Date) async throws -> [Host] {
-        return try await getItems(type: Host.self, oldestDate: oldestDate, latestDate: latestDate)
+    public func getHostsSinceDate(oldestDate: Date, latestDate: Date) async throws -> [DynamoHost] {
+        return try await getItems(type: DynamoHost.self, oldestDate: oldestDate, latestDate: latestDate)
     }
     
 }
