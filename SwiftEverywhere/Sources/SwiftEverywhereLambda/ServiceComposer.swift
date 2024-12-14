@@ -60,7 +60,7 @@ class ServiceComposer {
         
         self.dynamoStore = DynamoStoreService(db: DynamoDB(client: awsClient), tableName: "SwiftEverywhere")
         
-        let piClientFactory = PiClientFactory(configurationService: configurationService)
+        let piClientFactory = PiClientFactory(dynamoStore: self.dynamoStore, configurationService: configurationService)
         self.piClientSource = piClientFactory.createClientApiImplementation
 
         let app = SwiftServerApp(cloudDataStore: cloudDataService, piClientSource: piClientFactory.createClientApiImplementation, dynamoStore: dynamoStore)
@@ -84,10 +84,19 @@ struct CloudStoreFactory {
 }
 
 struct PiClientFactory {
-    let configurationService: ConfigurationService
+    let dynamoStore: DynamoStoreService
+    let configurationService: ConfigurationService // For any secrets
 
     func createClientApiImplementation() async throws -> PiClientAPI {
-        let configuration = try await configurationService.piConfiguration()
-        return PiClientAPIImplementation(baseURL: URL(string: configuration.url)!)
+        guard let host = try await dynamoStore.getLatestHost() else {
+            throw PiClientFactory.missingPiHost
+        }
+
+        let url = "http://\(host.ipAddress):\(host.port)"
+        return PiClientAPIImplementation(baseURL: URL(string: url)!)
+    }
+    
+    enum PiClientFactory: Error {
+        case missingPiHost
     }
 }

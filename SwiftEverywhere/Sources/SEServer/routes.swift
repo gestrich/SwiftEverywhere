@@ -35,7 +35,7 @@ func routes(_ app: Application, mpc: MPCExample) throws {
         
         let host = try JSONDecoder().decode(Host.self, from: data)
         let client = PiClientAPIImplementation(baseURL: apiGatewayURL)
-        return try await client.updateHost(ipAddress: host.ipAddress)
+        return try await client.updateHost(ipAddress: host.ipAddress, port: host.port)
     }
 }
 

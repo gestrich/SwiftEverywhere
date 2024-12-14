@@ -12,6 +12,7 @@ import SotoDynamoDB
 public struct DynamoHost: Codable {
     
     public let ipAddress: String
+    public let port: String
     
     // These must match here and in the AWS SAM template.yml too
     public let uploadDate: String // Must be String type (aws RANGE) for sorting with this
@@ -19,6 +20,7 @@ public struct DynamoHost: Codable {
     
     public init(host: SECommon.Host){
         self.ipAddress = host.ipAddress
+        self.port = host.port
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions.insert(.withFractionalSeconds)
         self.uploadDate = formatter.string(from: host.uploadDate)
@@ -31,7 +33,7 @@ public struct DynamoHost: Codable {
         guard let date = formatter.date(from: uploadDate) else {
             throw DynamoHostError.invalidUploadDate
         }
-        return Host(ipAddress: ipAddress, uploadDate: date)
+        return Host(ipAddress: ipAddress, port: port, uploadDate: date)
     }
     
     enum DynamoHostError: Error {
