@@ -18,24 +18,22 @@ run_pi() {
         exit 1
     fi
 
-    # Extract the apiGatewayURL and port from the configuration file
+    # Extract the apiGatewayURL from the configuration file
     apiGatewayURL=$(jq -r '.apiGatewayURL // empty' "$CONFIG_FILE")
-    port=$(jq -r '.port // empty' "$CONFIG_FILE")
 
-    # Check if apiGatewayURL and port are set
+    # Check if apiGatewayURL is set 
     if [[ -z "$apiGatewayURL" ]]; then
         echo "Error: 'apiGatewayURL' is missing in the configuration file."
         exit 1
     fi
 
-    # Kill existing server instance on the specified port
-    kill_existing_server "$port"
+    kill_existing_server 8080
 
     # Export the API_GATEWAY_URL environment variable
     export API_GATEWAY_URL="$apiGatewayURL"
 
     # Run SEPi server
-    echo "Starting Swift server on port $port..."
+    echo "Starting Swift server..."
     swift run SEPi serve --env production --hostname "0.0.0.0" --port 8080 
 }
 
@@ -77,7 +75,7 @@ EOF
 
     # Send the POST request with curl
     echo "Uploading host details to the server on port $port..."
-    curl -X POST http://localhost:$port/updateHost \
+    curl -X POST http://localhost:8080/updateHost \
         -H "Content-Type: application/json" \
         -d "$payload"
 }
