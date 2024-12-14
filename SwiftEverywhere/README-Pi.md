@@ -19,7 +19,7 @@ When you reach the option to set "customizations":
 
 nohup swift run > output.log 2>&1 &
 
-##  Create a systemd Service File
+##  Run Vapor App on Startup
 
 sudo vi /etc/systemd/system/swift_everywhere.service
 
@@ -61,6 +61,60 @@ sudo systemctl restart swift_everywhere.service
 
 sudo journalctl -u swift_everywhere.service
 
+## Upload IP Address hourly
+
+Create a new service file for uploadScript.sh:
+```
+sudo vi /etc/systemd/system/uploadScript.timer
+```
+Add the following:
+
+```
+[Unit]
+Description=Run uploadScript.sh every hour
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash /home/bill/SwiftEverywhere/SwiftEverywhere/uploadScript.sh
+WorkingDirectory=/home/bill/SwiftEverywhere/SwiftEverywhere
+User=bill
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Create a timer file to run the script hourly:
+
+```
+sudo vi /etc/systemd/system/uploadScript.timer
+```
+
+```
+[Unit]
+Description=Timer to run uploadScript.service every hour
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+Reload systemd to recognize the new service and timer:
+
+```
+sudo systemctl daemon-reload
+```
+Enable the timer to start at boot:
+```
+sudo systemctl enable uploadScript.timer
+```
+Start the timer:
+```
+sudo systemctl start uploadScript.timer 
+```
 # Vapor App
 
 ### Port Forwarding
