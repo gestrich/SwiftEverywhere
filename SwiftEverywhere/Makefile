@@ -1,6 +1,6 @@
 ### Add functions here and link them to builder-bit format MUST BE "build-FunctionResourceName in template.yaml"
 
-build-SwiftEverywhereLambda: builder-bot
+build-SELambda: builder-bot
 
 ######################  No Change required below this line  ##########################
 

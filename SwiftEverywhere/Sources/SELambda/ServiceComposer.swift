@@ -10,7 +10,6 @@ import SECommon
 import SotoDynamoDB
 import SotoS3
 import SotoSecretsManager
-import SwiftServerApp
 
 /*
  Manages the lifecycle and configuration of your services.

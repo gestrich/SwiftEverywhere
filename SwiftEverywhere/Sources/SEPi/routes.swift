@@ -1,5 +1,4 @@
 import SECommon
-import SEGPIO
 @preconcurrency import SwiftyGPIO
 import Vapor
 
@@ -47,7 +46,7 @@ extension LEDState: Content {
     
 }
 
-enum RoutesError: LocalizedError {
+private enum RoutesError: LocalizedError {
     case unexpectedBody
     case missingAPIGatewayURL
 }

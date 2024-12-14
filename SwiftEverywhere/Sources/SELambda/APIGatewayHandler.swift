@@ -12,7 +12,6 @@ import Foundation
 import NIO
 import NIOHelpers
 import SECommon
-import SwiftServerApp
 
 struct APIGWHandler: EventLoopLambdaHandler {
 
