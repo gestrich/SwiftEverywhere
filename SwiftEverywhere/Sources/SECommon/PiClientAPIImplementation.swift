@@ -30,7 +30,13 @@ public struct PiClientAPIImplementation: PiClientAPI {
         guard let url = URL(string: "\(baseURL)/host") else {
             throw APIImplelmentationError.invalidURL
         }
-        let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
+        let host = Host(ipAddress: ipAddress, uploadDate: Date())
+        let hostData = try JSONEncoder().encode(host)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = hostData
+        let (data, response) = try await URLSession.shared.data(for: request)
         return try JSONDecoder().decode(Host.self, from: data)
     }
     
