@@ -37,6 +37,11 @@ run_pi() {
     swift run SEPi serve --env production --hostname "0.0.0.0" --port 8080 
 }
 
+sam_deploy() {
+  sam build;
+  sam deploy --no-confirm-changeset;
+}
+
 # Function to upload the host details
 upload_host() {
     # Define the configuration file path
@@ -85,11 +90,15 @@ case "$1" in
     runPi)
         run_pi
         ;;
+    samDeploy)
+        sam_deploy
+        ;;
+
     uploadHost)
         upload_host
         ;;
     *)
-        echo "Usage: $0 {runPi|uploadHost}"
+        echo "Usage: $0 {runPi|samDeploy|uploadHost}"
         exit 1
         ;;
 esac

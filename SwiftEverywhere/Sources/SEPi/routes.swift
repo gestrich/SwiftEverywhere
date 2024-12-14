@@ -27,7 +27,7 @@ func routes(_ app: Application, mpc: PiController) throws {
         return try await mpc.updateLEDState(on: state.on)
     }
     
-    app.post("lightSensorValue") { request in
+    app.get("lightSensorReading") { request in
         return try await mpc.getLightSensorReading()
     }
     

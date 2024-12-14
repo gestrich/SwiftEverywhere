@@ -21,7 +21,7 @@ public struct DynamoLightSensorReading: Codable {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions.insert(.withFractionalSeconds)
         self.uploadDate = formatter.string(from: reading.uploadDate)
-        self.partition = DynamoHost.partition
+        self.partition = DynamoLightSensorReading.partition
     }
     
     func toReading() throws -> LightSensorReading {
