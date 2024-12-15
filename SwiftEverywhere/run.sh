@@ -65,20 +65,21 @@ upload_host() {
     # Fetch the public IP address
     ipAddress=$(curl -4 -s ifconfig.me)
 
-    uploadDate=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    uploadDate="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
     # Construct the JSON payload
     payload=$(cat <<EOF
 {
     "ipAddress": "$ipAddress",
     "port": $port,
-    "uploadDate": $uploadDate
+    "uploadDate": "$uploadDate"
 }
 EOF
     )
 
     # Send the POST request with curl
     echo "Uploading host details to the server on port $port..."
+	echo "$payload"
     curl -X POST http://localhost:8080/updateHost \
         -H "Content-Type: application/json" \
         -d "$payload"
