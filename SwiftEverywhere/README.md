@@ -85,7 +85,7 @@ After=network.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/bash run.sh upload_host
+ExecStart=/usr/bin/bash run.sh postHost
 WorkingDirectory=/home/bill/SwiftEverywhere/SwiftEverywhere
 User=bill
 

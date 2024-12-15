@@ -8,8 +8,7 @@
 import Foundation
 import SECommon
 
-public struct SwiftServerApp {
-    
+public struct SwiftServerApp: PiClientAPI {
     public typealias PiClientSource = () async throws -> PiClientAPI
     
     let cloudDataStore: CloudDataStore?
@@ -29,13 +28,31 @@ public struct SwiftServerApp {
     
     // MARK: Pi Service
     
-    public func getHost() async throws -> SECommon.Host? {
-        return try await dynamoStore.getLatest(type: DynamoHost.self)?.toHost()
+    public func getHost() async throws -> SECommon.Host {
+        guard let result = try await dynamoStore.getLatest(type: DynamoHost.self)?.toHost() else {
+            throw LambdaDemoError.missingHost
+        }
+        return result
     }
     
-    public func updateHost(host: SECommon.Host) async throws -> SECommon.Host {
+    public func updateHost(_ host: SECommon.Host) async throws -> SECommon.Host {
         let dynamoHost = DynamoHost(host: host)
         return try await dynamoStore.store(type: DynamoHost.self, item: dynamoHost).toHost()
+    }
+    
+    public func getLightSensorReading() async throws -> LightSensorReading {
+        guard let result = try await dynamoStore.getLatest(type: DynamoLightSensorReading.self)?.toReading() else {
+            throw LambdaDemoError.noLightSensorReading
+        }
+        return result
+    }
+    
+    public func getLightSensorReadings(range: SECommon.DateRangeRequest) async throws -> [LightSensorReading] {
+        return try await dynamoStore.getItems(type: DynamoLightSensorReading.self, oldestDate: range.startDate, latestDate: range.endDate).compactMap { try? $0.toReading() }
+    }
+    
+    public func updateLightSensorReading(_ reading: LightSensorReading) async throws -> SECommon.LightSensorReading {
+        return try await dynamoStore.store(type: DynamoLightSensorReading.self, item: DynamoLightSensorReading(reading: reading)).toReading()
     }
     
     public func getLEDState() async throws -> LEDState {
@@ -43,7 +60,7 @@ public struct SwiftServerApp {
     }
     
     public func updateLEDState(_ state: LEDState) async throws -> LEDState {
-        return try await piClientSource().updateLEDState(on: state.on)
+        return try await piClientSource().updateLEDState(state)
     }
     
     //MARK: S3 Service
@@ -68,9 +85,11 @@ public struct SwiftServerApp {
     }
     
     
-    enum LambdaDemoError: LocalizedError {
+    private enum LambdaDemoError: LocalizedError {
         case missingService(name: String)
         case unexpectedError(description: String)
+        case missingHost
+        case noLightSensorReading
     }
     
 }

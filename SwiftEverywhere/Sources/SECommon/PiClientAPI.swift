@@ -9,9 +9,10 @@ import Foundation
 
 public protocol PiClientAPI {
     func getLEDState() async throws -> LEDState
-    func updateLEDState(on: Bool) async throws -> LEDState
+    func updateLEDState(_ state: LEDState) async throws -> LEDState
     func getHost() async throws -> Host
-    func updateHost(ipAddress: String, port: Int) async throws -> Host
+    func postHost(_ host: Host) async throws -> Host
     func getLightSensorReading() async throws -> LightSensorReading
-    func updateLightSensorReading(value: Double) async throws -> LightSensorReading
+    func getLightSensorReadings(range: DateRangeRequest) async throws -> [LightSensorReading]
+    func updateLightSensorReading(_ reading: LightSensorReading) async throws -> LightSensorReading
 }

@@ -8,7 +8,7 @@ kill_existing_server() {
 }
 
 # Function to run the Swift server
-run_pi() {
+runPi() {
     # Define the configuration file path
     CONFIG_FILE=".configuration.json"
 
@@ -37,13 +37,13 @@ run_pi() {
     swift run SEPi serve --env production --hostname "0.0.0.0" --port 8080 
 }
 
-sam_deploy() {
+samDeploy() {
   sam build;
   sam deploy --no-confirm-changeset;
 }
 
 # Function to upload the host details
-upload_host() {
+postHost() {
     # Define the configuration file path
     CONFIG_FILE=".configuration.json"
 
@@ -65,14 +65,11 @@ upload_host() {
     # Fetch the public IP address
     ipAddress=$(curl -4 -s ifconfig.me)
 
-    uploadDate="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-
     # Construct the JSON payload
     payload=$(cat <<EOF
 {
     "ipAddress": "$ipAddress",
-    "port": $port,
-    "uploadDate": "$uploadDate"
+    "port": $port
 }
 EOF
     )
@@ -80,7 +77,7 @@ EOF
     # Send the POST request with curl
     echo "Uploading host details to the server on port $port..."
 	echo "$payload"
-    curl -X POST http://localhost:8080/updateHost \
+    curl -X POST http://localhost:8080/host \
         -H "Content-Type: application/json" \
         -d "$payload"
 }
@@ -88,17 +85,17 @@ EOF
 # Main script execution based on the argument
 case "$1" in
     runPi)
-        run_pi
+        runPi
         ;;
     samDeploy)
-        sam_deploy
+        samDeploy
         ;;
 
-    uploadHost)
-        upload_host
+    postHost)
+        postHost
         ;;
     *)
-        echo "Usage: $0 {runPi|samDeploy|uploadHost}"
+        echo "Usage: $0 {runPi|samDeploy|postHost}"
         exit 1
         ;;
 esac

@@ -114,7 +114,7 @@ extension PiController: PiClientAPI {
         throw RoutesError.unsupportedMethod
     }
     
-    public func updateHost(ipAddress: String, port: Int) async throws -> SECommon.Host {
+    public func postHost(_ host: SECommon.Host) async throws -> SECommon.Host {
         throw RoutesError.unsupportedMethod
     }
     
@@ -128,13 +128,12 @@ extension PiController: PiClientAPI {
         return LEDState(on: ledGPIO.value == 1 ? true : false)
     }
     
-    public func updateLEDState(on: Bool) async throws -> SECommon.LEDState {
+    public func updateLEDState(_ state: LEDState) async throws -> LEDState {
         let gpios = SwiftyGPIO.GPIOs(for: .RaspberryPi4)
         guard let ledGPIO = gpios[.P21] else {
             print("Could not read GPIO")
             throw RoutesError.gpioError
         }
-        let state = LEDState(on: on)
         ledGPIO.direction = .OUT
         ledGPIO.value = state.on ? 1 : 0
         return state
@@ -145,7 +144,11 @@ extension PiController: PiClientAPI {
         return LightSensorReading(uploadDate: Date(), value: Double(value))
     }
     
-    public func updateLightSensorReading(value: Double) async throws -> SECommon.LightSensorReading {
+    public func updateLightSensorReading(_ reading: LightSensorReading) async throws -> LightSensorReading {
+        throw RoutesError.unsupportedMethod
+    }
+    
+    public func getLightSensorReadings(range: DateRangeRequest) async throws -> [LightSensorReading] {
         throw RoutesError.unsupportedMethod
     }
 }

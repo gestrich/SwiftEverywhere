@@ -7,7 +7,7 @@ func routes(_ app: Application, mpc: PiController) throws {
     app.eventLoopGroup.next().scheduleRepeatedTask(initialDelay: .seconds(1), delay: .minutes(5)) { task in
         Task {
             let reading = try await mpc.getLightSensorReading()
-            _ = try await piClient().updateLightSensorReading(value: reading.value)
+            _ = try await piClient().updateLightSensorReading(reading)
         }
     }
     
@@ -24,7 +24,7 @@ func routes(_ app: Application, mpc: PiController) throws {
             throw RoutesError.unexpectedBody
         }
         let state = try jsonDecoder().decode(LEDState.self, from: data)
-        return try await mpc.updateLEDState(on: state.on)
+        return try await mpc.updateLEDState(state)
     }
     
     app.get("lightSensorReading") { request in
@@ -33,15 +33,15 @@ func routes(_ app: Application, mpc: PiController) throws {
     
     app.post("updateLightSensorReading") { request in
         let reading = try await mpc.getLightSensorReading()
-        return try await piClient().updateLightSensorReading(value: reading.value)
+        return try await piClient().updateLightSensorReading(reading)
     }
     
-    app.post("updateHost") { request in
+    app.post("host") { request in
         guard let data = request.body.data else {
             throw RoutesError.unexpectedBody
         }
         let host = try jsonDecoder().decode(Host.self, from: data)
-        return try await piClient().updateHost(ipAddress: host.ipAddress, port: host.port)
+        return try await piClient().postHost(host)
     }
     
     @Sendable

@@ -9,6 +9,8 @@ struct ContentView: View {
     @State var lightState: LightSensorReading = LightSensorReading(uploadDate: Date(), value: 0.0)
     @State private var showSettings = false
     @State var viewLoaded = false
+    @State var timer: Timer?
+    @Environment(\.scenePhase) var scenePhase
     
     var body: some View {
         NavigationView {
@@ -30,7 +32,7 @@ struct ContentView: View {
                                 .aspectRatio(contentMode: .fit)
                                 .foregroundStyle(ledState.on ? Color.yellow : Color.gray )
                         }.frame(width: 25)
-                    }.opacity(viewLoaded ? 1.0 : 0.0)
+                    }
                 }
                 Section {
                     Text("\(lightState.value)")
@@ -43,7 +45,7 @@ struct ContentView: View {
                             .padding(.top)
                     }
                 }
-            }
+            }.opacity(viewLoaded ? 1.0 : 0.0)
             .navigationTitle("Swift Everywhere")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -68,10 +70,24 @@ struct ContentView: View {
         .task {
             do {
                 try await loadStates()
-                viewLoaded = true
             } catch {
                 print("Error: \(error)")
             }
+            viewLoaded = true
+        }
+        .onChange(of: scenePhase) { (oldPhase, newPhase) in
+            if newPhase == .active {
+                Task {
+                    try await loadStates()
+                }
+            }
+        }
+        .onAppear {
+            timer = Timer(timeInterval: 60.0, repeats: true, block: { _ in
+                Task {
+                    try await loadStates()
+                }
+            })
         }
     }
     

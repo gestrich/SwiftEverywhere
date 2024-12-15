@@ -17,77 +17,74 @@ public struct PiClientAPIImplementation: PiClientAPI {
         self.baseURL = baseURL
     }
     
+    // MARK: Host
+    
     public func getHost() async throws -> Host {
-        let url = baseURL.appending(component: "led")
-        let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
-        return try jsonDecoder.decode(Host.self, from: data)
+        return try await getData(outputType: Host.self, urlComponent: "host")
     }
     
-    public func updateHost(ipAddress: String, port: Int) async throws -> SECommon.Host {
-        let url = baseURL.appending(component: "host")
-        let host = Host(ipAddress: ipAddress, port: port, uploadDate: Date())
-        let hostData = try jsonEncoder.encode(host)
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = hostData
-        let (data, _) = try await URLSession.shared.data(for: request)
-        return try jsonDecoder.decode(Host.self, from: data)
+    public func postHost(_ host: Host) async throws -> SECommon.Host {
+        return try await postData(input: host, outputType: Host.self, urlComponent: "host")
     }
+    
+    // MARK: LED
     
     public func getLEDState() async throws -> LEDState {
-        let url = baseURL.appending(component: "led")
-        let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
-        return try jsonDecoder.decode(LEDState.self, from: data)
+        return try await getData(outputType: LEDState.self .self, urlComponent: "led")
     }
 
-    public func updateLEDState(on: Bool) async throws -> LEDState {
-        let url = baseURL.appending(component: "led")
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let newState = LEDState(on: on)
-        let encodedData = try jsonEncoder.encode(newState)
-        request.httpBody = encodedData
-
-        let (data, _) = try await URLSession.shared.data(for: request)
-        return try jsonDecoder.decode(LEDState.self, from: data)
+    public func updateLEDState(_ state: LEDState) async throws -> LEDState {
+        return try await postData(input: state, outputType: LEDState.self, urlComponent: "led")
+    }
+    
+    // MARK: LightSensorReading
+    
+    public func getLightSensorReadings(range: DateRangeRequest) async throws -> [LightSensorReading] {
+        return try await postData(input: range, outputType: [LightSensorReading].self, urlComponent: "lightSensorReadings")
     }
     
     public func getLightSensorReading() async throws -> LightSensorReading {
-        let url = baseURL.appending(component: "lightSensorReading")
-        let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
-        return try jsonDecoder.decode(LightSensorReading.self, from: data)
+        return try await getData(outputType: LightSensorReading.self .self, urlComponent: "lightSensorReading")
     }
     
-    public func updateLightSensorReading(value: Double) async throws -> LightSensorReading {
-        let url = baseURL.appending(component: "lightSensorReading")
+    public func updateLightSensorReading(_ reading: LightSensorReading) async throws -> LightSensorReading {
+        return try await postData(input: reading, outputType: LightSensorReading.self, urlComponent: "lightSensorReading")
+    }
+    
+    // MARK: Utilities
+    
+    func postData<Input: Codable, Output: Codable>(input: Input, outputType: Output.Type, urlComponent: String) async throws -> Output {
+        let url = baseURL.appending(component: urlComponent)
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        let newState = LightSensorReading(uploadDate: Date(), value: value)
-        let encodedData = try jsonEncoder.encode(newState)
+        let encodedData = try jsonEncoder.encode(input)
         request.httpBody = encodedData
 
         let (data, _) = try await URLSession.shared.data(for: request)
-        return try jsonDecoder.decode(LightSensorReading.self, from: data)
+        return try jsonDecoder.decode(Output.self, from: data)
     }
     
-    enum APIImplelmentationError: Error {
-        case invalidURL
+    func getData<Output: Codable>(outputType: Output.Type, urlComponent: String) async throws -> Output {
+        let url = baseURL.appending(component: urlComponent)
+        let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
+        return try jsonDecoder.decode(outputType, from: data)
     }
     
-    var jsonDecoder: JSONDecoder {
+    private var jsonDecoder: JSONDecoder {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return decoder
     }
     
-    var jsonEncoder: JSONEncoder {
+    private var jsonEncoder: JSONEncoder {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         return encoder
+    }
+    
+    private enum APIImplelmentationError: Error {
+        case invalidURL
     }
 }

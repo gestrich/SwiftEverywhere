@@ -71,7 +71,7 @@ struct APIGWHandler: EventLoopLambdaHandler {
                     throw APIGWHandlerError.general(description: "Missing body data")
                 }
                 let host = try jsonDecoder.decode(Host.self, from: bodyData)
-                return try await app.updateHost(host: host).apiGatewayOkResponse()
+                return try await app.updateHost(host).apiGatewayOkResponse()
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }
@@ -98,10 +98,7 @@ struct APIGWHandler: EventLoopLambdaHandler {
                     throw APIGWHandlerError.general(description: "Missing body data")
                 }
                 let reading = try jsonDecoder.decode(LightSensorReading.self, from: bodyData)
-                return try await app.dynamoStore.store(
-                    type: DynamoLightSensorReading.self,
-                    item: DynamoLightSensorReading(reading: reading)
-                ).toReading().apiGatewayOkResponse()
+                return try await app.updateLightSensorReading(reading).apiGatewayOkResponse()
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }

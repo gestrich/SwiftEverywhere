@@ -23,7 +23,7 @@ public struct DynamoHost: Codable {
         self.port = host.port
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions.insert(.withFractionalSeconds)
-        self.uploadDate = formatter.string(from: host.uploadDate)
+        self.uploadDate = formatter.string(from: Date())
         self.partition = DynamoHost.partition
     }
     
@@ -33,7 +33,7 @@ public struct DynamoHost: Codable {
         guard let date = formatter.date(from: uploadDate) else {
             throw DynamoHostError.invalidUploadDate
         }
-        return Host(ipAddress: ipAddress, port: port, uploadDate: date)
+        return Host(ipAddress: ipAddress, port: port)
     }
     
     enum DynamoHostError: Error {

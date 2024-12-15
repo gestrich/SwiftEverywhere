@@ -74,6 +74,12 @@ Resources:
             Path: /led
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
+        lightSensorReadingsPost:
+          Type: Api
+          Properties:
+            Path: /lightSensorReadings
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
         lightSensorGet:
           Type: Api
           Properties:
