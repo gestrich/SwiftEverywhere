@@ -10,6 +10,9 @@ Raspberry Pi, iOS App, AWS Lambda, all written in Swift
 * sam deploy;
 * After deploy, add your Raspberry pi url to Secrets manager for "pi-url"
 
+
+
+
 # Raspberry Pi
 
 Pi Model: Raspberry Pi 4 Model B Rev 1.4
@@ -124,6 +127,40 @@ Start the timer:
 ```
 sudo systemctl start uploadScript.timer 
 ```
+
+### Setup Remote Login
+
+You will want to avoid typing in your password for every login.
+
+From your client (mac)
+
+* ssh-keygen -t rsa
+* When prompted enter file name:  /Users/bill/.ssh/id_rsa_raspberry_pi
+* ssh-copy-id -f -i /Users/bill/.ssh/id_rsa_raspberry_pi.pub -p <port> <username>@<ip address>
+
+For Pi on your local network:
+```
+Host <Raspberry Pi IP adderess>
+    HostName <Raspberry Pi IP adderess> 
+    User <UserName>
+    IdentityFile /Users/bill/.ssh/id_rsa_raspberry_pi
+```
+For Pi accessible via Port Forwarding:
+```
+Host <Router IP Address> 
+    HostName <Router IP Address>
+    Port <Port>
+    User <Username>
+    IdentityFile /Users/bill/.ssh/id_rsa_raspberry_pi
+
+```
+
+On host (Raspberry Pi)
+
+* chmod 700 ~/.ssh
+* chmod 600 ~/.ssh/authorized_keys
+* vi ~/.ssh/config
+
 # Vapor App
 
 ### Port Forwarding
