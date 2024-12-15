@@ -14,6 +14,10 @@ let package = Package(
         .executable(
             name: "SELambda",
             targets: ["SELambda"]
+        ),
+        .executable(
+            name: "SEPi",
+            targets: ["SEPi"]
         )
     ],
     

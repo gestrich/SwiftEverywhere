@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Host: Codable {
+public struct Host: Codable, Sendable {
     public let ipAddress: String
     public let port: Int
     
