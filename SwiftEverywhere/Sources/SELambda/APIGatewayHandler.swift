@@ -136,12 +136,18 @@ extension Encodable {
 
     func createAPIGatewayJSONResponse(statusCode: HTTPResponseStatus) throws -> APIGateway.Response {
 
-        guard let jsonData = try? JSONEncoder().encode(self) else {
+        guard let jsonData = try? jsonEncoder.encode(self) else {
             throw APIGWHandlerError.general(description: "Could not convert object to json data")
         }
 
         let jsonString = String(data: jsonData, encoding: .utf8)
         return APIGateway.Response(statusCode: statusCode, headers: ["Content-Type": "application/json"], body: jsonString)
+    }
+    
+    var jsonEncoder: JSONEncoder {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        return encoder
     }
 }
 
