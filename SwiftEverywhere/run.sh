@@ -3,8 +3,18 @@
 # Function to kill existing server instance on a given port
 kill_existing_server() {
     local port=$1
-    echo "Killing existing server instance on port $port, if any..."
-    lsof -i :$port | awk '{if(NR>1) system("kill -9 " $2)}'
+	lsof -i :$port 2>/dev/null | awk '{if(NR>1) system("kill -9 " $2)}' > /dev/null 2>&1 || true
+}
+
+runPiService() {
+	kill_existing_server
+	sudo systemctl stop swift_everywhere.service
+	sudo systemctl restart swift_everywhere.service
+}
+
+killPi() {
+	kill_existing_server
+	sudo systemctl stop swift_everywhere.service
 }
 
 # Function to run the Swift server
@@ -83,18 +93,23 @@ EOF
 
 # Main script execution based on the argument
 case "$1" in
+    killPi)
+        killPi
+        ;;
     runPi)
         runPi
+        ;;
+    runPiService)
+        runPiService
         ;;
     samDeploy)
         samDeploy
         ;;
-
     postHost)
         postHost
         ;;
     *)
-        echo "Usage: $0 {runPi|samDeploy|postHost}"
+        echo "Usage: $0 {killPi|runPi|runPiService|samDeploy|postHost}"
         exit 1
         ;;
 esac
