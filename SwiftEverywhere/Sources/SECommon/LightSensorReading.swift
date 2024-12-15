@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct LightSensorReading: Codable, Equatable {
+public struct LightSensorReading: Codable, Equatable, Sendable {
     public let uploadDate: Date
     public let value: Double
     
