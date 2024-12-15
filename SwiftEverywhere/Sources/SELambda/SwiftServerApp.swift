@@ -35,7 +35,7 @@ public struct SwiftServerApp: PiClientAPI {
         return result
     }
     
-    public func updateHost(_ host: SECommon.Host) async throws -> SECommon.Host {
+    public func postHost(_ host: SECommon.Host) async throws -> SECommon.Host {
         let dynamoHost = DynamoHost(host: host)
         return try await dynamoStore.store(type: DynamoHost.self, item: dynamoHost).toHost()
     }

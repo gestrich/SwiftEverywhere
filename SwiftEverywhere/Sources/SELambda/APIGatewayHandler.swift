@@ -71,7 +71,7 @@ struct APIGWHandler: EventLoopLambdaHandler {
                     throw APIGWHandlerError.general(description: "Missing body data")
                 }
                 let host = try jsonDecoder.decode(Host.self, from: bodyData)
-                return try await app.updateHost(host).apiGatewayOkResponse()
+                return try await app.postHost(host).apiGatewayOkResponse()
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }

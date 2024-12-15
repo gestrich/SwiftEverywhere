@@ -28,11 +28,6 @@ public struct DynamoHost: Codable {
     }
     
     func toHost() throws -> SECommon.Host {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions.insert(.withFractionalSeconds)
-        guard let date = formatter.date(from: uploadDate) else {
-            throw DynamoHostError.invalidUploadDate
-        }
         return Host(ipAddress: ipAddress, port: port)
     }
     
