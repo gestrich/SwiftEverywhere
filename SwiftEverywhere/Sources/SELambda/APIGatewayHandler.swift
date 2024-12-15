@@ -101,7 +101,7 @@ struct APIGWHandler: EventLoopLambdaHandler {
                 return try await app.dynamoStore.store(
                     type: DynamoLightSensorReading.self,
                     item: DynamoLightSensorReading(reading: reading)
-                ).apiGatewayOkResponse()
+                ).toReading().apiGatewayOkResponse()
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }
