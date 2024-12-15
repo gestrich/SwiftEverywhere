@@ -6,54 +6,45 @@ import SwiftUI
 struct ContentView: View {
     @StateObject var urlStore = URLStore()
     @State var ledState: LEDState = LEDState(on: false)
+    @State var lightState: LightSensorReading = LightSensorReading(uploadDate: Date(), value: 0.0)
     @State private var showSettings = false
     @State var viewLoaded = false
-
+    
     var body: some View {
         NavigationView {
-            VStack {
-                Button {
-                    Task {
-                        do {
-                            try await toggleLEDState()
-                            try await loadLEDState()
-                        } catch {
-                            print("Error: \(error)")
+            Form {
+                Section {
+                    Button {
+                        Task {
+                            do {
+                                try await toggleLEDState()
+                                try await loadLEDState()
+                            } catch {
+                                print("Error: \(error)")
+                            }
                         }
+                    } label: {
+                        Group {
+                            Image(systemName: "lightbulb.fill")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .foregroundStyle(ledState.on ? Color.yellow : Color.gray )
+                        }.frame(width: 25)
+                    }.opacity(viewLoaded ? 1.0 : 0.0)
+                }
+                Section {
+                    Text("\(lightState.value)")
+                }
+                Section {
+                    if urlStore.serverURLs.indices.contains(urlStore.selectedServerIndex) {
+                        Text("Connected to: \(urlStore.serverURLs[urlStore.selectedServerIndex])")
+                            .font(.footnote)
+                            .foregroundColor(.gray)
+                            .padding(.top)
                     }
-                } label: {
-                    Group {
-                        if ledState.on {
-                            Image(systemName: "lightbulb.fill")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .foregroundStyle(.yellow)
-                        } else {
-                            Image(systemName: "lightbulb.fill")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                        }
-                    }.frame(width: 25)
-                }.opacity(viewLoaded ? 1.0 : 0.0)
-                .padding()
-
-                if urlStore.serverURLs.indices.contains(urlStore.selectedServerIndex) {
-                    Text("Connected to: \(urlStore.serverURLs[urlStore.selectedServerIndex])")
-                        .font(.footnote)
-                        .foregroundColor(.gray)
-                        .padding(.top)
                 }
             }
-            .padding()
-            .task {
-                do {
-                    try await loadLEDState()
-                    viewLoaded = true
-                } catch {
-                    print("Error: \(error)")
-                }
-            }
-            .navigationTitle("LED Controller")
+            .navigationTitle("Swift Everywhere")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Settings") {
@@ -63,23 +54,40 @@ struct ContentView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         Task {
-                            try await loadLEDState()
+                            try await loadStates()
                         }
                     } label: {
                         Image(systemName: "arrow.clockwise")
                     }
-
-                    Button("Settings") {
-                        showSettings = true
-                    }
                 }
             }
-            .sheet(isPresented: $showSettings) {
-                SettingsView(urlStore: urlStore)
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView(urlStore: urlStore)
+        }
+        .task {
+            do {
+                try await loadStates()
+                viewLoaded = true
+            } catch {
+                print("Error: \(error)")
             }
         }
     }
-
+    
+    func loadStates() async throws {
+        try await loadLEDState()
+        try await loadLightState()
+    }
+    
+    @MainActor
+    func loadLightState() async throws {
+        guard let apiClient else {
+            throw ContentViewError.missingBaseURL
+        }
+        lightState = try await apiClient.getLightSensorReading()
+    }
+    
     @MainActor
     func loadLEDState() async throws {
         guard let apiClient else {
@@ -87,13 +95,14 @@ struct ContentView: View {
         }
         self.ledState = try await apiClient.getLEDState()
     }
-
+    
     @MainActor
     func toggleLEDState() async throws {
         guard let apiClient else {
             throw ContentViewError.missingBaseURL
         }
-        ledState = try await apiClient.updateLEDState(on: !ledState.on)
+        try await apiClient.updateLEDState(on: !ledState.on)
+        try await loadLEDState()
     }
     
     var apiClient: PiClientAPIImplementation? {
@@ -114,7 +123,7 @@ struct SettingsView: View {
     @ObservedObject var urlStore: URLStore
     @Environment(\.dismiss) private var dismiss
     @State private var newURL: String = ""
-
+    
     var body: some View {
         NavigationView {
             Form {
@@ -171,11 +180,11 @@ struct SettingsView: View {
 class URLStore: ObservableObject {
     @Published var serverURLs: [String]
     @Published var selectedServerIndex: Int
-
+    
     private let urlsKey = "serverURLs"
     private let selectedIndexKey = "selectedServerIndex"
     private var cancellables: Set<AnyCancellable> = []
-
+    
     init() {
         // Load stored data or provide defaults
         if let data = UserDefaults.standard.data(forKey: urlsKey),
@@ -184,9 +193,9 @@ class URLStore: ObservableObject {
         } else {
             self.serverURLs = []
         }
-
+        
         self.selectedServerIndex = UserDefaults.standard.integer(forKey: selectedIndexKey)
-
+        
         // Save changes automatically when values change
         $serverURLs
             .sink { [weak self] urls in
@@ -196,7 +205,7 @@ class URLStore: ObservableObject {
                 }
             }
             .store(in: &cancellables)
-
+        
         $selectedServerIndex
             .sink { [weak self] index in
                 guard let self else { return }

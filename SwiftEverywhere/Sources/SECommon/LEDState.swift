@@ -1,5 +1,5 @@
 
-public struct LEDState: Codable, Sendable {
+public struct LEDState: Codable, Sendable, Equatable {
     public let on: Bool
     
     public init(on: Bool) {
