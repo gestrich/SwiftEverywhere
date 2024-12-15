@@ -70,6 +70,11 @@ func routes(_ app: Application, mpc: PiController) throws {
         decoder.dateDecodingStrategy = .iso8601
         return decoder
     }
+    
+    enum RoutesError: LocalizedError {
+        case unexpectedBody
+        case missingAPIGatewayURL
+    }
 }
 
 extension SECommon.Host: Content {
@@ -82,9 +87,4 @@ extension LEDState: Content {
 
 extension LightSensorReading: Content {
     
-}
-
-private enum RoutesError: LocalizedError {
-    case unexpectedBody
-    case missingAPIGatewayURL
 }
