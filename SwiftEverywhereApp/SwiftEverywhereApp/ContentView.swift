@@ -46,6 +46,10 @@ struct ContentView: View {
                             )
                         }
                     }
+                    .chartXAxis {
+                        AxisMarks(format: Date.FormatStyle.dateTime.hour(),
+                                  values: .automatic(desiredCount: 8))
+                    }
                 }
                 Section {
                     if urlStore.serverURLs.indices.contains(urlStore.selectedServerIndex) {
