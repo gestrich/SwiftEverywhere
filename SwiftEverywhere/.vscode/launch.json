@@ -4,73 +4,37 @@
             "type": "lldb",
             "request": "launch",
             "args": [],
-            "cwd": "${workspaceFolder:SwiftEverywherePi}",
-            "name": "Debug SwiftEverywherePi",
-            "program": "${workspaceFolder:SwiftEverywherePi}/.build/debug/SwiftEverywherePi",
-            "preLaunchTask": "swift: Build Debug SwiftEverywherePi"
+            "cwd": "${workspaceFolder:SwiftEverywhere}",
+            "name": "Debug SELambda",
+            "program": "${workspaceFolder:SwiftEverywhere}/.build/debug/SELambda",
+            "preLaunchTask": "swift: Build Debug SELambda"
         },
         {
             "type": "lldb",
             "request": "launch",
             "args": [],
-            "cwd": "${workspaceFolder:SwiftEverywherePi}",
-            "name": "Release SwiftEverywherePi",
-            "program": "${workspaceFolder:SwiftEverywherePi}/.build/release/SwiftEverywherePi",
-            "preLaunchTask": "swift: Build Release SwiftEverywherePi"
+            "cwd": "${workspaceFolder:SwiftEverywhere}",
+            "name": "Release SELambda",
+            "program": "${workspaceFolder:SwiftEverywhere}/.build/release/SELambda",
+            "preLaunchTask": "swift: Build Release SELambda"
         },
         {
             "type": "lldb",
             "request": "launch",
             "args": [],
-            "cwd": "${workspaceFolder:SwiftEverywherePi}",
-            "name": "Debug App",
-            "program": "${workspaceFolder:SwiftEverywherePi}/.build/debug/App",
-            "preLaunchTask": "swift: Build Debug App"
+            "cwd": "${workspaceFolder:SwiftEverywhere}",
+            "name": "Debug SEPi",
+            "program": "${workspaceFolder:SwiftEverywhere}/.build/debug/SEPi",
+            "preLaunchTask": "swift: Build Debug SEPi"
         },
         {
             "type": "lldb",
             "request": "launch",
             "args": [],
-            "cwd": "${workspaceFolder:SwiftEverywherePi}",
-            "name": "Release App",
-            "program": "${workspaceFolder:SwiftEverywherePi}/.build/release/App",
-            "preLaunchTask": "swift: Build Release App"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "args": [],
-            "cwd": "${workspaceFolder:SwiftEverywherePi}",
-            "name": "Debug SEServer",
-            "program": "${workspaceFolder:SwiftEverywherePi}/.build/debug/SEServer",
-            "preLaunchTask": "swift: Build Debug SEServer"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "args": [],
-            "cwd": "${workspaceFolder:SwiftEverywherePi}",
-            "name": "Release SEServer",
-            "program": "${workspaceFolder:SwiftEverywherePi}/.build/release/SEServer",
-            "preLaunchTask": "swift: Build Release SEServer"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "args": [],
-            "cwd": "${workspaceFolder:SwiftEverywherePi}",
-            "name": "Debug SEGPIOService",
-            "program": "${workspaceFolder:SwiftEverywherePi}/.build/debug/SEGPIOService",
-            "preLaunchTask": "swift: Build Debug SEGPIOService"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "args": [],
-            "cwd": "${workspaceFolder:SwiftEverywherePi}",
-            "name": "Release SEGPIOService",
-            "program": "${workspaceFolder:SwiftEverywherePi}/.build/release/SEGPIOService",
-            "preLaunchTask": "swift: Build Release SEGPIOService"
+            "cwd": "${workspaceFolder:SwiftEverywhere}",
+            "name": "Release SEPi",
+            "program": "${workspaceFolder:SwiftEverywhere}/.build/release/SEPi",
+            "preLaunchTask": "swift: Build Release SEPi"
         }
     ]
 }
