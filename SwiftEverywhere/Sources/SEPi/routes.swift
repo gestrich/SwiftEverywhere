@@ -11,37 +11,44 @@ func routes(_ app: Application, mpc: PiController) throws {
         }
     }
     
-    app.get { req async in
-        "It works!"
-    }
-
-    app.get("led") { req in
-        return try await mpc.getLEDState()
-    }
-    
-    app.post("led") { request in
-        guard let data = request.body.data else {
-            throw RoutesError.unexpectedBody
+    for path in PiClientAPIPaths.allCases {
+        switch path {
+        case .host:
+            app.post(path.rawValue.pathComponents) { request in
+                guard let data = request.body.data else {
+                    throw RoutesError.unexpectedBody
+                }
+                let host = try jsonDecoder().decode(Host.self, from: data)
+                return try await piClient().postHost(host)
+            }
+        case .led:
+            app.get(path.rawValue.pathComponents) { req in
+                return try await mpc.getLEDState()
+            }
+            app.post(path.rawValue.pathComponents) { request in
+                guard let data = request.body.data else {
+                    throw RoutesError.unexpectedBody
+                }
+                let state = try jsonDecoder().decode(LEDState.self, from: data)
+                return try await mpc.updateLEDState(state)
+            }
+        case .lightSensorReading:
+            app.get(path.rawValue.pathComponents) { request in
+                return try await mpc.getLightSensorReading()
+            }
+            app.post(path.rawValue.pathComponents) { request in
+                let reading = try await mpc.getLightSensorReading()
+                return try await piClient().updateLightSensorReading(reading)
+            }
+        case .lightSensorReadings:
+            app.get(path.rawValue.pathComponents) { request in
+                guard let data = request.body.data else {
+                    throw RoutesError.unexpectedBody
+                }
+                let request = try jsonDecoder().decode(DateRangeRequest.self, from: data)
+                return try await piClient().getLightSensorReadings(range: request)
+            }
         }
-        let state = try jsonDecoder().decode(LEDState.self, from: data)
-        return try await mpc.updateLEDState(state)
-    }
-    
-    app.get("lightSensorReading") { request in
-        return try await mpc.getLightSensorReading()
-    }
-    
-    app.post("updateLightSensorReading") { request in
-        let reading = try await mpc.getLightSensorReading()
-        return try await piClient().updateLightSensorReading(reading)
-    }
-    
-    app.post("host") { request in
-        guard let data = request.body.data else {
-            throw RoutesError.unexpectedBody
-        }
-        let host = try jsonDecoder().decode(Host.self, from: data)
-        return try await piClient().postHost(host)
     }
     
     @Sendable

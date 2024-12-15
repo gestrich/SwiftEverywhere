@@ -38,8 +38,7 @@ runPi() {
 }
 
 samDeploy() {
-  sam build;
-  sam deploy --no-confirm-changeset;
+  sam build && sam deploy --no-confirm-changeset;
 }
 
 # Function to upload the host details

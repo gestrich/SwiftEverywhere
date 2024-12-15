@@ -16,3 +16,10 @@ public protocol PiClientAPI {
     func getLightSensorReadings(range: DateRangeRequest) async throws -> [LightSensorReading]
     func updateLightSensorReading(_ reading: LightSensorReading) async throws -> LightSensorReading
 }
+
+public enum PiClientAPIPaths: String, CaseIterable {
+    case host
+    case led
+    case lightSensorReading
+    case lightSensorReadings
+}

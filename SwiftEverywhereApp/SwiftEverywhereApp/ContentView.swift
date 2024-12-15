@@ -1,3 +1,4 @@
+import Charts
 import Combine
 import Foundation
 import SECommon
@@ -5,6 +6,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject var urlStore = URLStore()
+    @State var lightSensorReadings = [LightSensorReading]()
     @State var ledState: LEDState = LEDState(on: false)
     @State var lightState: LightSensorReading = LightSensorReading(uploadDate: Date(), value: 0.0)
     @State private var showSettings = false
@@ -34,8 +36,16 @@ struct ContentView: View {
                         }.frame(width: 25)
                     }
                 }
-                Section {
+                Section("Light Sensor") {
                     Text("\(lightState.value)")
+                    Chart {
+                        ForEach(lightSensorReadings) {
+                            BarMark(
+                                x: .value("Date", $0.uploadDate),
+                                y: .value("Reading", $0.value)
+                            )
+                        }
+                    }
                 }
                 Section {
                     if urlStore.serverURLs.indices.contains(urlStore.selectedServerIndex) {
@@ -94,6 +104,7 @@ struct ContentView: View {
     func loadStates() async throws {
         try await loadLEDState()
         try await loadLightState()
+        try await loadLightSensorReadings()
     }
     
     @MainActor
@@ -113,11 +124,20 @@ struct ContentView: View {
     }
     
     @MainActor
+    func loadLightSensorReadings() async throws {
+        guard let apiClient else {
+            throw ContentViewError.missingBaseURL
+        }
+        self.lightSensorReadings = try await apiClient.getLightSensorReadings(range: DateRangeRequest(startDate: Date().addingTimeInterval(-60 * 60 * 24), endDate: Date()))
+    }
+    
+    @MainActor
     func toggleLEDState() async throws {
         guard let apiClient else {
             throw ContentViewError.missingBaseURL
         }
-        try await apiClient.updateLEDState(on: !ledState.on)
+        let newState = LEDState(on: !ledState.on)
+        try await apiClient.updateLEDState(newState)
         try await loadLEDState()
     }
     
@@ -228,5 +248,11 @@ class URLStore: ObservableObject {
                 UserDefaults.standard.set(index, forKey: self.selectedIndexKey)
             }
             .store(in: &cancellables)
+    }
+}
+
+extension LightSensorReading: @retroactive Identifiable {
+    public var id: Date {
+        return uploadDate
     }
 }

@@ -20,35 +20,35 @@ public struct PiClientAPIImplementation: PiClientAPI {
     // MARK: Host
     
     public func getHost() async throws -> Host {
-        return try await getData(outputType: Host.self, urlComponent: "host")
+        return try await getData(outputType: Host.self, urlComponent: PiClientAPIPaths.host.rawValue)
     }
     
     public func postHost(_ host: Host) async throws -> SECommon.Host {
-        return try await postData(input: host, outputType: Host.self, urlComponent: "host")
+        return try await postData(input: host, outputType: Host.self, urlComponent: PiClientAPIPaths.host.rawValue)
     }
     
     // MARK: LED
     
     public func getLEDState() async throws -> LEDState {
-        return try await getData(outputType: LEDState.self .self, urlComponent: "led")
+        return try await getData(outputType: LEDState.self .self, urlComponent: PiClientAPIPaths.led.rawValue)
     }
 
     public func updateLEDState(_ state: LEDState) async throws -> LEDState {
-        return try await postData(input: state, outputType: LEDState.self, urlComponent: "led")
+        return try await postData(input: state, outputType: LEDState.self, urlComponent: PiClientAPIPaths.led.rawValue)
     }
     
     // MARK: LightSensorReading
     
     public func getLightSensorReadings(range: DateRangeRequest) async throws -> [LightSensorReading] {
-        return try await postData(input: range, outputType: [LightSensorReading].self, urlComponent: "lightSensorReadings")
+        return try await postData(input: range, outputType: [LightSensorReading].self, urlComponent: PiClientAPIPaths.lightSensorReadings.rawValue)
     }
     
     public func getLightSensorReading() async throws -> LightSensorReading {
-        return try await getData(outputType: LightSensorReading.self .self, urlComponent: "lightSensorReading")
+        return try await getData(outputType: LightSensorReading.self .self, urlComponent: PiClientAPIPaths.lightSensorReading.rawValue)
     }
     
     public func updateLightSensorReading(_ reading: LightSensorReading) async throws -> LightSensorReading {
-        return try await postData(input: reading, outputType: LightSensorReading.self, urlComponent: "lightSensorReading")
+        return try await postData(input: reading, outputType: LightSensorReading.self, urlComponent: PiClientAPIPaths.lightSensorReading.rawValue)
     }
     
     // MARK: Utilities
@@ -63,13 +63,24 @@ public struct PiClientAPIImplementation: PiClientAPI {
         request.httpBody = encodedData
 
         let (data, _) = try await URLSession.shared.data(for: request)
-        return try jsonDecoder.decode(Output.self, from: data)
+        do {
+            return try jsonDecoder.decode(outputType, from: data)
+        } catch {
+            print(String(data: data, encoding: .utf8) ?? "")
+            throw error
+        }
     }
     
     func getData<Output: Codable>(outputType: Output.Type, urlComponent: String) async throws -> Output {
         let url = baseURL.appending(component: urlComponent)
         let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
-        return try jsonDecoder.decode(outputType, from: data)
+        do {
+            return try jsonDecoder.decode(outputType, from: data)
+        } catch {
+            print(String(data: data, encoding: .utf8) ?? "")
+            throw error
+        }
+
     }
     
     private var jsonDecoder: JSONDecoder {

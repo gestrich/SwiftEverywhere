@@ -37,14 +37,10 @@ public struct PiController: Sendable {
 
     func printValues() {
         // SPI
-        print("\u{1B}[1A\u{1B}[KChannel0: \(soundSensorValue())%, Channel1: \(lightSensorValue())%")
+        print("\u{1B}[1A\u{1B}[KChannel1: \(lightSensorValue())%")
     }
     
     func lightSensorValue() -> Int {
-        return getVoltage(channel: 0)
-    }
-    
-    func soundSensorValue() -> Int {
         return getVoltage(channel: 1)
     }
 
@@ -140,8 +136,7 @@ extension PiController: PiClientAPI {
     }
     
     public func getLightSensorReading() async throws -> SECommon.LightSensorReading {
-        let value = getVoltage(channel: 1)
-        return LightSensorReading(uploadDate: Date(), value: Double(value))
+        return LightSensorReading(uploadDate: Date(), value: Double(lightSensorValue()))
     }
     
     public func updateLightSensorReading(_ reading: LightSensorReading) async throws -> LightSensorReading {
