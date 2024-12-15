@@ -137,6 +137,7 @@ From your client (mac)
 * ssh-keygen -t rsa
 * When prompted enter file name:  /Users/bill/.ssh/id_rsa_raspberry_pi
 * ssh-copy-id -f -i /Users/bill/.ssh/id_rsa_raspberry_pi.pub -p <port> <username>@<ip address>
+* In ~/.profile, add `cd ~/SwiftEverywhere` to login to this dir by default. 
 
 For Pi on your local network:
 ```
