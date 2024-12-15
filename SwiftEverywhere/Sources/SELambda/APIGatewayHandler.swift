@@ -45,7 +45,6 @@ struct APIGWHandler: EventLoopLambdaHandler {
         }
     }
 
-//    func route(event: In) async throws -> APIGateway.Response {
     func route(event: In, app: SwiftServerApp) async throws -> APIGateway.Response {
 
         let leadingPathPart = "" // Use this if you there a leading part in your path, like "api" or "stage"
@@ -60,9 +59,13 @@ struct APIGWHandler: EventLoopLambdaHandler {
         guard let firstComponent = urlComponents.first else {
             throw APIGWHandlerError.general(description: "No path available")
         }
-
-        switch firstComponent {
-        case "host":
+        
+        guard let componentAsAPIPath = PiClientAPIPaths(rawValue: firstComponent) else {
+            throw APIGWHandlerError.general(description: "Unknown path: \(firstComponent)")
+        }
+        
+        switch componentAsAPIPath {
+        case .host:
             switch event.httpMethod {
             case .GET:
                 return try await app.getHost().apiGatewayOkResponse()
@@ -75,7 +78,7 @@ struct APIGWHandler: EventLoopLambdaHandler {
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }
-        case "led":
+        case .led:
             switch event.httpMethod {
             case .GET:
                 return try await app.getLEDState().apiGatewayOkResponse()
@@ -83,13 +86,13 @@ struct APIGWHandler: EventLoopLambdaHandler {
                 guard let bodyData = event.bodyData() else {
                     throw APIGWHandlerError.general(description: "Missing body data")
                 }
-
+                
                 let ledState = try jsonDecoder.decode(LEDState.self, from: bodyData)
                 return try await app.updateLEDState(ledState).apiGatewayOkResponse()
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }
-        case "lightSensorReading":
+        case .lightSensorReading:
             switch event.httpMethod {
             case .GET:
                 return try await app.piClientSource().getLightSensorReading().apiGatewayOkResponse()
@@ -102,7 +105,7 @@ struct APIGWHandler: EventLoopLambdaHandler {
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }
-        case "lightSensorReadings":
+        case .lightSensorReadings:
             switch event.httpMethod {
             case .POST:
                 guard let bodyData = event.bodyData() else {
@@ -113,8 +116,6 @@ struct APIGWHandler: EventLoopLambdaHandler {
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }
-        default:
-            return try "Path Not Found: \(firstComponent)".createAPIGatewayJSONResponse(statusCode: .notFound)
         }
     }
     
