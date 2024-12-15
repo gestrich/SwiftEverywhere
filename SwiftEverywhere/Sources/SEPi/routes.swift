@@ -31,6 +31,11 @@ func routes(_ app: Application, mpc: PiController) throws {
         return try await mpc.getLightSensorReading()
     }
     
+    app.post("updateLightSensorReading") { request in
+        let reading = try await mpc.getLightSensorReading()
+        return try await piClient().updateLightSensorReading(value: reading.value)
+    }
+    
     app.post("updateHost") { request in
         guard let data = request.body.data else {
             throw RoutesError.unexpectedBody
