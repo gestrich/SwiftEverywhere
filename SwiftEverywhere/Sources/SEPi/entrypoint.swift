@@ -20,6 +20,12 @@ enum Entrypoint {
         // let executorTakeoverSuccess = NIOSingletons.unsafeTryInstallSingletonPosixEventLoopGroupAsConcurrencyGlobalExecutor()
         // app.logger.debug("Tried to install SwiftNIO's EventLoopGroup as Swift's global concurrency executor", metadata: ["success": .stringConvertible(executorTakeoverSuccess)])
         
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+
+        // override the global encoder used for the `.json` media type
+        ContentConfiguration.global.use(encoder: encoder, for: .json)
+        
         
         let boardType = SupportedBoard.RaspberryPi4_2024
         // let ledExample = LEDExample(boardType: boardType)

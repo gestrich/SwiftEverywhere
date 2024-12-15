@@ -23,7 +23,7 @@ func routes(_ app: Application, mpc: PiController) throws {
         guard let data = request.body.data else {
             throw RoutesError.unexpectedBody
         }
-        let state = try JSONDecoder().decode(LEDState.self, from: data)
+        let state = try jsonDecoder().decode(LEDState.self, from: data)
         return try await mpc.updateLEDState(on: state.on)
     }
     
@@ -35,7 +35,7 @@ func routes(_ app: Application, mpc: PiController) throws {
         guard let data = request.body.data else {
             throw RoutesError.unexpectedBody
         }
-        let host = try JSONDecoder().decode(Host.self, from: data)
+        let host = try jsonDecoder().decode(Host.self, from: data)
         return try await piClient().updateHost(ipAddress: host.ipAddress, port: host.port)
     }
     
@@ -50,6 +50,13 @@ func routes(_ app: Application, mpc: PiController) throws {
         }
         
         return PiClientAPIImplementation(baseURL: apiGatewayURL)
+    }
+    
+    @Sendable
+    func jsonDecoder() -> JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
     }
 }
 

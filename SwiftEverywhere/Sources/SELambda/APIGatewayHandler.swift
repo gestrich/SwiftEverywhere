@@ -70,7 +70,7 @@ struct APIGWHandler: EventLoopLambdaHandler {
                 guard let bodyData = event.bodyData() else {
                     throw APIGWHandlerError.general(description: "Missing body data")
                 }
-                let host = try JSONDecoder().decode(Host.self, from: bodyData)
+                let host = try jsonDecoder.decode(Host.self, from: bodyData)
                 return try await app.updateHost(host: host).apiGatewayOkResponse()
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
@@ -84,7 +84,7 @@ struct APIGWHandler: EventLoopLambdaHandler {
                     throw APIGWHandlerError.general(description: "Missing body data")
                 }
 
-                let ledState = try JSONDecoder().decode(LEDState.self, from: bodyData)
+                let ledState = try jsonDecoder.decode(LEDState.self, from: bodyData)
                 return try await app.updateLEDState(ledState).apiGatewayOkResponse()
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
@@ -97,8 +97,7 @@ struct APIGWHandler: EventLoopLambdaHandler {
                 guard let bodyData = event.bodyData() else {
                     throw APIGWHandlerError.general(description: "Missing body data")
                 }
-
-                let reading = try JSONDecoder().decode(LightSensorReading.self, from: bodyData)
+                let reading = try jsonDecoder.decode(LightSensorReading.self, from: bodyData)
                 return try await app.dynamoStore.store(
                     type: DynamoLightSensorReading.self,
                     item: DynamoLightSensorReading(reading: reading)
@@ -109,6 +108,12 @@ struct APIGWHandler: EventLoopLambdaHandler {
         default:
             return try "Path Not Found: \(firstComponent)".createAPIGatewayJSONResponse(statusCode: .notFound)
         }
+    }
+    
+    var jsonDecoder: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
     }
 }
 
