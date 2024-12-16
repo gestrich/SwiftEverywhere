@@ -21,7 +21,6 @@ builder-bot:
 	mkdir -p $($@BUILD_DIR)/lambda $($@ARTIFACTS_DIR)
 
 	# Compile application
-	# Remove the -l from back command as thought it was causing issues with swift package but not sure if any relation?? 'l' invokes a login shell
 	docker run --platform linux/arm64 --rm -v $($@BUILD_DIR):/build-target -v `pwd`:/build-src -w /build-src builder bash -c "swift package resolve -v; swift build --product $($@PRODUCT) -c release --build-path /build-target"
 
 	# Copy dependencies
