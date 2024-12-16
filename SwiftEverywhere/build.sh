@@ -25,12 +25,12 @@ BUILD_DIR=$(pwd)/.aws-sam/build-$PRODUCT
 DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker build --platform $PLATFORM_NAME --progress=plain --ulimit nofile=65536:65536 --secret id=netrc,src=netrc -f Dockerfile . -t builder
 
 # Clear the .build directory
-# rm -rf $BUILD_DIR
+rm -rf $BUILD_DIR
 
 # Copy from Docker to build directory
 # The || was added for this strange error: cp: cannot create directory '/build-target/checkouts/soto/models/apis/guardduty': File exists
 docker run --platform $PLATFORM_NAME --rm -v $BUILD_DIR:/build-target -w /build-src builder bash -c "chmod -R u+rw /stage/.build && cp -R  -n -p /stage/.build/* /build-target || echo 'error'"
-#docker run --platform $PLATFORM_NAME --rm -v $BUILD_DIR:/build-target -w /build-src --user root builder bash -c "chmod -R u+rw /stage/.build && cp -R  -n -p /stage/.build/* /build-target || echo 'error'"
+
 # Prep local directories
 mkdir -p $BUILD_DIR/lambda
 
@@ -48,5 +48,3 @@ zip --symlinks -j lambda.zip $BUILD_DIR/lambda/*
 
 echo "Copy build directory to directory for Github action artifacts to upload"
 cp -r $BUILD_DIR/lambda lambda
-
-exit 0
