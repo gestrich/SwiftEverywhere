@@ -30,5 +30,5 @@ builder-bot:
 	cp $($@BUILD_DIR)/release/$($@PRODUCT) $($@BUILD_DIR)/lambda/bootstrap
 	
 	# Copy app from stage to artifacts dir
-  chmod -R u+rw $($@ARTIFACTS_DIR)
+	chmod -R u+rw $($@ARTIFACTS_DIR)
 	cp $($@STAGE)/* $($@ARTIFACTS_DIR)
