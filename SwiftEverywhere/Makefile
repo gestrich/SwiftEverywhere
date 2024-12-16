@@ -30,7 +30,4 @@ builder-bot:
 	cp $($@BUILD_DIR)/release/$($@PRODUCT) $($@BUILD_DIR)/lambda/bootstrap
 	
 	# Copy app from stage to artifacts dir
-	docker run --platform linux/amd64 --rm \
-	    -v $($@STAGE):/build-src \
-	    -v $($@ARTIFACTS_DIR):/build-dest \
-	    builder bash -c "cp -R -n -p /build-src/* /build-dest/"
+	sudo cp $($@STAGE)/* $($@ARTIFACTS_DIR)
