@@ -1,0 +1,108 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Swift Application
+
+Globals:
+  Function:
+    Timeout: 10
+    CodeUri: . 
+    Handler: swift.bootstrap
+    Runtime: provided.al2
+    MemorySize: 512
+
+Resources:
+  PiUrlSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: pi-url
+      Description: Secret to store the Pi URL
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: SwiftEverywhere
+      AttributeDefinitions:
+        - AttributeName: partition
+          AttributeType: S
+        - AttributeName: uploadDate
+          AttributeType: S
+      KeySchema:
+        - AttributeName: partition
+          KeyType: HASH
+        - AttributeName: uploadDate
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  SwiftEverywhereAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'content-type'"
+        AllowOrigin: "'*'"
+        AllowCredentials: "'*'"
+  SELambda:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Architectures:
+      - arm64
+      Events:
+        HostGet:
+          Type: Api
+          Properties:
+            Path: /host
+            Method: get
+            RestApiId: !Ref SwiftEverywhereAPI
+        HostPost:
+          Type: Api
+          Properties:
+            Path: /host
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
+        ledGet:
+          Type: Api
+          Properties:
+            Path: /led
+            Method: get
+            RestApiId: !Ref SwiftEverywhereAPI
+        ledPost:
+          Type: Api
+          Properties:
+            Path: /led
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
+        lightSensorReadingsPost:
+          Type: Api
+          Properties:
+            Path: /lightSensorReadings
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
+        lightSensorGet:
+          Type: Api
+          Properties:
+            Path: /lightSensorReading
+            Method: get
+            RestApiId: !Ref SwiftEverywhereAPI
+        lightSensorPost:
+          Type: Api
+          Properties:
+            Path: /lightSensorReading
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
+      Policies:
+      - AmazonDynamoDBFullAccess
+      - Statement:
+            Effect: Allow
+            Action:
+              - secretsmanager:GetSecretValue
+            Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pi-url*"
+      Environment:
+        Variables:
+          PI_URL_SECRET_NAME: "pi-url"
+Outputs:
+  ApiEndpoint:
+    Description: "API endpoint URL"
+    Value: !Sub "https://${SwiftEverywhereAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod"
