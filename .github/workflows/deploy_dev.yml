@@ -21,6 +21,6 @@ jobs:
       awsRegion: us-east-1
       environment: dev 
       dockerPlatformName: linux/amd64
-      productName: SwiftLambda
-      lambdaName: swift-lambda-sample
+      productName: SELambda
+      lambdaName: swift-everywhere-SELambda-JZKnq47Enlr5 
     secrets: inherit

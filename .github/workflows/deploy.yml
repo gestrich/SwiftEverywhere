@@ -50,7 +50,7 @@ jobs:
         aws-region: ${{ inputs.AWS_REGION }}
     - name: Build
       run: |
-        ./build.sh "${PRODUCT_NAME}" "${DOCKER_PLATFORM_NAME}" "${SWIFT_PACKAGE_MANAGER_PAT}"
+        cd SwiftEverywhere && ./build.sh "${PRODUCT_NAME}" "${DOCKER_PLATFORM_NAME}" "${SWIFT_PACKAGE_MANAGER_PAT}"
     - name: Deploy to AWS
       run: |
         aws lambda update-function-code --function-name $LAMBDA_NAME --zip-file fileb://lambda.zip
