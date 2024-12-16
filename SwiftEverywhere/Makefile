@@ -21,7 +21,7 @@ builder-bot:
 	mkdir -p $($@BUILD_DIR)/lambda $($@ARTIFACTS_DIR)
 
 	# Compile application
-	docker run --platform linux/arm64 --rm -v $($@BUILD_DIR):/build-target -v `pwd`:/build-src -w /build-src builder bash -c "swift package resolve -v; swift build --product $($@PRODUCT) -c release --build-path /build-target"
+	DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker run --platform linux/arm64 --rm -v $($@BUILD_DIR):/build-target -v `pwd`:/build-src -w /build-src builder bash -c "swift package resolve -v; swift build --product $($@PRODUCT) -c release --build-path /build-target"
 
 	# Copy dependencies
 	docker run --platform linux/arm64 --rm -v $($@BUILD_DIR):/build-target -v `pwd`:/build-src -w /build-src builder bash -cl "ldd '/build-target/release/$($@PRODUCT)' | grep swift | cut -d ' ' -f 3 | xargs -I{} cp -Lv {} /build-target/lambda"
