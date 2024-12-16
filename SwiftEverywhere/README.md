@@ -10,8 +10,16 @@ Raspberry Pi, iOS App, AWS Lambda, all written in Swift
 * sam deploy;
 * After deploy, add your Raspberry pi url to Secrets manager for "pi-url"
 
+### Pipeline Setup
 
+* See https://medium.com/@ogonnannamani11/leveraging-aws-sam-pipelines-and-github-actions-to-automate-the-deployment-of-serverless-fabd6b65437b
+* Note when done I needed to add this below the 'on' section of the pipeline.yaml
 
+```
+defaults:
+  run:
+    working-directory: ./SwiftEverywhere
+```
 
 # Raspberry Pi
 
@@ -181,3 +189,4 @@ Add a .configuration file to SwiftEverywhere package directory with the followin
 ### Running
 
 ./run.sh
+
