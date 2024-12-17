@@ -86,15 +86,27 @@ struct APIGWHandler: EventLoopLambdaHandler {
             }
         case .analogReadings:
             switch event.httpMethod {
-            case .POST:
+            case .GET:
                 guard urlComponents.count > 1, let channel = Int(urlComponents[1]) else {
                     throw APIGWHandlerError.general(description: "Missing channel in \(event.httpMethod)")
                 }
-                guard let bodyData = event.bodyData() else {
-                    throw APIGWHandlerError.general(description: "Missing body data")
+                guard let queryStringParameters = event.queryStringParameters else {
+                    throw APIGWHandlerError.general(description: "Missing query parameters")
                 }
-                let range = try jsonDecoder.decode(DateRangeRequest.self, from: bodyData)
-                return try await app.getAnalogReadings(channel: channel, range: range).apiGatewayOkResponse()
+                guard let startDateQuery = queryStringParameters["startDate"] else {
+                    throw APIGWHandlerError.general(description: "Missing startDate query parameter")
+                }
+                guard let endDateQuery = queryStringParameters["endDate"] else {
+                    throw APIGWHandlerError.general(description: "Missing endDate query parameter")
+                }
+                let formatter = ISO8601DateFormatter()
+                guard let startDate = formatter.date(from: startDateQuery) else {
+                    throw APIGWHandlerError.general(description: "Failed to decode endDate query parameter")
+                }
+                guard let endDate = formatter.date(from: endDateQuery) else {
+                    throw APIGWHandlerError.general(description: "Missing to decode endDate query parameter")
+                }
+                return try await app.getAnalogReadings(channel: channel, range: DateRangeRequest(startDate: startDate, endDate: endDate)).apiGatewayOkResponse()
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }

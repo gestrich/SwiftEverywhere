@@ -113,7 +113,7 @@ extension PiController: PiClientAPI {
     }
     
     public func getAnalogReadings(channel: Int, range: SECommon.DateRangeRequest) async throws -> [SECommon.AnalogReading] {
-        throw RoutesError.unsupportedMethod
+        return try await [getAnalogReading(channel: channel)]
     }
     
     public func updateAnalogReading(reading: SECommon.AnalogReading) async throws -> SECommon.AnalogReading {
@@ -158,7 +158,7 @@ extension PiController: PiClientAPI {
     }
     
     public func getLightSensorReadings(range: DateRangeRequest) async throws -> [LightSensorReading] {
-        throw RoutesError.unsupportedMethod
+        return []
     }
 }
 

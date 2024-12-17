@@ -26,7 +26,9 @@ public struct PiClientAPIImplementation: PiClientAPI {
     
     public func getAnalogReadings(channel: Int, range: DateRangeRequest) async throws -> [AnalogReading] {
         let pathComponent = [PiClientAPIPaths.analogReadings.rawValue, "\(channel)"].joined(separator: "/")
-        return try await postData(input: range, outputType: [AnalogReading].self, urlComponent: pathComponent)
+        let startQueryItem = URLQueryItem(name: "startDate", value: ISO8601DateFormatter().string(from: range.startDate))
+        let endQueryItem = URLQueryItem(name: "endDate", value: ISO8601DateFormatter().string(from: range.endDate))
+        return try await getData(outputType: [AnalogReading].self, urlComponent: pathComponent, queryItems: [startQueryItem, endQueryItem])
     }
     
     public func updateAnalogReading(reading: AnalogReading) async throws -> AnalogReading {
@@ -88,8 +90,12 @@ public struct PiClientAPIImplementation: PiClientAPI {
         }
     }
     
-    func getData<Output: Codable>(outputType: Output.Type, urlComponent: String) async throws -> Output {
-        let url = baseURL.appendingPathComponent(urlComponent)
+    func getData<Output: Codable>(outputType: Output.Type, urlComponent: String, queryItems: [URLQueryItem]? = nil) async throws -> Output {
+        var url = baseURL.appendingPathComponent(urlComponent)
+        if let queryItems {
+            url.append(queryItems: queryItems)
+        }
+
         let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
         do {
             return try jsonDecoder.decode(outputType, from: data)
