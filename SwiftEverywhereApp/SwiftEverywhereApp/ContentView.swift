@@ -10,6 +10,7 @@ struct ContentView: View {
     @State var otherSensorReadings = [AnalogReading]()
     @State var ledState: LEDState = LEDState(on: false)
     @State var lightState: LightSensorReading = LightSensorReading(uploadDate: Date(), value: 0.0)
+    @State var otherSensorReading  = AnalogReading(channel: Self.otherSensorChannel, uploadDate: Date(), value: 0.0)
     @State private var showSettings = false
     @State var viewLoaded = false
     @State var timer: Timer?
@@ -53,6 +54,7 @@ struct ContentView: View {
                     }
                 }
                 Section("Other Sensor") {
+                    Text("\(otherSensorReading.value)")
                     Chart {
                         ForEach(otherSensorReadings) {
                             BarMark(
@@ -123,6 +125,7 @@ struct ContentView: View {
     func loadStates() async throws {
         try await loadLEDState()
         try await loadLightState()
+        try await loadOtherSensorState()
         try await loadLightSensorReadings()
         try await loadOtherSensorReadings()
     }
@@ -144,6 +147,14 @@ struct ContentView: View {
     }
     
     @MainActor
+    func loadOtherSensorState() async throws {
+        guard let apiClient else {
+            throw ContentViewError.missingBaseURL
+        }
+        self.otherSensorReading = try await apiClient.getAnalogReading(channel: Self.otherSensorChannel)
+    }
+    
+    @MainActor
     func loadLightSensorReadings() async throws {
         guard let apiClient else {
             throw ContentViewError.missingBaseURL
@@ -156,7 +167,7 @@ struct ContentView: View {
         guard let apiClient else {
             throw ContentViewError.missingBaseURL
         }
-        self.otherSensorReadings = try await apiClient.getAnalogReadings(channel: 1, range: DateRangeRequest(startDate: Date().addingTimeInterval(-60 * 60 * 24), endDate: Date()))
+        self.otherSensorReadings = try await apiClient.getAnalogReadings(channel: Self.otherSensorChannel, range: DateRangeRequest(startDate: Date().addingTimeInterval(-60 * 60 * 24), endDate: Date()))
     }
     
     @MainActor
@@ -167,6 +178,10 @@ struct ContentView: View {
         let newState = LEDState(on: !ledState.on)
         try await apiClient.updateLEDState(newState)
         try await loadLEDState()
+    }
+    
+    static var otherSensorChannel: Int {
+        return 2
     }
     
     var apiClient: PiClientAPIImplementation? {

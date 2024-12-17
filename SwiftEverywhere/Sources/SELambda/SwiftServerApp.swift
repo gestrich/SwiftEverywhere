@@ -29,14 +29,11 @@ public struct SwiftServerApp: PiClientAPI {
     // MARK: Pi Service
     
     public func getAnalogReading(channel: Int) async throws -> SECommon.AnalogReading {
-        guard let result = try await dynamoStore.getLatest(type: DynamoAnalogReading.self)?.toReading() else {
-            throw LambdaDemoError.noAnalogReading
-        }
-        return result
+        return try await piClientSource().getAnalogReading(channel: channel)
     }
     
     public func getAnalogReadings(channel: Int, range: SECommon.DateRangeRequest) async throws -> [SECommon.AnalogReading] {
-        return try await dynamoStore.getItems(type: DynamoAnalogReading.self, oldestDate: range.startDate, latestDate: range.endDate).compactMap { try? $0.toReading() }
+        return try await dynamoStore.getItems(type: DynamoAnalogReading.self, oldestDate: range.startDate, latestDate: range.endDate).compactMap { try? $0.toReading() }.filter({$0.channel == channel})
     }
     
     public func updateAnalogReading(reading: SECommon.AnalogReading) async throws -> SECommon.AnalogReading {
