@@ -3,11 +3,11 @@ name: Pipeline
 on:
   push:
     branches:
-      - 'main'
-      - 'feature**'
+#      - 'main'
+#      - 'feature**'
   delete:
     branches:
-      - 'feature**'
+#      - 'feature**'
 
 defaults:
   run:
