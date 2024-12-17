@@ -26,7 +26,7 @@ public struct PiClientAPIImplementation: PiClientAPI {
     
     public func getAnalogReadings(channel: Int, range: DateRangeRequest) async throws -> [AnalogReading] {
         let pathComponent = [PiClientAPIPaths.analogReadings.rawValue, "\(channel)"].joined(separator: "/")
-        return try await getData(outputType: [AnalogReading].self, urlComponent: pathComponent)
+        return try await postData(input: range, outputType: [AnalogReading].self, urlComponent: pathComponent)
     }
     
     public func updateAnalogReading(reading: AnalogReading) async throws -> AnalogReading {
