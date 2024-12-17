@@ -30,7 +30,7 @@ public struct PiClientAPIImplementation: PiClientAPI {
     }
     
     public func updateAnalogReading(reading: AnalogReading) async throws -> AnalogReading {
-        let pathComponent = [PiClientAPIPaths.analogReadings.rawValue, "\(reading.channel)"].joined(separator: "/")
+        let pathComponent = [PiClientAPIPaths.analogReading.rawValue, "\(reading.channel)"].joined(separator: "/")
         return try await postData(input: reading, outputType: AnalogReading.self, urlComponent: pathComponent)
     }
     
@@ -71,7 +71,7 @@ public struct PiClientAPIImplementation: PiClientAPI {
     // MARK: Utilities
     
     func postData<Input: Codable, Output: Codable>(input: Input, outputType: Output.Type, urlComponent: String) async throws -> Output {
-        let url = baseURL.appending(component: urlComponent)
+        let url = baseURL.appendingPathComponent(urlComponent)
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -89,7 +89,7 @@ public struct PiClientAPIImplementation: PiClientAPI {
     }
     
     func getData<Output: Codable>(outputType: Output.Type, urlComponent: String) async throws -> Output {
-        let url = baseURL.appending(component: urlComponent)
+        let url = baseURL.appendingPathComponent(urlComponent)
         let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
         do {
             return try jsonDecoder.decode(outputType, from: data)

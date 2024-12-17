@@ -95,13 +95,13 @@ Resources:
         analogReadingsPost:
           Type: Api
           Properties:
-            Path: /analogReadings
+            Path: /analogReadings/{id}
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
         analogReadingGet:
           Type: Api
           Properties:
-            Path: /analogReading
+            Path: /analogReading/{id}
             Method: get
             RestApiId: !Ref SwiftEverywhereAPI
         analogReadingPost:
