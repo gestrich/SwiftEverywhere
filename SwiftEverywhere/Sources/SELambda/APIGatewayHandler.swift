@@ -73,6 +73,9 @@ struct APIGWHandler: EventLoopLambdaHandler {
                 }
                 return try await app.piClientSource().getAnalogReading(channel: channel).apiGatewayOkResponse()
             case .POST:
+                guard urlComponents.count > 1, let channel = Int(urlComponents[1]) else {
+                    throw APIGWHandlerError.general(description: "Missing channel in \(event.httpMethod)")
+                }
                 guard let bodyData = event.bodyData() else {
                     throw APIGWHandlerError.general(description: "Missing body data")
                 }

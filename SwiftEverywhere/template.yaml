@@ -107,7 +107,7 @@ Resources:
         analogReadingPost:
           Type: Api
           Properties:
-            Path: /analogReading
+            Path: /analogReading/{id}
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
       Policies:
