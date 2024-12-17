@@ -27,10 +27,11 @@ func routes(_ app: Application, mpc: PiController) throws {
                 guard let channel = request.parameters.get("channel", as: Int.self) else {
                     throw RoutesError.missingChannel
                 }
-                guard let startDateQuery = request.parameters.get("startDate", as: String.self) else {
+                
+                guard let startDateQuery: String = request.query["startDate"] else {
                     throw RoutesError.missingRangeDate
                 }
-                guard let endDateQuery = request.parameters.get("endDate", as: String.self) else {
+                guard let endDateQuery: String = request.query["endDate"] else {
                     throw RoutesError.missingRangeDate
                 }
                 let formatter = ISO8601DateFormatter()
