@@ -7,6 +7,7 @@ import SwiftUI
 struct ContentView: View {
     @StateObject var urlStore = URLStore()
     @State var lightSensorReadings = [LightSensorReading]()
+    @State var otherSensorReadings = [AnalogReading]()
     @State var ledState: LEDState = LEDState(on: false)
     @State var lightState: LightSensorReading = LightSensorReading(uploadDate: Date(), value: 0.0)
     @State private var showSettings = false
@@ -40,6 +41,20 @@ struct ContentView: View {
                     Text("\(lightState.value)")
                     Chart {
                         ForEach(lightSensorReadings) {
+                            BarMark(
+                                x: .value("Date", $0.uploadDate),
+                                y: .value("Reading", $0.value)
+                            )
+                        }
+                    }
+                    .chartXAxis {
+                        AxisMarks(format: Date.FormatStyle.dateTime.hour(),
+                                  values: .automatic(desiredCount: 8))
+                    }
+                }
+                Section("Other Sensor") {
+                    Chart {
+                        ForEach(otherSensorReadings) {
                             BarMark(
                                 x: .value("Date", $0.uploadDate),
                                 y: .value("Reading", $0.value)
@@ -109,6 +124,7 @@ struct ContentView: View {
         try await loadLEDState()
         try await loadLightState()
         try await loadLightSensorReadings()
+        try await loadOtherSensorReadings()
     }
     
     @MainActor
@@ -133,6 +149,14 @@ struct ContentView: View {
             throw ContentViewError.missingBaseURL
         }
         self.lightSensorReadings = try await apiClient.getLightSensorReadings(range: DateRangeRequest(startDate: Date().addingTimeInterval(-60 * 60 * 24), endDate: Date()))
+    }
+    
+    @MainActor
+    func loadOtherSensorReadings() async throws {
+        guard let apiClient else {
+            throw ContentViewError.missingBaseURL
+        }
+        self.otherSensorReadings = try await apiClient.getAnalogReadings(channel: 1, range: DateRangeRequest(startDate: Date().addingTimeInterval(-60 * 60 * 24), endDate: Date()))
     }
     
     @MainActor
@@ -256,6 +280,12 @@ class URLStore: ObservableObject {
 }
 
 extension LightSensorReading: @retroactive Identifiable {
+    public var id: Date {
+        return uploadDate
+    }
+}
+
+extension AnalogReading: @retroactive Identifiable {
     public var id: Date {
         return uploadDate
     }
