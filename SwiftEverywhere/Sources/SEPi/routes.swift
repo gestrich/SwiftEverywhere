@@ -8,6 +8,8 @@ func routes(_ app: Application, mpc: PiController) throws {
         Task {
             let reading = try await mpc.getLightSensorReading()
             _ = try await piClient().updateLightSensorReading(reading)
+            let analogReading = try await mpc.getAnalogReading(channel: 1)
+            _ = try await piClient().updateAnalogReading(reading: analogReading)
         }
     }
     
