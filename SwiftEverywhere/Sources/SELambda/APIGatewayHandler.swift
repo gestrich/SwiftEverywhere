@@ -65,6 +65,36 @@ struct APIGWHandler: EventLoopLambdaHandler {
         }
         
         switch componentAsAPIPath {
+        case .analogReading:
+            switch event.httpMethod {
+            case .GET:
+                guard urlComponents.count > 1, let channel = Int(urlComponents[1]) else {
+                    throw APIGWHandlerError.general(description: "Missing channel in \(event.httpMethod)")
+                }
+                return try await app.piClientSource().getAnalogReading(channel: channel).apiGatewayOkResponse()
+            case .POST:
+                guard let bodyData = event.bodyData() else {
+                    throw APIGWHandlerError.general(description: "Missing body data")
+                }
+                let reading = try jsonDecoder.decode(AnalogReading.self, from: bodyData)
+                return try await app.updateAnalogReading(reading:reading).apiGatewayOkResponse()
+            default:
+                throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
+            }
+        case .analogReadings:
+            switch event.httpMethod {
+            case .POST:
+                guard urlComponents.count > 1, let channel = Int(urlComponents[1]) else {
+                    throw APIGWHandlerError.general(description: "Missing channel in \(event.httpMethod)")
+                }
+                guard let bodyData = event.bodyData() else {
+                    throw APIGWHandlerError.general(description: "Missing body data")
+                }
+                let range = try jsonDecoder.decode(DateRangeRequest.self, from: bodyData)
+                return try await app.getAnalogReadings(channel: channel, range: range).apiGatewayOkResponse()
+            default:
+                throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
+            }
         case .host:
             switch event.httpMethod {
             case .GET:

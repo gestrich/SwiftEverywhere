@@ -28,6 +28,21 @@ public struct SwiftServerApp: PiClientAPI {
     
     // MARK: Pi Service
     
+    public func getAnalogReading(channel: Int) async throws -> SECommon.AnalogReading {
+        guard let result = try await dynamoStore.getLatest(type: DynamoAnalogReading.self)?.toReading() else {
+            throw LambdaDemoError.noAnalogReading
+        }
+        return result
+    }
+    
+    public func getAnalogReadings(channel: Int, range: SECommon.DateRangeRequest) async throws -> [SECommon.AnalogReading] {
+        return try await dynamoStore.getItems(type: DynamoAnalogReading.self, oldestDate: range.startDate, latestDate: range.endDate).compactMap { try? $0.toReading() }
+    }
+    
+    public func updateAnalogReading(reading: SECommon.AnalogReading) async throws -> SECommon.AnalogReading {
+        return try await dynamoStore.store(type: DynamoAnalogReading.self, item: DynamoAnalogReading(reading: reading)).toReading()
+    }
+    
     public func getHost() async throws -> SECommon.Host {
         guard let result = try await dynamoStore.getLatest(type: DynamoHost.self)?.toHost() else {
             throw LambdaDemoError.missingHost
@@ -89,6 +104,7 @@ public struct SwiftServerApp: PiClientAPI {
         case missingService(name: String)
         case unexpectedError(description: String)
         case missingHost
+        case noAnalogReading
         case noLightSensorReading
     }
     

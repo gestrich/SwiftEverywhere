@@ -8,6 +8,9 @@
 import Foundation
 
 public protocol PiClientAPI {
+    func getAnalogReading(channel: Int) async throws -> AnalogReading
+    func getAnalogReadings(channel: Int, range: DateRangeRequest) async throws -> [AnalogReading]
+    func updateAnalogReading(reading: AnalogReading) async throws -> AnalogReading
     func getLEDState() async throws -> LEDState
     func updateLEDState(_ state: LEDState) async throws -> LEDState
     func getHost() async throws -> Host
@@ -18,6 +21,8 @@ public protocol PiClientAPI {
 }
 
 public enum PiClientAPIPaths: String, CaseIterable {
+    case analogReading
+    case analogReadings
     case host
     case led
     case lightSensorReading

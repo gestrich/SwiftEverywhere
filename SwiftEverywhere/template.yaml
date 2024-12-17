@@ -92,6 +92,24 @@ Resources:
             Path: /lightSensorReading
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
+        analogReadingsPost:
+          Type: Api
+          Properties:
+            Path: /analogReadings
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
+        analogReadingGet:
+          Type: Api
+          Properties:
+            Path: /analogReading
+            Method: get
+            RestApiId: !Ref SwiftEverywhereAPI
+        analogReadingPost:
+          Type: Api
+          Properties:
+            Path: /analogReading
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
       Policies:
       - AmazonDynamoDBFullAccess
       - Statement:

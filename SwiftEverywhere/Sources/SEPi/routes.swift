@@ -13,6 +13,24 @@ func routes(_ app: Application, mpc: PiController) throws {
     
     for path in PiClientAPIPaths.allCases {
         switch path {
+        case .analogReading:
+            app.get(PathComponent(stringLiteral: path.rawValue), ":channel") { request in
+                guard let channel = request.parameters.get("channel", as: Int.self) else {
+                    throw RoutesError.missingChannel
+                }
+                return try await mpc.getAnalogReading(channel: channel)
+            }
+        case .analogReadings:
+            app.post(path.rawValue.pathComponents) { request in
+                guard let channel = request.parameters.get("channel", as: Int.self) else {
+                    throw RoutesError.missingChannel
+                }
+                guard let data = request.body.data else {
+                    throw RoutesError.unexpectedBody
+                }
+                let request = try jsonDecoder().decode(DateRangeRequest.self, from: data)
+                return try await piClient().getAnalogReadings(channel: channel, range: request)
+            }
         case .host:
             app.post(path.rawValue.pathComponents) { request in
                 guard let data = request.body.data else {
@@ -41,6 +59,7 @@ func routes(_ app: Application, mpc: PiController) throws {
                 return try await piClient().updateLightSensorReading(reading)
             }
         case .lightSensorReadings:
+            // This is not supported on Pi but isn't this a post?
             app.get(path.rawValue.pathComponents) { request in
                 guard let data = request.body.data else {
                     throw RoutesError.unexpectedBody
@@ -74,9 +93,14 @@ func routes(_ app: Application, mpc: PiController) throws {
     enum RoutesError: LocalizedError {
         case unexpectedBody
         case missingAPIGatewayURL
+        case missingChannel
     }
 }
 
+extension AnalogReading: Content {
+        
+}
+    
 extension SECommon.Host: Content {
     
 }

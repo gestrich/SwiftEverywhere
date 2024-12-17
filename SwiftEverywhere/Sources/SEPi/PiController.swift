@@ -106,6 +106,20 @@ public struct PiController: Sendable {
 }
 
 extension PiController: PiClientAPI {
+    
+    public func getAnalogReading(channel: Int) async throws -> SECommon.AnalogReading {
+        let voltage = getVoltage(channel: UInt8(channel))
+        return AnalogReading(channel: channel, uploadDate: Date(), value: Double(voltage))
+    }
+    
+    public func getAnalogReadings(channel: Int, range: SECommon.DateRangeRequest) async throws -> [SECommon.AnalogReading] {
+        throw RoutesError.unsupportedMethod
+    }
+    
+    public func updateAnalogReading(reading: SECommon.AnalogReading) async throws -> SECommon.AnalogReading {
+        throw RoutesError.unsupportedMethod
+    }
+    
     public func getHost() async throws -> SECommon.Host {
         throw RoutesError.unsupportedMethod
     }
