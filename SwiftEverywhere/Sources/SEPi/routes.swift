@@ -23,15 +23,24 @@ func routes(_ app: Application, mpc: PiController) throws {
                 return try await mpc.getAnalogReading(channel: channel)
             }
         case .analogReadings:
-            app.post(path.rawValue.pathComponents) { request in
+            app.get(PathComponent(stringLiteral: path.rawValue), ":channel") { request in
                 guard let channel = request.parameters.get("channel", as: Int.self) else {
                     throw RoutesError.missingChannel
                 }
-                guard let data = request.body.data else {
-                    throw RoutesError.unexpectedBody
+                guard let startDateQuery = request.parameters.get("startDate", as: String.self) else {
+                    throw RoutesError.missingRangeDate
                 }
-                let request = try jsonDecoder().decode(DateRangeRequest.self, from: data)
-                return try await piClient().getAnalogReadings(channel: channel, range: request)
+                guard let endDateQuery = request.parameters.get("endDate", as: String.self) else {
+                    throw RoutesError.missingRangeDate
+                }
+                let formatter = ISO8601DateFormatter()
+                guard let startDate = formatter.date(from: startDateQuery) else {
+                    throw RoutesError.missingRangeDate
+                }
+                guard let endDate = formatter.date(from: endDateQuery) else {
+                    throw RoutesError.missingRangeDate
+                }
+                return try await mpc.getAnalogReadings(channel: channel, range: DateRangeRequest(startDate: startDate, endDate: endDate))
             }
         case .host:
             app.post(path.rawValue.pathComponents) { request in
@@ -93,9 +102,10 @@ func routes(_ app: Application, mpc: PiController) throws {
     }
     
     enum RoutesError: LocalizedError {
-        case unexpectedBody
         case missingAPIGatewayURL
         case missingChannel
+        case missingRangeDate
+        case unexpectedBody
     }
 }
 

@@ -92,13 +92,7 @@ Resources:
             Path: /lightSensorReading
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
-        analogReadingsPost:
-          Type: Api
-          Properties:
-            Path: /analogReadings/{id}
-            Method: post
-            RestApiId: !Ref SwiftEverywhereAPI
-        analogReadingGet:
+        analogReadingsSearch:
           Type: Api
           Properties:
             Path: /analogReading/{id}
