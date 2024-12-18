@@ -50,6 +50,24 @@ Resources:
       Architectures:
       - arm64
       Events:
+        analogReadingsGet:
+          Type: Api
+          Properties:
+            Path: /analogReading/{id}
+            Method: get
+            RestApiId: !Ref SwiftEverywhereAPI
+        analogReadingsSearch:
+          Type: Api
+          Properties:
+            Path: /analogReadings/{id}
+            Method: get
+            RestApiId: !Ref SwiftEverywhereAPI
+        analogReadingPost:
+          Type: Api
+          Properties:
+            Path: /analogReading/{id}
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
         HostGet:
           Type: Api
           Properties:
@@ -90,18 +108,6 @@ Resources:
           Type: Api
           Properties:
             Path: /lightSensorReading
-            Method: post
-            RestApiId: !Ref SwiftEverywhereAPI
-        analogReadingsSearch:
-          Type: Api
-          Properties:
-            Path: /analogReadings/{id}
-            Method: get
-            RestApiId: !Ref SwiftEverywhereAPI
-        analogReadingPost:
-          Type: Api
-          Properties:
-            Path: /analogReading/{id}
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
       Policies:
