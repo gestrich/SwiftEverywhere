@@ -30,12 +30,14 @@ struct ContentView: View {
                             }
                         }
                     } label: {
-                        Group {
+                        HStack {
+                            Spacer()
                             Image(systemName: "lightbulb.fill")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .foregroundStyle(ledState.on ? Color.yellow : Color.gray )
-                        }.frame(width: 25)
+                                .frame(width: 25)
+                        }
                     }
                 }
                 Section("Light Sensor") {
