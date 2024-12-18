@@ -25,10 +25,11 @@ public struct PiClientAPIImplementation: PiClientAPI {
     }
     
     public func getAnalogReadings(channel: Int, range: DateRangeRequest) async throws -> [AnalogReading] {
-        let pathComponent = [PiClientAPIPaths.analogReadings.rawValue, "\(channel)"].joined(separator: "/")
+        let pathComponent = PiClientAPIPaths.analogReadings.rawValue
+        let channel = URLQueryItem(name: "channel", value: "\(channel)")
         let startQueryItem = URLQueryItem(name: "startDate", value: ISO8601DateFormatter().string(from: range.startDate))
         let endQueryItem = URLQueryItem(name: "endDate", value: ISO8601DateFormatter().string(from: range.endDate))
-        return try await getData(outputType: [AnalogReading].self, urlComponent: pathComponent, queryItems: [startQueryItem, endQueryItem])
+        return try await getData(outputType: [AnalogReading].self, urlComponent: pathComponent, queryItems: [channel, startQueryItem, endQueryItem])
     }
     
     public func updateAnalogReading(reading: AnalogReading) async throws -> AnalogReading {

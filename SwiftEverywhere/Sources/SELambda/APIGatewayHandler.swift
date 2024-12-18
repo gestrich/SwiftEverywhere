@@ -87,11 +87,11 @@ struct APIGWHandler: EventLoopLambdaHandler {
         case .analogReadings:
             switch event.httpMethod {
             case .GET:
-                guard urlComponents.count > 1, let channel = Int(urlComponents[1]) else {
-                    throw APIGWHandlerError.general(description: "Missing channel in \(event.httpMethod)")
-                }
                 guard let queryStringParameters = event.queryStringParameters else {
                     throw APIGWHandlerError.general(description: "Missing query parameters")
+                }
+                guard let channelQuery = queryStringParameters["channel"], let channel = Int(channelQuery) else {
+                    throw APIGWHandlerError.general(description: "Missing channel query parameter")
                 }
                 guard let startDateQuery = queryStringParameters["startDate"] else {
                     throw APIGWHandlerError.general(description: "Missing startDate query parameter")
