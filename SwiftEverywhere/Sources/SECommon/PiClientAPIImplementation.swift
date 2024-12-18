@@ -20,7 +20,7 @@ public struct PiClientAPIImplementation: PiClientAPI {
     // MARK: Analog
     
     public func getAnalogReading(channel: Int) async throws -> AnalogReading {
-        let pathComponent = [PiClientAPIPaths.analogReading.rawValue, "\(channel)"].joined(separator: "/")
+        let pathComponent = [PiClientAPIPaths.analogReadings.rawValue, "\(channel)"].joined(separator: "/")
         return try await getData(outputType: AnalogReading.self, urlComponent: pathComponent)
     }
     
@@ -33,7 +33,7 @@ public struct PiClientAPIImplementation: PiClientAPI {
     }
     
     public func updateAnalogReading(reading: AnalogReading) async throws -> AnalogReading {
-        let pathComponent = [PiClientAPIPaths.analogReading.rawValue, "\(reading.channel)"].joined(separator: "/")
+        let pathComponent = [PiClientAPIPaths.analogReadings.rawValue, "\(reading.channel)"].joined(separator: "/")
         return try await postData(input: reading, outputType: AnalogReading.self, urlComponent: pathComponent)
     }
     

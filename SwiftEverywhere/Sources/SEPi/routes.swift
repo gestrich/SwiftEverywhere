@@ -17,14 +17,13 @@ func routes(_ app: Application, mpc: PiController) throws {
     
     for path in PiClientAPIPaths.allCases {
         switch path {
-        case .analogReading:
+        case .analogReadings:
             app.get(PathComponent(stringLiteral: path.rawValue), ":channel") { request in
                 guard let channel = request.parameters.get("channel", as: Int.self) else {
                     throw RoutesError.missingChannel
                 }
                 return try await mpc.getAnalogReading(channel: channel)
             }
-        case .analogReadings:
             app.get(PathComponent(stringLiteral: path.rawValue)) { request in
                 guard let channelString: String = request.query["channel"], let channel = Int(channelString) else {
                     throw RoutesError.missingChannel

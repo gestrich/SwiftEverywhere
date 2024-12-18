@@ -21,7 +21,6 @@ public protocol PiClientAPI {
 }
 
 public enum PiClientAPIPaths: String, CaseIterable {
-    case analogReading
     case analogReadings
     case host
     case led
