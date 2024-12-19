@@ -40,7 +40,7 @@ public struct PiController: Sendable {
         print("\u{1B}[1A\u{1B}[KChannel1: \(lightSensorValue())%")
     }
     
-    func lightSensorValue() -> Int {
+    func lightSensorValue() -> Double {
         return getVoltage(channel: 1)
     }
 
@@ -57,11 +57,11 @@ public struct PiController: Sendable {
         }
     }
 
-    func getVoltage(channel: UInt8) -> Int {
+    func getVoltage(channel: UInt8) -> Double {
         let voltage = 3.2
         let voltage0 = self.mcpVoltage(
             outputCode: self.mcpReadData(a2dChannel: channel), voltageReference: voltage)
-        return abs(Int(voltage0 / voltage * 100) - 100)
+        return abs((voltage0 / voltage * 100) - 100)
     }
 
     func setLight(on: Bool) {
