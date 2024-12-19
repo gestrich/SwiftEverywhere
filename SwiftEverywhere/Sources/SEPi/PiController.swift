@@ -66,17 +66,32 @@ public struct PiController: Sendable {
     }
 
     func getTemperatureFahrenheit(channel: UInt8) -> Double {
-        // Step 1: Get the voltage from the sensor
+        // Step 1: Read voltage from the sensor
         let voltage = self.mcpVoltage(
             outputCode: self.mcpReadData(a2dChannel: channel),
-            voltageReference: 3.2
+            voltageReference: 3.3  // Updated to 3.3V
         )
+        print("Voltage: \(voltage)") // Debugging
         
-        // Calculation of the temperature using the voltage
-        var temperature = ((voltage / 3.2) * 10000.0) / (1.0 - (voltage / 3.2))
-        temperature = 1.0 / ((1.0 / 298.15) + (1.0 / 3950.0) * log(temperature / 10000.0));
-        // Step 4: Convert temperature from Kelvin to Fahrenheit
-        let temperatureF = (temperature - 273.15) * 9.0 / 5.0 + 32.0
+        // Step 2: Calculate thermistor resistance
+        let fixedResistor = 10_000.0  // 10kΩ resistor
+        let thermistorResistance = fixedResistor * (voltage / (3.3 - voltage))
+        print("Thermistor Resistance: \(thermistorResistance)") // Debugging
+        
+        // Step 3: Apply the Steinhart-Hart equation
+        let nominalTemperatureK = 298.15  // 25°C in Kelvin
+        let betaCoefficient = 3950.0  // Beta value of the thermistor
+        let nominalResistance = 10_000.0  // 10kΩ at 25°C
+        
+        let temperatureK = 1.0 / (
+            (1.0 / nominalTemperatureK) +
+            (1.0 / betaCoefficient) * log(thermistorResistance / nominalResistance)
+        )
+        print("Temperature (Kelvin): \(temperatureK)") // Debugging
+        
+        // Step 4: Convert Kelvin to Fahrenheit
+        let temperatureF = (temperatureK - 273.15) * 9.0 / 5.0 + 32.0
+        print("Temperature (Fahrenheit): \(temperatureF)") // Debugging
         
         return temperatureF
     }
