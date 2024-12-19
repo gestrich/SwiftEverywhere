@@ -37,7 +37,8 @@ public struct PiController: Sendable {
 
     func printValues() {
         // SPI
-        print("\u{1B}[1A\u{1B}[KChannel1: \(channel1Reading())%")
+        let temp = getTemperatureFahrenheit(channel: 2)
+        print("\u{1B}[1A\u{1B}[KChannel1: \(channel1Reading())%. Temp: \(temp)F")
     }
     
     func channel1Reading() -> Double {
@@ -62,6 +63,34 @@ public struct PiController: Sendable {
         let voltage0 = self.mcpVoltage(
             outputCode: self.mcpReadData(a2dChannel: channel), voltageReference: voltage)
         return abs((voltage0 / voltage * 100) - 100)
+    }
+
+    func getTemperatureFahrenheit(channel: UInt8) -> Double {
+        let voltageReference = 3.2  // Reference voltage (your input voltage)
+        let fixedResistor = 10000.0  // Resistor value in the voltage divider (10kΩ)
+        let betaCoefficient = 3950.0  // Thermistor's beta coefficient (from datasheet)
+        let nominalResistance = 10000.0  // Thermistor resistance at 25°C (10kΩ)
+        let nominalTemperatureK = 298.15  // 25°C in Kelvin
+        
+        // Step 1: Get the voltage from the sensor
+        let voltage0 = self.mcpVoltage(
+            outputCode: self.mcpReadData(a2dChannel: channel),
+            voltageReference: voltageReference
+        )
+        
+        // Step 2: Calculate the thermistor resistance using the voltage divider formula
+        let thermistorResistance = fixedResistor * (voltage0 / (voltageReference - voltage0))
+        
+        // Step 3: Use the Steinhart-Hart equation to calculate temperature in Kelvin
+        let temperatureK = 1.0 / (
+            (1.0 / nominalTemperatureK) +
+            (1.0 / betaCoefficient) * log(thermistorResistance / nominalResistance)
+        )
+        
+        // Step 4: Convert temperature from Kelvin to Fahrenheit
+        let temperatureF = (temperatureK - 273.15) * 9.0 / 5.0 + 32.0
+        
+        return temperatureF
     }
 
     func setLight(on: Bool) {
@@ -101,7 +130,7 @@ public struct PiController: Sendable {
     }
 
     func mcpVoltage(outputCode: UInt64, voltageReference: Double) -> Double {
-        return Double(outputCode) * voltageReference / 1024.0
+        return Double(outputCode) * voltageReference / 1023.0
     }
 }
 
