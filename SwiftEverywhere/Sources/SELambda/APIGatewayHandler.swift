@@ -131,30 +131,6 @@ struct APIGWHandler: EventLoopLambdaHandler {
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }
-        case .lightSensorReading:
-            switch event.httpMethod {
-            case .GET:
-                return try await app.piClientSource().getLightSensorReading().apiGatewayOkResponse()
-            case .POST:
-                guard let bodyData = event.bodyData() else {
-                    throw APIGWHandlerError.general(description: "Missing body data")
-                }
-                let reading = try jsonDecoder.decode(LightSensorReading.self, from: bodyData)
-                return try await app.updateLightSensorReading(reading).apiGatewayOkResponse()
-            default:
-                throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
-            }
-        case .lightSensorReadings:
-            switch event.httpMethod {
-            case .POST:
-                guard let bodyData = event.bodyData() else {
-                    throw APIGWHandlerError.general(description: "Missing body data")
-                }
-                let range = try jsonDecoder.decode(DateRangeRequest.self, from: bodyData)
-                return try await app.getLightSensorReadings(range: range).apiGatewayOkResponse()
-            default:
-                throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
-            }
         }
     }
     

@@ -37,10 +37,10 @@ public struct PiController: Sendable {
 
     func printValues() {
         // SPI
-        print("\u{1B}[1A\u{1B}[KChannel1: \(lightSensorValue())%")
+        print("\u{1B}[1A\u{1B}[KChannel1: \(channel1Reading())%")
     }
     
-    func lightSensorValue() -> Double {
+    func channel1Reading() -> Double {
         return getVoltage(channel: 1)
     }
 
@@ -147,18 +147,6 @@ extension PiController: PiClientAPI {
         ledGPIO.direction = .OUT
         ledGPIO.value = state.on ? 1 : 0
         return state
-    }
-    
-    public func getLightSensorReading() async throws -> SECommon.LightSensorReading {
-        return LightSensorReading(uploadDate: Date(), value: Double(lightSensorValue()))
-    }
-    
-    public func updateLightSensorReading(_ reading: LightSensorReading) async throws -> LightSensorReading {
-        throw RoutesError.unsupportedMethod
-    }
-    
-    public func getLightSensorReadings(range: DateRangeRequest) async throws -> [LightSensorReading] {
-        return []
     }
 }
 

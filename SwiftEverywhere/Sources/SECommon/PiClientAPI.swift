@@ -15,15 +15,10 @@ public protocol PiClientAPI {
     func updateLEDState(_ state: LEDState) async throws -> LEDState
     func getHost() async throws -> Host
     func postHost(_ host: Host) async throws -> Host
-    func getLightSensorReading() async throws -> LightSensorReading
-    func getLightSensorReadings(range: DateRangeRequest) async throws -> [LightSensorReading]
-    func updateLightSensorReading(_ reading: LightSensorReading) async throws -> LightSensorReading
 }
 
 public enum PiClientAPIPaths: String, CaseIterable {
     case analogReadings
     case host
     case led
-    case lightSensorReading
-    case lightSensorReadings
 }

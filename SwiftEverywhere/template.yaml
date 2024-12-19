@@ -92,24 +92,6 @@ Resources:
             Path: /led
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
-        lightSensorReadingsPost:
-          Type: Api
-          Properties:
-            Path: /lightSensorReadings
-            Method: post
-            RestApiId: !Ref SwiftEverywhereAPI
-        lightSensorGet:
-          Type: Api
-          Properties:
-            Path: /lightSensorReading
-            Method: get
-            RestApiId: !Ref SwiftEverywhereAPI
-        lightSensorPost:
-          Type: Api
-          Properties:
-            Path: /lightSensorReading
-            Method: post
-            RestApiId: !Ref SwiftEverywhereAPI
       Policies:
       - AmazonDynamoDBFullAccess
       - Statement:

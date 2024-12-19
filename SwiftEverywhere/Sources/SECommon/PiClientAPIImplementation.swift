@@ -57,20 +57,6 @@ public struct PiClientAPIImplementation: PiClientAPI {
         return try await postData(input: state, outputType: LEDState.self, urlComponent: PiClientAPIPaths.led.rawValue)
     }
     
-    // MARK: LightSensorReading
-    
-    public func getLightSensorReadings(range: DateRangeRequest) async throws -> [LightSensorReading] {
-        return try await postData(input: range, outputType: [LightSensorReading].self, urlComponent: PiClientAPIPaths.lightSensorReadings.rawValue)
-    }
-    
-    public func getLightSensorReading() async throws -> LightSensorReading {
-        return try await getData(outputType: LightSensorReading.self .self, urlComponent: PiClientAPIPaths.lightSensorReading.rawValue)
-    }
-    
-    public func updateLightSensorReading(_ reading: LightSensorReading) async throws -> LightSensorReading {
-        return try await postData(input: reading, outputType: LightSensorReading.self, urlComponent: PiClientAPIPaths.lightSensorReading.rawValue)
-    }
-    
     // MARK: Utilities
     
     func postData<Input: Codable, Output: Codable>(input: Input, outputType: Output.Type, urlComponent: String) async throws -> Output {

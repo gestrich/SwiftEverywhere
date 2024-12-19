@@ -6,11 +6,11 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject var urlStore = URLStore()
-    @State var lightSensorReadings = [LightSensorReading]()
-    @State var otherSensorReadings = [AnalogReading]()
+    @State var channel1Readings = [AnalogReading]()
+    @State var channel2Readings = [AnalogReading]()
     @State var ledState: LEDState = LEDState(on: false)
-    @State var lightState: LightSensorReading = LightSensorReading(uploadDate: Date(), value: 0.0)
-    @State var otherSensorReading  = AnalogReading(channel: Self.otherSensorChannel, uploadDate: Date(), value: 0.0)
+    @State var channel1Reading = AnalogReading(channel: Self.channel1, uploadDate: Date(), value: 0.0)
+    @State var channel2Reading  = AnalogReading(channel: Self.channel2, uploadDate: Date(), value: 0.0)
     @State private var showSettings = false
     @State var viewLoaded = false
     @State var timer: Timer?
@@ -41,9 +41,9 @@ struct ContentView: View {
                     }
                 }
                 Section("Light Sensor") {
-                    Text("\(lightState.value)")
+                    Text(formatToTwoDecimals(channel1Reading.value) + "%")
                     Chart {
-                        ForEach(lightSensorReadings) {
+                        ForEach(channel1Readings) {
                             BarMark(
                                 x: .value("Date", $0.uploadDate),
                                 y: .value("Reading", $0.value)
@@ -55,10 +55,10 @@ struct ContentView: View {
                                   values: .automatic(desiredCount: 8))
                     }
                 }
-                Section("Other Sensor") {
-                    Text("\(otherSensorReading.value)")
+                Section("Temperature Sensor") {
+                    Text(formatToTwoDecimals(channel2Reading.value) + "%")
                     Chart {
-                        ForEach(otherSensorReadings) {
+                        ForEach(channel2Readings) {
                             BarMark(
                                 x: .value("Date", $0.uploadDate),
                                 y: .value("Reading", $0.value)
@@ -126,18 +126,18 @@ struct ContentView: View {
     
     func loadStates() async throws {
         try await loadLEDState()
-        try await loadLightState()
-        try await loadOtherSensorState()
-        try await loadLightSensorReadings()
-        try await loadOtherSensorReadings()
+        try await loadChannel1Reading()
+        try await loadChannel2Reading()
+        try await loadChannel1Readings()
+        try await loadChannel2Readings()
     }
     
     @MainActor
-    func loadLightState() async throws {
+    func loadChannel1Reading() async throws {
         guard let apiClient else {
             throw ContentViewError.missingBaseURL
         }
-        lightState = try await apiClient.getLightSensorReading()
+        channel1Reading = try await apiClient.getAnalogReading(channel: Self.channel1)
     }
     
     @MainActor
@@ -149,27 +149,27 @@ struct ContentView: View {
     }
     
     @MainActor
-    func loadOtherSensorState() async throws {
+    func loadChannel2Reading() async throws {
         guard let apiClient else {
             throw ContentViewError.missingBaseURL
         }
-        self.otherSensorReading = try await apiClient.getAnalogReading(channel: Self.otherSensorChannel)
+        self.channel2Reading = try await apiClient.getAnalogReading(channel: Self.channel2)
     }
     
     @MainActor
-    func loadLightSensorReadings() async throws {
+    func loadChannel1Readings() async throws {
         guard let apiClient else {
             throw ContentViewError.missingBaseURL
         }
-        self.lightSensorReadings = try await apiClient.getLightSensorReadings(range: DateRangeRequest(startDate: Date().addingTimeInterval(-60 * 60 * 24), endDate: Date()))
+        self.channel1Readings = try await apiClient.getAnalogReadings(channel: Self.channel1, range: DateRangeRequest(startDate: Date().addingTimeInterval(-60 * 60 * 24), endDate: Date()))
     }
     
     @MainActor
-    func loadOtherSensorReadings() async throws {
+    func loadChannel2Readings() async throws {
         guard let apiClient else {
             throw ContentViewError.missingBaseURL
         }
-        self.otherSensorReadings = try await apiClient.getAnalogReadings(channel: Self.otherSensorChannel, range: DateRangeRequest(startDate: Date().addingTimeInterval(-60 * 60 * 24), endDate: Date()))
+        self.channel2Readings = try await apiClient.getAnalogReadings(channel: Self.channel2, range: DateRangeRequest(startDate: Date().addingTimeInterval(-60 * 60 * 24), endDate: Date()))
     }
     
     @MainActor
@@ -182,7 +182,20 @@ struct ContentView: View {
         try await loadLEDState()
     }
     
-    static var otherSensorChannel: Int {
+    func formatToTwoDecimals(_ number: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+
+        return formatter.string(for: number) ?? "N/A"
+    }
+
+    static var channel1: Int {
+        return 2
+    }
+    
+    static var channel2: Int {
         return 2
     }
     
@@ -293,12 +306,6 @@ class URLStore: ObservableObject {
                 UserDefaults.standard.set(index, forKey: self.selectedIndexKey)
             }
             .store(in: &cancellables)
-    }
-}
-
-extension LightSensorReading: @retroactive Identifiable {
-    public var id: Date {
-        return uploadDate
     }
 }
 

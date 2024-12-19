@@ -52,21 +52,6 @@ public struct SwiftServerApp: PiClientAPI {
         return try await dynamoStore.store(type: DynamoHost.self, item: dynamoHost).toHost()
     }
     
-    public func getLightSensorReading() async throws -> LightSensorReading {
-        guard let result = try await dynamoStore.getLatest(type: DynamoLightSensorReading.self)?.toReading() else {
-            throw LambdaDemoError.noLightSensorReading
-        }
-        return result
-    }
-    
-    public func getLightSensorReadings(range: SECommon.DateRangeRequest) async throws -> [LightSensorReading] {
-        return try await dynamoStore.getItems(type: DynamoLightSensorReading.self, oldestDate: range.startDate, latestDate: range.endDate).compactMap { try? $0.toReading() }
-    }
-    
-    public func updateLightSensorReading(_ reading: LightSensorReading) async throws -> SECommon.LightSensorReading {
-        return try await dynamoStore.store(type: DynamoLightSensorReading.self, item: DynamoLightSensorReading(reading: reading)).toReading()
-    }
-    
     public func getLEDState() async throws -> LEDState {
         return try await piClientSource().getLEDState()
     }
@@ -102,7 +87,6 @@ public struct SwiftServerApp: PiClientAPI {
         case unexpectedError(description: String)
         case missingHost
         case noAnalogReading
-        case noLightSensorReading
     }
     
 }
