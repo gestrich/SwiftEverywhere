@@ -6,10 +6,10 @@ func routes(_ app: Application, mpc: PiController) throws {
     // Setup
     app.eventLoopGroup.next().scheduleRepeatedTask(initialDelay: .seconds(1), delay: .minutes(5)) { task in
         Task {
-            let analogReading1 = try await mpc.getAnalogReading(channel: 1)
-            _ = try await piClient().updateAnalogReading(reading: analogReading1)
-            let analogReading2 = try await mpc.getAnalogReading(channel: 2)
-            _ = try await piClient().updateAnalogReading(reading: analogReading2)
+            for configuration in PiHardwareConfiguration().sensorConfigurations {
+                let reading = try await mpc.getAnalogReading(channel: configuration.channel)
+                _ = try await piClient().updateAnalogReading(reading: reading)
+            }
         }
     }
     

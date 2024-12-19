@@ -10,7 +10,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-public struct PiClientAPIImplementation: PiClientAPI {
+public struct PiClientAPIImplementation: PiClientAPI, Sendable {
     let baseURL: URL
     
     public init(baseURL: URL) {

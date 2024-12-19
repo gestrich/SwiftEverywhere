@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct DateRangeRequest: Codable {
+public struct DateRangeRequest: Codable, Sendable {
     public let startDate: Date
     public let endDate: Date
     
