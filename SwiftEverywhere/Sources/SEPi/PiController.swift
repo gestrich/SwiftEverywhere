@@ -88,9 +88,9 @@ public struct PiController: Sendable {
         print("Thermistor Resistance: \(thermistorResistance)") // Debugging
         
         // Step 3: Apply the Steinhart-Hart equation
-        let nominalTemperatureK = 298.15  // 25°C in Kelvin
-        let betaCoefficient = 3950.0  // Beta value of the thermistor
-        let nominalResistance = 10_000.0  // 10kΩ at 25°C
+        let nominalTemperatureK = 298.15  // Nominal temperature in Kelvin
+        let betaCoefficient = 3435.0      // Test different beta values (3435, 4200, etc.)
+        let nominalResistance = 10_000.0  // Test different nominal resistances (5000, 20000, etc.)
         
         let temperatureK = 1.0 / (
             (1.0 / nominalTemperatureK) +
