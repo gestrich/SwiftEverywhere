@@ -59,7 +59,7 @@ public struct PiController: Sendable {
     }
 
     func getVoltage(channel: UInt8) -> Double {
-        let voltage = 3.2
+        let voltage = 3.3
         let voltage0 = self.mcpVoltage(
             outputCode: self.mcpReadData(a2dChannel: channel), voltageReference: voltage)
         return abs((voltage0 / voltage * 100) - 100)
@@ -69,13 +69,22 @@ public struct PiController: Sendable {
         // Step 1: Read voltage from the sensor
         let voltage = self.mcpVoltage(
             outputCode: self.mcpReadData(a2dChannel: channel),
-            voltageReference: 3.3  // Updated to 3.3V
+            voltageReference: 3.3  // Ensure this matches VREF
         )
+        
+        if voltage >= 3.3 || voltage <= 0 {
+            print("Voltage out of range: \(voltage)")
+            return Double.nan
+        }
         print("Voltage: \(voltage)") // Debugging
         
         // Step 2: Calculate thermistor resistance
         let fixedResistor = 10_000.0  // 10kΩ resistor
         let thermistorResistance = fixedResistor * (voltage / (3.3 - voltage))
+        if thermistorResistance < 0 || thermistorResistance.isNaN {
+            print("Invalid thermistor resistance: \(thermistorResistance)")
+            return Double.nan
+        }
         print("Thermistor Resistance: \(thermistorResistance)") // Debugging
         
         // Step 3: Apply the Steinhart-Hart equation
@@ -87,6 +96,10 @@ public struct PiController: Sendable {
             (1.0 / nominalTemperatureK) +
             (1.0 / betaCoefficient) * log(thermistorResistance / nominalResistance)
         )
+        if temperatureK.isNaN || temperatureK <= 0 {
+            print("Invalid temperature calculation: \(temperatureK)")
+            return Double.nan
+        }
         print("Temperature (Kelvin): \(temperatureK)") // Debugging
         
         // Step 4: Convert Kelvin to Fahrenheit
@@ -95,6 +108,7 @@ public struct PiController: Sendable {
         
         return temperatureF
     }
+
 
     func setLight(on: Bool) {
         ledGPIO.value = on ? 1 : 0
@@ -133,6 +147,10 @@ public struct PiController: Sendable {
     }
 
     func mcpVoltage(outputCode: UInt64, voltageReference: Double) -> Double {
+        guard outputCode <= 1023 else {
+            print("Invalid ADC output: \(outputCode)")
+            return Double.nan
+        }
         return Double(outputCode) * voltageReference / 1023.0
     }
 }
