@@ -83,37 +83,19 @@ public struct PiController: Sendable {
         }
         print("Voltage: \(voltage) V") // Debugging
         
-        // Step 2: Calculate thermistor resistance
-        let fixedResistor = 10_000.0  // 10kΩ fixed resistor
-        let thermistorResistance = fixedResistor * ((3.3 / voltage) - 1.0)
-        if thermistorResistance < 0 || thermistorResistance.isNaN {
-            print("Invalid thermistor resistance: \(thermistorResistance)")
-            return Double.nan
-        }
-        print("Thermistor Resistance: \(thermistorResistance) Ω") // Debugging
+        // Step 2: Calibrated temperature calculation
+        // Calibration constants
+        let roomTemperatureVoltage = 2.994  // Voltage at ~75°F
+        let roomTemperatureF = 75.0         // Fahrenheit at room temperature
+        let temperatureDropPerVolt = 500.0  // Estimated: degrees Fahrenheit per volt drop
         
-        // Step 3: Apply the Steinhart-Hart equation
-        let nominalTemperatureK = 298.15  // Nominal temperature (25°C in Kelvin)
-        let betaCoefficient = 3950.0      // Beta value for the thermistor
-        let nominalResistance = 100_000.0 // 100kΩ at 25°C
-
-        // Adjust betaCoefficient and nominalResistance if necessary to align with observed values
-        let temperatureK = 1.0 / (
-            (1.0 / nominalTemperatureK) +
-            (1.0 / betaCoefficient) * log(thermistorResistance / nominalResistance)
-        )
-        if temperatureK.isNaN || temperatureK <= 0 {
-            print("Invalid temperature calculation: \(temperatureK)")
-            return Double.nan
-        }
-        print("Temperature (Kelvin): \(temperatureK) K") // Debugging
+        // Calculate temperature
+        let temperatureF = roomTemperatureF - ((roomTemperatureVoltage - voltage) * temperatureDropPerVolt)
         
-        // Step 4: Convert Kelvin to Fahrenheit
-        let temperatureF = (temperatureK - 273.15) * 9.0 / 5.0 + 32.0
-        print("Temperature (Fahrenheit): \(temperatureF) °F") // Debugging
-        
+        print("Calibrated Temperature (Fahrenheit): \(temperatureF)°F")
         return temperatureF
     }
+    
     func setLight(on: Bool) {
         ledGPIO.value = on ? 1 : 0
     }
