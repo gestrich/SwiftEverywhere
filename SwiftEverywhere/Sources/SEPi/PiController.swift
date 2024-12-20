@@ -83,18 +83,18 @@ public struct PiController: Sendable {
         print("Voltage: \(voltage)") // Debugging
         
         // Step 2: Calculate thermistor resistance
-        let fixedResistor = 10_000.0  // 10kΩ resistor
-        let thermistorResistance = fixedResistor * (voltage / (3.3 - voltage))
+        let fixedResistor = 10_000.0  // 10kΩ fixed resistor
+        let thermistorResistance = fixedResistor * ((3.3 / voltage) - 1.0)
         if thermistorResistance < 0 || thermistorResistance.isNaN {
             print("Invalid thermistor resistance: \(thermistorResistance)")
             return Double.nan
         }
-        print("Thermistor Resistance: \(thermistorResistance)") // Debugging
+        print("Thermistor Resistance: \(thermistorResistance) Ω") // Debugging
         
         // Step 3: Apply the Steinhart-Hart equation
-        let nominalTemperatureK = 298.15  // Nominal temperature in Kelvin
-        let betaCoefficient = 3435.0      // Test different beta values (3435, 4200, etc.)
-        let nominalResistance = 10_000.0  // Test different nominal resistances (5000, 20000, etc.)
+        let nominalTemperatureK = 298.15  // Nominal temperature (25°C in Kelvin)
+        let betaCoefficient = 3950.0      // Beta value for the thermistor
+        let nominalResistance = 100_000.0 // 100kΩ at 25°C
         
         let temperatureK = 1.0 / (
             (1.0 / nominalTemperatureK) +
