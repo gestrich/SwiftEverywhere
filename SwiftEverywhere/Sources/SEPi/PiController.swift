@@ -42,7 +42,7 @@ public struct PiController: Sendable {
     }
     
     func channel1Reading() -> Double {
-        return getVoltage(channel: 1)
+        return getVoltagePercentage(channel: 1)
     }
 
     func monitorButtonPress() {
@@ -58,11 +58,15 @@ public struct PiController: Sendable {
         }
     }
 
-    func getVoltage(channel: UInt8) -> Double {
-        let voltage = 3.3
-        let voltage0 = self.mcpVoltage(
-            outputCode: self.mcpReadData(a2dChannel: channel), voltageReference: voltage)
-        return abs((voltage0 / voltage * 100) - 100)
+    func getVoltagePercentage(channel: UInt8) -> Double {
+        let voltageReference = 3.3  // Reference voltage
+        let signalVoltage = self.mcpVoltage(
+            outputCode: self.mcpReadData(a2dChannel: channel),
+            voltageReference: voltageReference
+        )
+        let percentage = (signalVoltage / voltageReference) * 100
+        print("Signal Voltage: \(signalVoltage) V, Percentage: \(percentage)%")
+        return percentage
     }
 
     func getTemperatureFahrenheit(channel: UInt8) -> Double {
@@ -158,7 +162,7 @@ public struct PiController: Sendable {
 extension PiController: PiClientAPI {
     
     public func getAnalogReading(channel: Int) async throws -> SECommon.AnalogReading {
-        let voltage = getVoltage(channel: UInt8(channel))
+        let voltage = getVoltagePercentage(channel: UInt8(channel))
         return AnalogReading(channel: channel, uploadDate: Date(), value: Double(voltage))
     }
     
