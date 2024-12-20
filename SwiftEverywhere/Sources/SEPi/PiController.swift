@@ -76,11 +76,12 @@ public struct PiController: Sendable {
             voltageReference: 3.3  // Ensure this matches VREF
         )
         
+        // Check if the voltage is within range
         if voltage >= 3.3 || voltage <= 0 {
             print("Voltage out of range: \(voltage)")
             return Double.nan
         }
-        print("Voltage: \(voltage)") // Debugging
+        print("Voltage: \(voltage) V") // Debugging
         
         // Step 2: Calculate thermistor resistance
         let fixedResistor = 10_000.0  // 10kΩ fixed resistor
@@ -104,11 +105,11 @@ public struct PiController: Sendable {
             print("Invalid temperature calculation: \(temperatureK)")
             return Double.nan
         }
-        print("Temperature (Kelvin): \(temperatureK)") // Debugging
+        print("Temperature (Kelvin): \(temperatureK) K") // Debugging
         
         // Step 4: Convert Kelvin to Fahrenheit
         let temperatureF = (temperatureK - 273.15) * 9.0 / 5.0 + 32.0
-        print("Temperature (Fahrenheit): \(temperatureF)") // Debugging
+        print("Temperature (Fahrenheit): \(temperatureF) °F") // Debugging
         
         return temperatureF
     }
