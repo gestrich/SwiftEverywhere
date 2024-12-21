@@ -101,7 +101,7 @@ struct ContentView: View {
     @ViewBuilder
     func analogReadingsChart(analogState: AnalogState, readings: [AnalogValue]) -> some View {
         VStack(alignment: .trailing) {
-            Text(formatToTwoDecimals(analogState.configuration.displayableValue(reading: analogState.latestReading.value)) + "%")
+            Text(analogState.configuration.displayableLabel(reading: analogState.latestReading.value))
             Chart {
                 ForEach(analogState.readings) { (reading: AnalogValue) in
                     BarMark(

@@ -17,19 +17,13 @@ public struct PiHardwareConfiguration: Sendable {
                 name: "Light",
                 channel: 1,
                 voltage: .v3_3,
-                valueInterpretation: .reverse
+                valueInterpretation: .reverse0To100Percent
             ),
             AnalogInput(
                 name: "Temperature",
-                channel: 2,
-                voltage: .v3_3,
-                valueInterpretation: .reverse
-            ),
-            AnalogInput(
-                name: "Temperature 2",
                 channel: 0,
                 voltage: .v3_3,
-                valueInterpretation: .reverse
+                valueInterpretation: .temperatureTMP36Fahrenheit
             ),
         ]
         
