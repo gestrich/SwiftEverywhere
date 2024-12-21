@@ -11,7 +11,7 @@ struct ContentView: View {
     @State var digitalOutputStates: [DigitalOutputState] = []
     @State private var showSettings = false
     @State var viewLoaded = false
-    @State var timer: Timer?
+    let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
     @Environment(\.scenePhase) var scenePhase
     
     var body: some View {
@@ -41,7 +41,7 @@ struct ContentView: View {
                 }
                 ForEach (analogStates) { analogState in
                     Section(analogState.configuration.name) {
-                        analogReadingsChart(analogState: analogState, readings: analogState.readings)
+                        AnalogReadingsChart(analogState: analogState)
                     }
                 }
 
@@ -89,51 +89,30 @@ struct ContentView: View {
                 }
             }
         }
-        .onAppear {
-            timer = Timer(timeInterval: 60.0, repeats: true, block: { _ in
-                Task {
-                    try await loadStates()
-                }
-            })
-        }
-    }
-        
-    @ViewBuilder
-    func analogReadingsChart(analogState: AnalogState, readings: [AnalogValue]) -> some View {
-        VStack(alignment: .trailing) {
-            Text(analogState.configuration.displayableLabel(reading: analogState.latestReading.value))
-            Chart {
-                ForEach(analogState.readings) { (reading: AnalogValue) in
-                    BarMark(
-                        x: .value("Date", reading.uploadDate),
-                        y: .value("Reading", analogState.configuration.displayableValue(reading: reading.value))
-                    )
-                }
+        .onReceive(timer, perform: { _ in
+            Task {
+                try await loadStates()
             }
-            .chartXAxis {
-                AxisMarks(format: Date.FormatStyle.dateTime.hour(),
-                          values: .automatic(desiredCount: 8))
-            }
-        }
+        })
     }
     
     func loadStates() async throws {
-        try await loadDigitalOutputStates()
         try await loadAnalogStates()
+        try await loadDigitalOutputStates()
     }
     
     @MainActor
     func loadAnalogStates() async throws {
         var result = [AnalogState]()
         for configuration in hardwareConfiguration.analogInputs {
-            let state = try await getchAnalogState(configuration: configuration)
+            let state = try await fetchAnalogState(configuration: configuration)
             result.append(state)
         }
         
         self.analogStates = result
     }
     
-    func getchAnalogState(configuration: AnalogInput) async throws -> AnalogState {
+    func fetchAnalogState(configuration: AnalogInput) async throws -> AnalogState {
         guard let apiClient else {
             throw ContentViewError.missingBaseURL
         }
@@ -169,15 +148,6 @@ struct ContentView: View {
         try await loadDigitalOutputStates()
     }
     
-    func formatToTwoDecimals(_ number: Double) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 2
-
-        return formatter.string(for: number) ?? "N/A"
-    }
-    
     var apiClient: PiClientAPIImplementation? {
         guard urlStore.serverURLs.indices.contains(urlStore.selectedServerIndex),
               let url = URL(string: urlStore.serverURLs[urlStore.selectedServerIndex]) else {
@@ -189,6 +159,29 @@ struct ContentView: View {
     
     enum ContentViewError: Error {
         case missingBaseURL
+    }
+}
+
+struct AnalogReadingsChart: View {
+    let analogState: AnalogState
+    var body: some View {
+        VStack(alignment: .trailing) {
+            Text(analogState.configuration.displayableLabel(reading: analogState.latestReading.value))
+            Chart {
+                ForEach(analogState.readings) { (reading: AnalogValue) in
+                    LineMark(
+                        x: .value("Date", reading.uploadDate),
+                        y: .value("Reading", analogState.configuration.displayableValue(reading: reading.value))
+                    )
+                }
+            }
+            .chartXAxis {
+                AxisMarks(format: Date.FormatStyle.dateTime.hour(),
+                          values: .automatic(desiredCount: 8))
+            }
+            .chartYScale(domain: analogState.chartYRange())
+        }
+    
     }
 }
 
@@ -303,6 +296,24 @@ struct AnalogState: Sendable, Identifiable {
     
     var id: String {
         return configuration.name + latestReading.uploadDate.description
+    }
+    
+    func chartYRange() -> ClosedRange<Double> {
+        let values = readings.map{$0.value}.map({configuration.displayableValue(reading: $0)})
+        let lowerBound: Double
+        
+        if let minValue = values.min() {
+            lowerBound = min(minValue, configuration.typicalRange.lowerBound)
+        } else {
+            lowerBound = configuration.typicalRange.lowerBound
+        }
+        let upperBound: Double
+        if let maxValue = values.max() {
+            upperBound = max(maxValue, configuration.typicalRange.upperBound)
+        } else {
+            upperBound = configuration.typicalRange.upperBound
+        }
+        return lowerBound...upperBound
     }
 }
 

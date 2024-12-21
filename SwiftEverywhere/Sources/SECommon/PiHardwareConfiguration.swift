@@ -17,12 +17,14 @@ public struct PiHardwareConfiguration: Sendable {
                 name: "Light",
                 channel: 1,
                 voltage: .v3_3,
+                typicalRange: 0...100,
                 valueInterpretation: .reverse0To100Percent
             ),
             AnalogInput(
                 name: "Temperature",
                 channel: 0,
                 voltage: .v3_3,
+                typicalRange: 60...78,
                 valueInterpretation: .temperatureTMP36Fahrenheit
             ),
         ]
