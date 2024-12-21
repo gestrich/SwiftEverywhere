@@ -34,7 +34,7 @@ public struct SwiftServerApp: PiClientAPI {
     
     public func getAnalogReadings(channel: Int, range: SECommon.DateRangeRequest) async throws -> [SECommon.AnalogReading] {
         let searchRequest = DynamoAnalogReading.searchRequest(channel: channel)
-        return try await dynamoStore.getItems(searchRequest: searchRequest, output: DynamoAnalogReading.self, oldestDate: range.startDate, latestDate: range.endDate).compactMap { try? $0.toReading() }.filter({$0.channel == channel})
+        return try await dynamoStore.getItems(searchRequest: searchRequest, output: DynamoAnalogReading.self, oldestDate: range.startDate, latestDate: range.endDate).compactMap { try? $0.toReading() }
     }
     
     public func updateAnalogReading(reading: SECommon.AnalogReading) async throws -> SECommon.AnalogReading {
