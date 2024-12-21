@@ -25,6 +25,12 @@ public struct PiHardwareConfiguration: Sendable {
                 voltage: .v3_3,
                 valueInterpretation: .reverse
             ),
+            AnalogInput(
+                name: "Temperature 2",
+                channel: 0,
+                voltage: .v3_3,
+                valueInterpretation: .reverse
+            ),
         ]
         
         self.digitalOutputs = [
