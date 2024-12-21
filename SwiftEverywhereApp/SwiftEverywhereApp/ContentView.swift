@@ -1,13 +1,17 @@
-import Charts
-import Combine
-import Foundation
+//
+//  ContentView.swift
+//  SwiftEverywhereApp
+//
+//  Created by Bill Gestrich on 12/7/24.
+//
+
 import SECommon
 import SwiftUI
 
 struct ContentView: View {
     @StateObject var urlStore = URLStore()
     let hardwareConfiguration = PiHardwareConfiguration()
-    @State var analogStates: [AnalogState] = []
+    @State var analogStates: [AnalogInputState] = []
     @State var digitalOutputStates: [DigitalOutputState] = []
     @State private var showSettings = false
     @State var viewLoaded = false
@@ -103,7 +107,7 @@ struct ContentView: View {
     
     @MainActor
     func loadAnalogStates() async throws {
-        var result = [AnalogState]()
+        var result = [AnalogInputState]()
         for configuration in hardwareConfiguration.analogInputs {
             let state = try await fetchAnalogState(configuration: configuration)
             result.append(state)
@@ -112,7 +116,7 @@ struct ContentView: View {
         self.analogStates = result
     }
     
-    func fetchAnalogState(configuration: AnalogInput) async throws -> AnalogState {
+    func fetchAnalogState(configuration: AnalogInput) async throws -> AnalogInputState {
         guard let apiClient else {
             throw ContentViewError.missingBaseURL
         }
@@ -120,7 +124,7 @@ struct ContentView: View {
         var readings = try await apiClient.getAnalogReadings(channel: configuration.channel, range: dateRange)
         let latestReading = try await apiClient.getAnalogReading(channel: configuration.channel)
         readings.append(latestReading)
-        return AnalogState(configuration: configuration, readings: readings)
+        return AnalogInputState(configuration: configuration, readings: readings)
     }
     
     @MainActor
@@ -162,132 +166,13 @@ struct ContentView: View {
     }
 }
 
-struct AnalogReadingsChart: View {
-    let analogState: AnalogState
-    var body: some View {
-        VStack(alignment: .trailing) {
-            Text(analogState.configuration.displayableLabel(reading: analogState.latestReading.value))
-            Chart {
-                ForEach(analogState.readings) { (reading: AnalogValue) in
-                    LineMark(
-                        x: .value("Date", reading.uploadDate),
-                        y: .value("Reading", analogState.configuration.displayableValue(reading: reading.value))
-                    )
-                }
-            }
-            .chartXAxis {
-                AxisMarks(format: Date.FormatStyle.dateTime.hour(),
-                          values: .automatic(desiredCount: 8))
-            }
-            .chartYScale(domain: analogState.chartYRange())
-        }
-    
-    }
-}
-
-struct SettingsView: View {
-    @ObservedObject var urlStore: URLStore
-    @Environment(\.dismiss) private var dismiss
-    @State private var newURL: String = ""
-    
-    var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("Server URLs")) {
-                    List {
-                        ForEach(urlStore.serverURLs.indices, id: \.self) { index in
-                            HStack {
-                                Text(urlStore.serverURLs[index])
-                                Spacer()
-                                if urlStore.selectedServerIndex == index {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(.blue)
-                                }
-                            }
-                            .onTapGesture {
-                                urlStore.selectedServerIndex = index
-                                dismiss()
-                            }
-                        }
-                        .onDelete { offsets in
-                            urlStore.serverURLs.remove(atOffsets: offsets)
-                            if urlStore.selectedServerIndex >= urlStore.serverURLs.count {
-                                urlStore.selectedServerIndex = max(0, urlStore.serverURLs.count - 1)
-                            }
-                        }
-                    }
-                }
-                
-                Section(header: Text("Add New Server")) {
-                    TextField("New Server URL", text: $newURL)
-                        .keyboardType(.URL)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled(true)
-                    Button("Add") {
-                        guard !newURL.isEmpty else { return }
-                        urlStore.serverURLs.append(newURL)
-                        newURL = ""
-                    }
-                    .disabled(newURL.isEmpty)
-                }
-            }
-            .navigationTitle("Settings")
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-}
-
-class URLStore: ObservableObject {
-    @Published var serverURLs: [String]
-    @Published var selectedServerIndex: Int
-    
-    private let urlsKey = "serverURLs"
-    private let selectedIndexKey = "selectedServerIndex"
-    private var cancellables: Set<AnyCancellable> = []
-    
-    init() {
-        // Load stored data or provide defaults
-        if let data = UserDefaults.standard.data(forKey: urlsKey),
-           let urls = try? JSONDecoder().decode([String].self, from: data) {
-            self.serverURLs = urls
-        } else {
-            self.serverURLs = []
-        }
-        
-        self.selectedServerIndex = UserDefaults.standard.integer(forKey: selectedIndexKey)
-        
-        // Save changes automatically when values change
-        $serverURLs
-            .sink { [weak self] urls in
-                guard let self else { return }
-                if let data = try? JSONEncoder().encode(urls) {
-                    UserDefaults.standard.set(data, forKey: self.urlsKey)
-                }
-            }
-            .store(in: &cancellables)
-        
-        $selectedServerIndex
-            .sink { [weak self] index in
-                guard let self else { return }
-                UserDefaults.standard.set(index, forKey: self.selectedIndexKey)
-            }
-            .store(in: &cancellables)
-    }
-}
-
 extension AnalogValue: @retroactive Identifiable {
     public var id: Date {
         return uploadDate
     }
 }
 
-struct AnalogState: Sendable, Identifiable {
+struct AnalogInputState: Sendable, Identifiable {
     let configuration: AnalogInput
     var latestReading: AnalogValue {
         return readings.last ?? AnalogValue(channel: configuration.channel, uploadDate: Date(), value: 0.0)
