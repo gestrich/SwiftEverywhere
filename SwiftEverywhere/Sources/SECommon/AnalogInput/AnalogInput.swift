@@ -20,7 +20,7 @@ public struct AnalogInput: Sendable {
         case .temperatureTMP36Fahrenheit:
             let voltageReference = 3.3
             // Step 4: Convert temperatures
-            let temperatureC = (voltage.rawValue - 0.5) * 100
+            let temperatureC = (reading - 0.5) * 100
             let temperatureF = (temperatureC * 9.0 / 5.0) + 32.0
             return temperatureF
         }
