@@ -165,7 +165,7 @@ struct ContentView: View {
         guard let apiClient else {
             throw ContentViewError.missingBaseURL
         }
-        let newState = DigitalValue(on: !digitalOutputState.latestValue.on)
+        let newState = DigitalValue(on: !digitalOutputState.latestValue.on, channel: digitalOutputState.configuration.channel)
         _ = try await apiClient.updateDigitalReading(newState)
         try await loadDigitalOutputStates()
     }
@@ -310,7 +310,7 @@ struct AnalogState: Sendable, Identifiable {
 struct DigitalOutputState: Sendable, Identifiable {
     let configuration: DigitalOutput
     var latestValue: DigitalValue {
-        return outputValues.last ?? DigitalValue(on: false)
+        return outputValues.last ?? DigitalValue(on: false, channel: configuration.channel)
     }
     let outputValues: [DigitalValue]
     

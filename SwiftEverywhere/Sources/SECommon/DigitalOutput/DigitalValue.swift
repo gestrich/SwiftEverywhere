@@ -7,8 +7,10 @@
 
 public struct DigitalValue: Codable, Sendable, Equatable {
     public let on: Bool
+    public let channel: Int
     
-    public init(on: Bool) {
+    public init(on: Bool, channel: Int) {
         self.on = on
+        self.channel = channel
     }
 }

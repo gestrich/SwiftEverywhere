@@ -11,20 +11,12 @@ import SECommon
 
 public struct PiController: Sendable {
     let boardType: SupportedBoard
-    let ledGPIO: GPIO
     
     public typealias PollingScheduler = @Sendable (_ initialDelay: TimeInterval, _ delay: TimeInterval, _ task: @escaping @Sendable () -> Void) -> Void
     let pollingScheduler: PollingScheduler
 
     public init?(boardType: SupportedBoard, pollingScheduler: @escaping PollingScheduler) {
         self.boardType = boardType
-        let gpios = SwiftyGPIO.GPIOs(for: boardType)
-        guard let ledGPIO = gpios[.P21] else {
-            print("Could not read GPIO")
-            return nil
-        }
-        ledGPIO.direction = .OUT
-        self.ledGPIO = ledGPIO
         self.pollingScheduler = pollingScheduler
     }
 
@@ -93,7 +85,7 @@ public struct PiController: Sendable {
         let nominalTemperatureK = 298.15  // Nominal temperature (25°C in Kelvin)
         let betaCoefficient = 3950.0      // Beta value for the thermistor
         let nominalResistance = 100_000.0 // 100kΩ at 25°C
-
+        
         let temperatureK = 1.0 / (
             (1.0 / nominalTemperatureK) +
             (1.0 / betaCoefficient) * log(thermistorResistance / nominalResistance)
@@ -109,10 +101,6 @@ public struct PiController: Sendable {
         print("Temperature (Fahrenheit): \(temperatureF) °F") // Debugging
         
         return temperatureF
-    }
-    
-    func setLight(on: Bool) {
-        ledGPIO.value = on ? 1 : 0
     }
 
     func mcpReadData(a2dChannel: CUnsignedChar) -> UInt64 {
@@ -184,7 +172,7 @@ extension PiController: PiClientAPI {
             print("Could not read GPIO")
             throw RoutesError.gpioError
         }
-        return DigitalValue(on: ledGPIO.value == 1 ? true : false)
+        return DigitalValue(on: ledGPIO.value == 1 ? true : false, channel: channel)
     }
     
     func setupDigitalOutput(_ digitalOutput: DigitalOutput) async throws {
@@ -196,14 +184,14 @@ extension PiController: PiClientAPI {
         ledGPIO.direction = .OUT
     }
 
-    public func updateDigitalReading(_ state: DigitalValue) async throws -> DigitalValue {
+    public func updateDigitalReading(_ digitalOutput: DigitalValue) async throws -> DigitalValue {
         let gpios = SwiftyGPIO.GPIOs(for: .RaspberryPi4)
-        guard let ledGPIO = gpios[.P21] else {
+        guard let gpioNumber = GPIOName.gpioName(number: digitalOutput.channel), let ledGPIO = gpios[gpioNumber] else {
             print("Could not read GPIO")
             throw RoutesError.gpioError
         }
-        ledGPIO.value = state.on ? 1 : 0
-        return state
+        ledGPIO.value = digitalOutput.on ? 1 : 0
+        return digitalOutput
     }
 }
 
