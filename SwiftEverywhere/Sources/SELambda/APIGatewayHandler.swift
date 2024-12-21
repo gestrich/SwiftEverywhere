@@ -99,7 +99,7 @@ struct APIGWHandler: EventLoopLambdaHandler {
                 guard let bodyData = event.bodyData() else {
                     throw APIGWHandlerError.general(description: "Missing body data")
                 }
-                let reading = try jsonDecoder.decode(AnalogReading.self, from: bodyData)
+                let reading = try jsonDecoder.decode(AnalogValue.self, from: bodyData)
                 return try await app.updateAnalogReading(reading:reading).apiGatewayOkResponse()
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
@@ -117,17 +117,20 @@ struct APIGWHandler: EventLoopLambdaHandler {
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }
-        case .led:
+        case .digitalValues:
             switch event.httpMethod {
             case .GET:
-                return try await app.getLEDState().apiGatewayOkResponse()
+                guard urlComponents.count > 1, let channel = Int(urlComponents[1]) else {
+                    throw APIGWHandlerError.general(description: "Missing channel")
+                }
+                return try await app.getDigitalOutput(channel: channel).apiGatewayOkResponse()
             case .POST:
                 guard let bodyData = event.bodyData() else {
                     throw APIGWHandlerError.general(description: "Missing body data")
                 }
                 
-                let ledState = try jsonDecoder.decode(LEDState.self, from: bodyData)
-                return try await app.updateLEDState(ledState).apiGatewayOkResponse()
+                let digitalOutput = try jsonDecoder.decode(DigitalValue.self, from: bodyData)
+                return try await app.updateDigitalReading(digitalOutput).apiGatewayOkResponse()
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }

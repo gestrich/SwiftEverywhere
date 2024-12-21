@@ -157,17 +157,16 @@ public struct PiController: Sendable {
 }
 
 extension PiController: PiClientAPI {
-    
-    public func getAnalogReading(channel: Int) async throws -> SECommon.AnalogReading {
+    public func getAnalogReading(channel: Int) async throws -> SECommon.AnalogValue {
         let voltage = getVoltage(channel: UInt8(channel))
-        return AnalogReading(channel: channel, uploadDate: Date(), value: Double(voltage))
+        return AnalogValue(channel: channel, uploadDate: Date(), value: Double(voltage))
     }
     
-    public func getAnalogReadings(channel: Int, range: SECommon.DateRangeRequest) async throws -> [SECommon.AnalogReading] {
+    public func getAnalogReadings(channel: Int, range: SECommon.DateRangeRequest) async throws -> [SECommon.AnalogValue] {
         return try await [getAnalogReading(channel: channel)]
     }
     
-    public func updateAnalogReading(reading: SECommon.AnalogReading) async throws -> SECommon.AnalogReading {
+    public func updateAnalogReading(reading: SECommon.AnalogValue) async throws -> SECommon.AnalogValue {
         throw RoutesError.unsupportedMethod
     }
     
@@ -179,23 +178,30 @@ extension PiController: PiClientAPI {
         throw RoutesError.unsupportedMethod
     }
     
-    public func getLEDState() async throws -> SECommon.LEDState {
+    public func getDigitalOutput(channel: Int) async throws -> DigitalValue {
         let gpios = SwiftyGPIO.GPIOs(for: .RaspberryPi4)
-        guard let ledGPIO = gpios[.P21] else {
+        guard let gpioNumber = GPIOName.gpioName(number: channel), let ledGPIO = gpios[gpioNumber] else {
             print("Could not read GPIO")
             throw RoutesError.gpioError
         }
-        ledGPIO.direction = .OUT
-        return LEDState(on: ledGPIO.value == 1 ? true : false)
+        return DigitalValue(on: ledGPIO.value == 1 ? true : false)
     }
     
-    public func updateLEDState(_ state: LEDState) async throws -> LEDState {
+    func setupDigitalOutput(_ digitalOutput: DigitalOutput) async throws {
+        let gpios = SwiftyGPIO.GPIOs(for: .RaspberryPi4)
+        guard let gpioNumber = GPIOName.gpioName(number: digitalOutput.channel), let ledGPIO = gpios[gpioNumber] else {
+            print("Could not read GPIO")
+            throw RoutesError.gpioError
+        }
+        ledGPIO.direction = .OUT
+    }
+
+    public func updateDigitalReading(_ state: DigitalValue) async throws -> DigitalValue {
         let gpios = SwiftyGPIO.GPIOs(for: .RaspberryPi4)
         guard let ledGPIO = gpios[.P21] else {
             print("Could not read GPIO")
             throw RoutesError.gpioError
         }
-        ledGPIO.direction = .OUT
         ledGPIO.value = state.on ? 1 : 0
         return state
     }
@@ -205,4 +211,10 @@ private enum RoutesError: LocalizedError {
     case unexpectedBody
     case gpioError
     case unsupportedMethod
+}
+
+extension GPIOName {
+    static func gpioName(number: Int) -> GPIOName? {
+        return GPIOName(rawValue:"P\(number)")
+    }
 }

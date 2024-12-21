@@ -4,12 +4,19 @@ import Vapor
 
 func routes(_ app: Application, mpc: PiController) throws {
     // Setup
+    let configuration = PiHardwareConfiguration()
     app.eventLoopGroup.next().scheduleRepeatedTask(initialDelay: .seconds(1), delay: .minutes(5)) { task in
         Task {
-            for configuration in PiHardwareConfiguration().sensorConfigurations {
+            for configuration in configuration.analogInputs {
                 let reading = try await mpc.getAnalogReading(channel: configuration.channel)
                 _ = try await piClient().updateAnalogReading(reading: reading)
             }
+        }
+    }
+    
+    Task {
+        for digitalOutput in configuration.digitalOutputs {
+            try await mpc.setupDigitalOutput(digitalOutput)
         }
     }
     
@@ -50,16 +57,19 @@ func routes(_ app: Application, mpc: PiController) throws {
                 let host = try jsonDecoder().decode(Host.self, from: data)
                 return try await piClient().postHost(host)
             }
-        case .led:
-            app.get(path.rawValue.pathComponents) { req in
-                return try await mpc.getLEDState()
+        case .digitalValues:
+            app.get(PathComponent(stringLiteral: path.rawValue), ":channel") { request in
+                guard let channel = request.parameters.get("channel", as: Int.self) else {
+                    throw RoutesError.missingChannel
+                }
+                return try await mpc.getDigitalOutput(channel: channel)
             }
             app.post(path.rawValue.pathComponents) { request in
                 guard let data = request.body.data else {
                     throw RoutesError.unexpectedBody
                 }
-                let state = try jsonDecoder().decode(LEDState.self, from: data)
-                return try await mpc.updateLEDState(state)
+                let state = try jsonDecoder().decode(DigitalValue.self, from: data)
+                return try await mpc.updateDigitalReading(state)
             }
         }
     }
@@ -92,7 +102,7 @@ func routes(_ app: Application, mpc: PiController) throws {
     }
 }
 
-extension AnalogReading: Content {
+extension AnalogValue: Content {
         
 }
     
@@ -100,6 +110,6 @@ extension SECommon.Host: Content {
     
 }
 
-extension LEDState: Content {
+extension DigitalValue: Content {
     
 }

@@ -28,16 +28,16 @@ public struct SwiftServerApp: PiClientAPI {
     
     // MARK: Pi Service
     
-    public func getAnalogReading(channel: Int) async throws -> SECommon.AnalogReading {
+    public func getAnalogReading(channel: Int) async throws -> SECommon.AnalogValue {
         return try await piClientSource().getAnalogReading(channel: channel)
     }
     
-    public func getAnalogReadings(channel: Int, range: SECommon.DateRangeRequest) async throws -> [SECommon.AnalogReading] {
+    public func getAnalogReadings(channel: Int, range: SECommon.DateRangeRequest) async throws -> [SECommon.AnalogValue] {
         let searchRequest = DynamoAnalogReading.searchRequest(channel: channel)
         return try await dynamoStore.getItems(searchRequest: searchRequest, output: DynamoAnalogReading.self, oldestDate: range.startDate, latestDate: range.endDate).compactMap { try? $0.toReading() }
     }
     
-    public func updateAnalogReading(reading: SECommon.AnalogReading) async throws -> SECommon.AnalogReading {
+    public func updateAnalogReading(reading: SECommon.AnalogValue) async throws -> SECommon.AnalogValue {
         return try await dynamoStore.store(item: DynamoAnalogReading(reading: reading)).toReading()
     }
     
@@ -54,12 +54,12 @@ public struct SwiftServerApp: PiClientAPI {
         return try await dynamoStore.store(item: dynamoHost).toHost()
     }
     
-    public func getLEDState() async throws -> LEDState {
-        return try await piClientSource().getLEDState()
+    public func getDigitalOutput(channel: Int) async throws -> DigitalValue {
+        return try await piClientSource().getDigitalOutput(channel: channel)
     }
     
-    public func updateLEDState(_ state: LEDState) async throws -> LEDState {
-        return try await piClientSource().updateLEDState(state)
+    public func updateDigitalReading(_ state: DigitalValue) async throws -> DigitalValue {
+        return try await piClientSource().updateDigitalReading(state)
     }
     
     //MARK: S3 Service

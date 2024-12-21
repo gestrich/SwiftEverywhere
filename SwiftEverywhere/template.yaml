@@ -68,6 +68,18 @@ Resources:
             Path: /analogReadings/{id}
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
+        digitalValuesGet:
+          Type: Api
+          Properties:
+            Path: /digitalValues/{id}
+            Method: get
+            RestApiId: !Ref SwiftEverywhereAPI
+        digitalValuesPost:
+          Type: Api
+          Properties:
+            Path: /digitalValues
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
         HostGet:
           Type: Api
           Properties:
@@ -78,18 +90,6 @@ Resources:
           Type: Api
           Properties:
             Path: /host
-            Method: post
-            RestApiId: !Ref SwiftEverywhereAPI
-        ledGet:
-          Type: Api
-          Properties:
-            Path: /led
-            Method: get
-            RestApiId: !Ref SwiftEverywhereAPI
-        ledPost:
-          Type: Api
-          Properties:
-            Path: /led
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
       Policies:

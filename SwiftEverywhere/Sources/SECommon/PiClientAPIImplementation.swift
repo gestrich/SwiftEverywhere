@@ -19,22 +19,22 @@ public struct PiClientAPIImplementation: PiClientAPI, Sendable {
     
     // MARK: Analog
     
-    public func getAnalogReading(channel: Int) async throws -> AnalogReading {
+    public func getAnalogReading(channel: Int) async throws -> AnalogValue {
         let pathComponent = [PiClientAPIPaths.analogReadings.rawValue, "\(channel)"].joined(separator: "/")
-        return try await getData(outputType: AnalogReading.self, urlComponent: pathComponent)
+        return try await getData(outputType: AnalogValue.self, urlComponent: pathComponent)
     }
     
-    public func getAnalogReadings(channel: Int, range: DateRangeRequest) async throws -> [AnalogReading] {
+    public func getAnalogReadings(channel: Int, range: DateRangeRequest) async throws -> [AnalogValue] {
         let pathComponent = PiClientAPIPaths.analogReadings.rawValue
         let channel = URLQueryItem(name: "channel", value: "\(channel)")
         let startQueryItem = URLQueryItem(name: "startDate", value: ISO8601DateFormatter().string(from: range.startDate))
         let endQueryItem = URLQueryItem(name: "endDate", value: ISO8601DateFormatter().string(from: range.endDate))
-        return try await getData(outputType: [AnalogReading].self, urlComponent: pathComponent, queryItems: [channel, startQueryItem, endQueryItem])
+        return try await getData(outputType: [AnalogValue].self, urlComponent: pathComponent, queryItems: [channel, startQueryItem, endQueryItem])
     }
     
-    public func updateAnalogReading(reading: AnalogReading) async throws -> AnalogReading {
+    public func updateAnalogReading(reading: AnalogValue) async throws -> AnalogValue {
         let pathComponent = [PiClientAPIPaths.analogReadings.rawValue, "\(reading.channel)"].joined(separator: "/")
-        return try await postData(input: reading, outputType: AnalogReading.self, urlComponent: pathComponent)
+        return try await postData(input: reading, outputType: AnalogValue.self, urlComponent: pathComponent)
     }
     
     // MARK: Host
@@ -49,12 +49,13 @@ public struct PiClientAPIImplementation: PiClientAPI, Sendable {
     
     // MARK: LED
     
-    public func getLEDState() async throws -> LEDState {
-        return try await getData(outputType: LEDState.self .self, urlComponent: PiClientAPIPaths.led.rawValue)
+    public func getDigitalOutput(channel: Int) async throws -> DigitalValue {
+        let pathComponent = [PiClientAPIPaths.digitalValues.rawValue, "\(channel)"].joined(separator: "/")
+        return try await getData(outputType: DigitalValue.self .self, urlComponent: pathComponent)
     }
 
-    public func updateLEDState(_ state: LEDState) async throws -> LEDState {
-        return try await postData(input: state, outputType: LEDState.self, urlComponent: PiClientAPIPaths.led.rawValue)
+    public func updateDigitalReading(_ state: DigitalValue) async throws -> DigitalValue {
+        return try await postData(input: state, outputType: DigitalValue.self, urlComponent: PiClientAPIPaths.digitalValues.rawValue)
     }
     
     // MARK: Utilities

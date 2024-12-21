@@ -17,7 +17,7 @@ public struct DynamoAnalogReading: Codable {
     public let uploadDate: String // Must be String type (aws RANGE) for sorting with this
     public let partition: String
     
-    public init(reading: AnalogReading){
+    public init(reading: AnalogValue){
         self.channel = reading.channel
         self.value = reading.value
         let formatter = ISO8601DateFormatter()
@@ -26,13 +26,13 @@ public struct DynamoAnalogReading: Codable {
         self.partition = Self.createPartition(channel: channel)
     }
     
-    func toReading() throws -> AnalogReading {
+    func toReading() throws -> AnalogValue {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions.insert(.withFractionalSeconds)
         guard let date = formatter.date(from: uploadDate) else {
             throw DynamoAnalogReadingError.invalidUploadDate
         }
-        return AnalogReading(channel: channel, uploadDate: date, value: value)
+        return AnalogValue(channel: channel, uploadDate: date, value: value)
     }
     
     static func searchRequest(channel: Int) -> DynamoSearchRequest {

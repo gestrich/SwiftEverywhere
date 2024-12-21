@@ -1,5 +1,5 @@
 //
-//  AnalogReading.swift
+//  AnalogValue.swift
 //  SwiftEverywhere
 //
 //  Created by Bill Gestrich on 12/16/24.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AnalogReading: Codable, Equatable, Sendable {
+public struct AnalogValue: Codable, Equatable, Sendable {
     public let channel: Int
     public let uploadDate: Date
     public let value: Double
