@@ -69,13 +69,10 @@ public struct PiController: Sendable {
         
         let voltageReference = 3.3
         
-        // Step 4: Convert Kelvin to Celcius
+        // Step 4: Convert temperatures
         let temperatureC = (voltage - 0.5) * 100
-        print("Temperature (Celcius): \(temperatureC) C") // Debugging
-        
-        // Step 4: Convert Kelvin to Fahrenheit
         let temperatureF = (temperatureC * 9.0 / 5.0) + 32.0
-        print("Temperature (Fahrenheit): \(temperatureF) °F") // Debugging
+        print("Temperature: \(temperatureC) °C" + " \(temperatureF) °F") // Debugging
         
         return temperatureF
     }
