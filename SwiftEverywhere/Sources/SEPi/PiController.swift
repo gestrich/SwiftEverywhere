@@ -65,39 +65,16 @@ public struct PiController: Sendable {
             voltageReference: 3.3  // Ensure this matches VREF
         )
         
-        // Check if the voltage is within range
-        if voltage >= 3.3 || voltage <= 0 {
-            print("Voltage out of range: \(voltage)")
-            return Double.nan
-        }
         print("Voltage: \(voltage) V") // Debugging
         
-        // Step 2: Calculate thermistor resistance
-        let fixedResistor = 9_900.0  // 9.9kΩ fixed resistor (measured)
-        let thermistorResistance = fixedResistor * ((3.3 / voltage) - 1.0)
-        if thermistorResistance <= 0 || thermistorResistance.isNaN {
-            print("Invalid thermistor resistance: \(thermistorResistance)")
-            return Double.nan
-        }
-        print("Thermistor Resistance: \(thermistorResistance) Ω") // Debugging
+        let voltageReference = 3.3
         
-        // Step 3: Apply the Steinhart-Hart equation
-        let nominalTemperatureK = 298.15  // Nominal temperature (25°C in Kelvin)
-        let betaCoefficient = 3950.0      // Beta value for the thermistor
-        let nominalResistance = 100_000.0 // 100kΩ at 25°C
-        
-        let temperatureK = 1.0 / (
-            (1.0 / nominalTemperatureK) +
-            (1.0 / betaCoefficient) * log(thermistorResistance / nominalResistance)
-        )
-        if temperatureK.isNaN || temperatureK <= 0 {
-            print("Invalid temperature calculation: \(temperatureK)")
-            return Double.nan
-        }
-        print("Temperature (Kelvin): \(temperatureK) K") // Debugging
+        // Step 4: Convert Kelvin to Celcius
+        let temperatureC = (voltage - 0.5) * 100
+        print("Temperature (Celcius): \(temperatureC) C") // Debugging
         
         // Step 4: Convert Kelvin to Fahrenheit
-        let temperatureF = (temperatureK - 273.15) * 9.0 / 5.0 + 32.0
+        let temperatureF = (temperatureC * 9.0 / 5.0) + 32.0
         print("Temperature (Fahrenheit): \(temperatureF) °F") // Debugging
         
         return temperatureF

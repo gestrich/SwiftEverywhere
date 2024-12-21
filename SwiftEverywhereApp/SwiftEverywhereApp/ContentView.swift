@@ -23,7 +23,6 @@ struct ContentView: View {
                             Task {
                                 do {
                                     try await toggleDigitalOutputState(digitalOutputState)
-                                    try await loadDigitalOutputStates()
                                 } catch {
                                     print("Error: \(error)")
                                 }
