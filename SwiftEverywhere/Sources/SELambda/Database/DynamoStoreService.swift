@@ -21,21 +21,21 @@ public struct DynamoStoreService {
         self.tableName = tableName
     }
     
-    func getItemsInPastMinutes<T: DynamoPartitioned>(type: T.Type, minutes: Int, referenceDate: Date) async throws -> [T] {
+    func getItemsInPastMinutes<T: Codable>(searchRequest: DynamoSearchRequest, output: T.Type, minutes: Int, referenceDate: Date) async throws -> [T] {
         let interval = TimeInterval(minutes) * -60
         let date = referenceDate.addingTimeInterval(interval)
-        return try await getItems(type: T.self, oldestDate: date, latestDate: referenceDate)
+        return try await getItems(searchRequest: searchRequest, output: output, oldestDate: date, latestDate: referenceDate)
     }
     
     // Assumes the items use iso 8601 dates for their sort key.
-    func getItems<T: DynamoPartitioned>(type: T.Type, oldestDate: Date, latestDate: Date) async throws -> [T] {
+    func getItems<T: Codable>(searchRequest: DynamoSearchRequest, output: T.Type, oldestDate: Date, latestDate: Date) async throws -> [T] {
         let oldestDateAsString = Utils.iso8601Formatter.string(from: oldestDate)
         let currentDateAsString = Utils.iso8601Formatter.string(from: latestDate)
         
         let items = try await getItems(
-            partitionKey: T.partitionKey,
-            partition: T.partition,
-            sortKey: T.sortKey,
+            partitionKey: searchRequest.partitionKey,
+            partition: searchRequest.partition,
+            sortKey: searchRequest.sortKey,
             startSort: oldestDateAsString,
             endSort: currentDateAsString
         ).items ?? []
@@ -62,12 +62,12 @@ public struct DynamoStoreService {
     
     // MARK: DynamoHost
     
-    func getLatest<T: DynamoPartitioned>(type: T.Type) async throws -> T? {
-        // TODO: Need a way to get the last IP address without using time based query
-        return try await getItemsInPastMinutes(type: T.self, minutes: 60 * 60 * 24 * 365, referenceDate: Date()).last
+    func getLatest<T: Codable>(searchRequest: DynamoSearchRequest, output: T.Type) async throws -> T? {
+        // TODO: Need a way to get the last without using time based query
+        return try await getItemsInPastMinutes(searchRequest: searchRequest, output: output, minutes: 60 * 60 * 24 * 365, referenceDate: Date()).last
     }
     
-    func store<T: DynamoPartitioned>(type: T.Type, item: T) async throws -> T {
+    func store<T: Codable>(item: T) async throws -> T {
         let input = DynamoDB.PutItemCodableInput(
             item: item,
             tableName: tableName)
@@ -77,8 +77,15 @@ public struct DynamoStoreService {
     }
 }
 
-protocol DynamoPartitioned: Codable{
-    static var partitionKey: String { get }
-    static var partition: String { get }
-    static var sortKey: String { get }
+struct DynamoSearchRequest: Codable {
+    let partitionKey: String
+    let partition: String
+    let sortKey: String
+    
+    init(partition: String){
+        self.partitionKey = "partition"
+        self.partition = partition
+        self.sortKey = "uploadDate"
+    }
 }
+

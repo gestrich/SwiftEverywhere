@@ -23,7 +23,7 @@ public struct DynamoAnalogReading: Codable {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions.insert(.withFractionalSeconds)
         self.uploadDate = formatter.string(from: reading.uploadDate)
-        self.partition = DynamoAnalogReading.partition
+        self.partition = Self.createPartition(channel: channel)
     }
     
     func toReading() throws -> AnalogReading {
@@ -35,13 +35,16 @@ public struct DynamoAnalogReading: Codable {
         return AnalogReading(channel: channel, uploadDate: date, value: value)
     }
     
+    static func searchRequest(channel: Int) -> DynamoSearchRequest {
+        return DynamoSearchRequest(partition: Self.createPartition(channel: channel))
+    }
+    
+    static func createPartition(channel: Int) -> String {
+        return "AnalogReading-\(channel)"
+    }
+    
     private enum DynamoAnalogReadingError: Error {
         case invalidUploadDate
     }
 }
- 
-extension DynamoAnalogReading: DynamoPartitioned {
-    static let sortKey = "uploadDate" // Name of property above
-    static let partitionKey = "partition" // Name of property above
-    static let partition: String = "AnalogReading"
-}
+

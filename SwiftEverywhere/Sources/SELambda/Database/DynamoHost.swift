@@ -24,20 +24,22 @@ public struct DynamoHost: Codable {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions.insert(.withFractionalSeconds)
         self.uploadDate = formatter.string(from: Date())
-        self.partition = DynamoHost.partition
+        self.partition = Self.createPartition()
     }
     
     func toHost() throws -> SECommon.Host {
         return Host(ipAddress: ipAddress, port: port)
     }
     
+    static func searchRequest() -> DynamoSearchRequest {
+        return DynamoSearchRequest(partition: Self.createPartition())
+    }
+    
+    static func createPartition() -> String {
+        return "Host"
+    }
+    
     enum DynamoHostError: Error {
         case invalidUploadDate
     }
-}
- 
-extension DynamoHost: DynamoPartitioned {
-    static let sortKey = "uploadDate" // Name of property above
-    static let partitionKey = "partition" // Name of property above
-    static let partition: String = "Host"
 }
