@@ -9,7 +9,7 @@ import Combine
 import SwiftUI
 
 struct SettingsView: View {
-    @ObservedObject var urlStore: URLStore
+    var urlStore: URLStore
     @Environment(\.dismiss) private var dismiss
     @State private var newURL: String = ""
     
@@ -63,43 +63,5 @@ struct SettingsView: View {
                 }
             }
         }
-    }
-}
-
-class URLStore: ObservableObject {
-    @Published var serverURLs: [String]
-    @Published var selectedServerIndex: Int
-    
-    private let urlsKey = "serverURLs"
-    private let selectedIndexKey = "selectedServerIndex"
-    private var cancellables: Set<AnyCancellable> = []
-    
-    init() {
-        // Load stored data or provide defaults
-        if let data = UserDefaults.standard.data(forKey: urlsKey),
-           let urls = try? JSONDecoder().decode([String].self, from: data) {
-            self.serverURLs = urls
-        } else {
-            self.serverURLs = []
-        }
-        
-        self.selectedServerIndex = UserDefaults.standard.integer(forKey: selectedIndexKey)
-        
-        // Save changes automatically when values change
-        $serverURLs
-            .sink { [weak self] urls in
-                guard let self else { return }
-                if let data = try? JSONEncoder().encode(urls) {
-                    UserDefaults.standard.set(data, forKey: self.urlsKey)
-                }
-            }
-            .store(in: &cancellables)
-        
-        $selectedServerIndex
-            .sink { [weak self] index in
-                guard let self else { return }
-                UserDefaults.standard.set(index, forKey: self.selectedIndexKey)
-            }
-            .store(in: &cancellables)
     }
 }
