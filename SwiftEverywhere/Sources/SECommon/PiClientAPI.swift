@@ -19,6 +19,6 @@ public protocol PiClientAPI {
 
 public enum PiClientAPIPaths: String, CaseIterable {
     case analogReadings
-    case host
     case digitalValues
+    case host
 }

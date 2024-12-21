@@ -18,7 +18,7 @@ struct ContentView: View {
         NavigationView {
             Form {
                 ForEach (digitalOutputStates) { digitalOutputState in
-                    Section {
+                    Section(digitalOutputState.configuration.name) {
                         Button {
                             Task {
                                 do {
