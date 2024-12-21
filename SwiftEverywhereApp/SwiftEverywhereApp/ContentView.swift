@@ -8,7 +8,7 @@ struct ContentView: View {
     @StateObject var urlStore = URLStore()
     let hardwareConfiguration = PiHardwareConfiguration()
     @State var analogStates: [AnalogState] = []
-    @State var ledState: LEDState = LEDState(on: false)
+    @State var digitalOutputStates: [DigitalOutputState] = []
     @State private var showSettings = false
     @State var viewLoaded = false
     @State var timer: Timer?
@@ -17,24 +17,26 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section {
-                    Button {
-                        Task {
-                            do {
-                                try await toggleLEDState()
-                                try await loadLEDState()
-                            } catch {
-                                print("Error: \(error)")
+                ForEach (digitalOutputStates) { digitalOutputState in
+                    Section {
+                        Button {
+                            Task {
+                                do {
+                                    try await toggleDigitalOutputState(digitalOutputState)
+                                    try await loadDigitalOutputStates()
+                                } catch {
+                                    print("Error: \(error)")
+                                }
                             }
-                        }
-                    } label: {
-                        HStack {
-                            Spacer()
-                            Image(systemName: "lightbulb.fill")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .foregroundStyle(ledState.on ? Color.yellow : Color.gray )
-                                .frame(width: 25)
+                        } label: {
+                            HStack {
+                                Spacer()
+                                Image(systemName: "lightbulb.fill")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .foregroundStyle(digitalOutputState.latestValue.on ? Color.yellow : Color.gray )
+                                    .frame(width: 25)
+                            }
                         }
                     }
                 }
@@ -98,11 +100,11 @@ struct ContentView: View {
     }
         
     @ViewBuilder
-    func analogReadingsChart(analogState: AnalogState, readings: [AnalogReading]) -> some View {
+    func analogReadingsChart(analogState: AnalogState, readings: [AnalogValue]) -> some View {
         VStack(alignment: .trailing) {
             Text(formatToTwoDecimals(analogState.configuration.displayableValue(reading: analogState.latestReading.value)) + "%")
             Chart {
-                ForEach(analogState.readings) { (reading: AnalogReading) in
+                ForEach(analogState.readings) { (reading: AnalogValue) in
                     BarMark(
                         x: .value("Date", reading.uploadDate),
                         y: .value("Reading", analogState.configuration.displayableValue(reading: reading.value))
@@ -117,14 +119,14 @@ struct ContentView: View {
     }
     
     func loadStates() async throws {
-        try await loadLEDState()
+        try await loadDigitalOutputStates()
         try await loadAnalogStates()
     }
     
     @MainActor
     func loadAnalogStates() async throws {
         var result = [AnalogState]()
-        for configuration in hardwareConfiguration.sensorConfigurations {
+        for configuration in hardwareConfiguration.analogInputs {
             let state = try await getchAnalogState(configuration: configuration)
             result.append(state)
         }
@@ -132,7 +134,7 @@ struct ContentView: View {
         self.analogStates = result
     }
     
-    func getchAnalogState(configuration: AnalogSensorConfiguration) async throws -> AnalogState {
+    func getchAnalogState(configuration: AnalogInput) async throws -> AnalogState {
         guard let apiClient else {
             throw ContentViewError.missingBaseURL
         }
@@ -144,21 +146,28 @@ struct ContentView: View {
     }
     
     @MainActor
-    func loadLEDState() async throws {
+    func loadDigitalOutputStates() async throws {
         guard let apiClient else {
             throw ContentViewError.missingBaseURL
         }
-        self.ledState = try await apiClient.getLEDState()
+        var result = [DigitalOutputState]()
+        for configuration in hardwareConfiguration.digitalOutputs {
+            let digitalValue = try await apiClient.getDigitalOutput(channel: configuration.channel)
+            let digitalOutputState = DigitalOutputState(configuration: configuration, outputValues: [digitalValue])
+            result.append(digitalOutputState)
+        }
+        
+        self.digitalOutputStates = result
     }
     
     @MainActor
-    func toggleLEDState() async throws {
+    func toggleDigitalOutputState(_ digitalOutputState: DigitalOutputState) async throws {
         guard let apiClient else {
             throw ContentViewError.missingBaseURL
         }
-        let newState = LEDState(on: !ledState.on)
-        _ = try await apiClient.updateLEDState(newState)
-        try await loadLEDState()
+        let newState = DigitalValue(on: !digitalOutputState.latestValue.on)
+        _ = try await apiClient.updateDigitalReading(newState)
+        try await loadDigitalOutputStates()
     }
     
     func formatToTwoDecimals(_ number: Double) -> String {
@@ -280,20 +289,32 @@ class URLStore: ObservableObject {
     }
 }
 
-extension AnalogReading: @retroactive Identifiable {
+extension AnalogValue: @retroactive Identifiable {
     public var id: Date {
         return uploadDate
     }
 }
 
 struct AnalogState: Sendable, Identifiable {
-    let configuration: AnalogSensorConfiguration
-    var latestReading: AnalogReading {
-        return readings.last ?? AnalogReading(channel: configuration.channel, uploadDate: Date(), value: 0.0)
+    let configuration: AnalogInput
+    var latestReading: AnalogValue {
+        return readings.last ?? AnalogValue(channel: configuration.channel, uploadDate: Date(), value: 0.0)
     }
-    let readings: [AnalogReading]
+    let readings: [AnalogValue]
     
     var id: String {
         return configuration.name + latestReading.uploadDate.description
+    }
+}
+
+struct DigitalOutputState: Sendable, Identifiable {
+    let configuration: DigitalOutput
+    var latestValue: DigitalValue {
+        return outputValues.last ?? DigitalValue(on: false)
+    }
+    let outputValues: [DigitalValue]
+    
+    var id: String {
+        return configuration.name + "\(latestValue)"
     }
 }
