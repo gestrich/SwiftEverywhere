@@ -29,8 +29,8 @@ public struct PiController: Sendable {
 
     func printValues() {
         // SPI
-        let temp = getTemperatureFahrenheit(channel: 2)
-        print("\u{1B}[1A\u{1B}[KChannel1: \(channel1Reading())%. Temp: \(temp)F")
+        let temp = getTemperatureFahrenheit(channel: 0)
+//        print("\u{1B}[1A\u{1B}[KChannel1: \(channel1Reading())%. Temp: \(temp)F")
     }
     
     func channel1Reading() -> Double {
