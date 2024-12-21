@@ -137,9 +137,10 @@ struct ContentView: View {
             throw ContentViewError.missingBaseURL
         }
         let dateRange = DateRangeRequest(startDate: Date().addingTimeInterval(-60 * 60 * 24), endDate: Date())
-        let readings = try await apiClient.getAnalogReadings(channel: configuration.channel, range: dateRange)
+        var readings = try await apiClient.getAnalogReadings(channel: configuration.channel, range: dateRange)
         let latestReading = try await apiClient.getAnalogReading(channel: configuration.channel)
-        return AnalogState(configuration: configuration, latestReading: latestReading, readings: readings)
+        readings.append(latestReading)
+        return AnalogState(configuration: configuration, readings: readings)
     }
     
     @MainActor
@@ -287,7 +288,9 @@ extension AnalogReading: @retroactive Identifiable {
 
 struct AnalogState: Sendable, Identifiable {
     let configuration: AnalogSensorConfiguration
-    let latestReading: AnalogReading
+    var latestReading: AnalogReading {
+        return readings.last ?? AnalogReading(channel: configuration.channel, uploadDate: Date(), value: 0.0)
+    }
     let readings: [AnalogReading]
     
     var id: String {
