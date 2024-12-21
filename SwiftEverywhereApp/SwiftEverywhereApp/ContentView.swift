@@ -40,19 +40,7 @@ struct ContentView: View {
                 }
                 ForEach (analogStates) { analogState in
                     Section(analogState.configuration.name) {
-                        Text(formatToTwoDecimals(analogState.latestReading.value) + "%")
-                        Chart {
-                            ForEach(analogState.readings) {
-                                BarMark(
-                                    x: .value("Date", $0.uploadDate),
-                                    y: .value("Reading", $0.value)
-                                )
-                            }
-                        }
-                        .chartXAxis {
-                            AxisMarks(format: Date.FormatStyle.dateTime.hour(),
-                                      values: .automatic(desiredCount: 8))
-                        }
+                        analogReadingsChart(analogState: analogState, readings: analogState.readings)
                     }
                 }
 
@@ -106,6 +94,25 @@ struct ContentView: View {
                     try await loadStates()
                 }
             })
+        }
+    }
+        
+    @ViewBuilder
+    func analogReadingsChart(analogState: AnalogState, readings: [AnalogReading]) -> some View {
+        VStack(alignment: .trailing) {
+            Text(formatToTwoDecimals(analogState.configuration.displayableValue(reading: analogState.latestReading.value)) + "%")
+            Chart {
+                ForEach(analogState.readings) { (reading: AnalogReading) in
+                    BarMark(
+                        x: .value("Date", reading.uploadDate),
+                        y: .value("Reading", analogState.configuration.displayableValue(reading: reading.value))
+                    )
+                }
+            }
+            .chartXAxis {
+                AxisMarks(format: Date.FormatStyle.dateTime.hour(),
+                          values: .automatic(desiredCount: 8))
+            }
         }
     }
     
