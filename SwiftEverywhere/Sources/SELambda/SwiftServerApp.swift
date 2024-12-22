@@ -105,10 +105,27 @@ public struct SwiftServerApp: SwiftEverywhereAPI {
         let arns = try await allDeviceTokenARNs()
         
         for arn in arns {
-            let publishInput = SNS.PublishInput(message: """
-            {"aps":{"alert":{"title":\(notification.title),"subtitle":"\(notification.subtitle)","body":"\(notification.message)"}}}
-            """, targetArn: arn)
-            
+//            let publishInput = SNS.PublishInput(message: """
+//            {"aps":{"alert":{"title":\(notification.title),"subtitle":"\(notification.subtitle)","body":"\(notification.message)"}}}
+//            """, targetArn: arn)
+
+            let publishInput = SNS.PublishInput(
+                message: """
+            {
+            "default": "This is the default message which must be present when publishing a message to a topic. The default message will only be used if a message is not present for  one of the notification platforms.",     
+            "APNS": "{\"aps\":{\"alert\": \"Check out these awesome deals!\",\"url\":\"www.amazon.com\"} }",
+            "GCM": "{\"data\":{\"message\":\"Check out these awesome deals!\",\"url\":\"www.amazon.com\"}}",
+            "ADM": "{\"data\":{\"message\":\"Check out these awesome deals!\",\"url\":\"www.amazon.com\"}}" 
+            }
+            """,
+//                messageAttributes: [:
+//                    "AWS.SNS.MOBILE.APNS.TOPIC":{"DataType":"String","StringValue":"com.amazon.mobile.messaging.myapp"},
+//                    "AWS.SNS.MOBILE.APNS.PUSH_TYPE":{"DataType":"String","StringValue":"background"},
+//                    "AWS.SNS.MOBILE.APNS.PRIORITY":{"DataType":"String","StringValue":"5"}}'
+//                ],
+//                messageStructure: "json",
+                targetArn: arn
+            )
             try await sns.publish(publishInput)
         }
     }
