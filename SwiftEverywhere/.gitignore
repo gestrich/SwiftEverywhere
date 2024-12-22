@@ -9,3 +9,5 @@ DerivedData/
 .aws-sam
 .swiftpm/
 .configuration.json
+APNS_AuthKey.p8
+apns-auth-key-config.json

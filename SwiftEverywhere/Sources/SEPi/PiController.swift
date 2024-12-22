@@ -29,8 +29,8 @@ public struct PiController: Sendable {
 
     func printValues() {
         // SPI
-        let temp = getTemperatureFahrenheit(channel: 0)
-        print("\u{1B}[1A\u{1B}[KChannel1: \(channel1Reading())%. Temp: \(temp)F")
+        let voltage = getVoltage(channel: 0)
+        print("\u{1B}[1A\u{1B}[KChannel0: \(channel1Reading())")
     }
     
     func channel1Reading() -> Double {
@@ -57,18 +57,6 @@ public struct PiController: Sendable {
             voltageReference: voltageReference
         )
     }
-    
-    func getTemperatureFahrenheit(channel: UInt8) -> Double {
-        let voltage = self.mcpVoltage(
-            outputCode: self.mcpReadData(a2dChannel: channel),
-            voltageReference: 3.3  // Ensure this matches VREF
-        )
-        
-        let voltageReference = 3.3
-        let temperatureC = (voltage - 0.5) * 100
-        let temperatureF = (temperatureC * 9.0 / 5.0) + 32.0
-        return temperatureF
-    }
 
     func mcpReadData(a2dChannel: CUnsignedChar) -> UInt64 {
         // TODO: hardwareSPIs returned nil when using the Raspberry 4 board type here.
@@ -77,8 +65,7 @@ public struct PiController: Sendable {
 
         var outData = [UInt8]()
         outData.append(1)  //  first byte transmitted -> start bit
-        outData.append(0b10000000 | (((a2dChannel & 7) << 4)))  // second byte transmitted -> (SGL/DIF = 1, D2=D1=D0=0)
-
+        
         // Use mask to get ada channel between 0 - 7
         //   00000111
         // & 00000001
@@ -93,11 +80,12 @@ public struct PiController: Sendable {
         //   10000000
         // | 00010000
         //   10010000
+        outData.append(0b10000000 | (((a2dChannel & 7) << 4)))  // second byte transmitted -> (SGL/DIF = 1, D2=D1=D0=0)
         outData.append(0)  // third byte transmitted....don't care
 
         let inData = spi.sendDataAndRead(outData, frequencyHz: 500_000)
         var a2dVal: UInt64 = 0
-        a2dVal = UInt64(inData[1]) << 8  //merge data[1] & data[2] to get result
+        a2dVal = UInt64(inData[1]) << 8  // merge data[1] & data[2] to get result
         a2dVal |= UInt64(inData[2])
         return a2dVal
     }
