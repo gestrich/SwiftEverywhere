@@ -24,7 +24,7 @@ struct ContentView: View {
                 }
             }
             .sheet(isPresented: $showSettings) {
-                SettingsView(urlStore: viewModel.urlStore)
+                SettingsView(viewModel: viewModel, urlStore: viewModel.urlStore)
             }
         }
     }

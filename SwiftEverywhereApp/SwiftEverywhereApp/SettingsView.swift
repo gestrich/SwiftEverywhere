@@ -6,10 +6,12 @@
 //
 
 import Combine
+import SECommon
 import SwiftUI
 
 struct SettingsView: View {
-    var urlStore: URLStore
+    let viewModel: DevicesViewModel
+    let urlStore: URLStore
     @Environment(\.dismiss) private var dismiss
     @State private var newURL: String = ""
     
@@ -52,6 +54,18 @@ struct SettingsView: View {
                         newURL = ""
                     }
                     .disabled(newURL.isEmpty)
+                }
+                Section {
+                    Button("Push Notification Test") {
+                        Task {
+                            let notification = PushNotification(title: "My Title", subtitle: "My Subtitle", message: "My Message: \(Date().description)")
+                            do {
+                                try await viewModel.apiClient?.sendPushNotification(notification)
+                            } catch {
+                                print(error)
+                            }
+                        }
+                    }
                 }
             }
             .navigationTitle("Settings")
