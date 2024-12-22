@@ -35,8 +35,8 @@ public struct DynamoAnalogReading: Codable {
         return AnalogValue(channel: channel, uploadDate: date, value: value)
     }
     
-    static func searchRequest(channel: Int) -> DynamoSearchRequest {
-        return DynamoSearchRequest(partition: Self.createPartition(channel: channel))
+    static func searchRequest(channel: Int) -> DynamoSearchRequest<DynamoAnalogReading> {
+        return DynamoSearchRequest(partition: Self.createPartition(channel: channel), outputType: DynamoAnalogReading.self)
     }
     
     static func createPartition(channel: Int) -> String {

@@ -34,7 +34,7 @@ public struct SwiftServerApp: PiClientAPI {
     
     public func getAnalogReadings(channel: Int, range: SECommon.DateRangeRequest) async throws -> [SECommon.AnalogValue] {
         let searchRequest = DynamoAnalogReading.searchRequest(channel: channel)
-        return try await dynamoStore.getItems(searchRequest: searchRequest, output: DynamoAnalogReading.self, oldestDate: range.startDate, latestDate: range.endDate).compactMap { try? $0.toReading() }
+        return try await dynamoStore.getItems(searchRequest: searchRequest, oldestDate: range.startDate, latestDate: range.endDate).compactMap { try? $0.toReading() }
     }
     
     public func updateAnalogReading(reading: SECommon.AnalogValue) async throws -> SECommon.AnalogValue {
@@ -43,7 +43,7 @@ public struct SwiftServerApp: PiClientAPI {
     
     public func getHost() async throws -> SECommon.Host {
         let searchRequest = DynamoHost.searchRequest()
-        guard let result = try await dynamoStore.getLatest(searchRequest: searchRequest, output: DynamoHost.self)?.toHost() else {
+        guard let result = try await dynamoStore.getLatest(searchRequest: searchRequest)?.toHost() else {
             throw LambdaDemoError.missingHost
         }
         return result

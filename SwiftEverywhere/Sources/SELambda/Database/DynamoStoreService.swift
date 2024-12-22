@@ -21,14 +21,14 @@ public struct DynamoStoreService {
         self.tableName = tableName
     }
     
-    func getItemsInPastMinutes<T: Codable>(searchRequest: DynamoSearchRequest, output: T.Type, minutes: Int, referenceDate: Date) async throws -> [T] {
+    func getItemsInPastMinutes<T: Codable>(searchRequest: DynamoSearchRequest<T>, minutes: Int, referenceDate: Date) async throws -> [T] {
         let interval = TimeInterval(minutes) * -60
         let date = referenceDate.addingTimeInterval(interval)
-        return try await getItems(searchRequest: searchRequest, output: output, oldestDate: date, latestDate: referenceDate)
+        return try await getItems(searchRequest: searchRequest, oldestDate: date, latestDate: referenceDate)
     }
     
     // Assumes the items use iso 8601 dates for their sort key.
-    func getItems<T: Codable>(searchRequest: DynamoSearchRequest, output: T.Type, oldestDate: Date, latestDate: Date) async throws -> [T] {
+    func getItems<T: Codable>(searchRequest: DynamoSearchRequest<T>, oldestDate: Date, latestDate: Date) async throws -> [T] {
         let oldestDateAsString = Utils.iso8601Formatter.string(from: oldestDate)
         let currentDateAsString = Utils.iso8601Formatter.string(from: latestDate)
         
@@ -62,9 +62,9 @@ public struct DynamoStoreService {
     
     // MARK: DynamoHost
     
-    func getLatest<T: Codable>(searchRequest: DynamoSearchRequest, output: T.Type) async throws -> T? {
+    func getLatest<T: Codable>(searchRequest: DynamoSearchRequest<T>) async throws -> T? {
         // TODO: Need a way to get the last without using time based query
-        return try await getItemsInPastMinutes(searchRequest: searchRequest, output: output, minutes: 60 * 60 * 24 * 365, referenceDate: Date()).last
+        return try await getItemsInPastMinutes(searchRequest: searchRequest, minutes: 60 * 60 * 24 * 365, referenceDate: Date()).last
     }
     
     func store<T: Codable>(item: T) async throws -> T {
@@ -77,15 +77,17 @@ public struct DynamoStoreService {
     }
 }
 
-struct DynamoSearchRequest: Codable {
+struct DynamoSearchRequest<T: Codable> {
     let partitionKey: String
     let partition: String
     let sortKey: String
+    let outputType: T.Type
     
-    init(partition: String){
+    init(partition: String, outputType: T.Type){
         self.partitionKey = "partition"
         self.partition = partition
         self.sortKey = "uploadDate"
+        self.outputType = outputType
     }
 }
 

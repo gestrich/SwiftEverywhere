@@ -87,7 +87,7 @@ struct PiClientFactory {
     let configurationService: ConfigurationService // For any secrets
 
     func createClientApiImplementation() async throws -> PiClientAPI {
-        guard let host = try await dynamoStore.getLatest(searchRequest: DynamoHost.searchRequest(), output: DynamoHost.self) else {
+        guard let host = try await dynamoStore.getLatest(searchRequest: DynamoHost.searchRequest()) else {
             throw PiClientFactory.missingPiHost
         }
 

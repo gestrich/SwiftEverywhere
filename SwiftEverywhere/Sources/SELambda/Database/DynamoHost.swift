@@ -31,8 +31,8 @@ public struct DynamoHost: Codable {
         return Host(ipAddress: ipAddress, port: port)
     }
     
-    static func searchRequest() -> DynamoSearchRequest {
-        return DynamoSearchRequest(partition: Self.createPartition())
+    static func searchRequest() -> DynamoSearchRequest<DynamoHost> {
+        return DynamoSearchRequest(partition: Self.createPartition(), outputType: DynamoHost.self)
     }
     
     static func createPartition() -> String {
