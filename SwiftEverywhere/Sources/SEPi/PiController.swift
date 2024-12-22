@@ -143,6 +143,10 @@ extension PiController: SwiftEverywhereAPI {
         }
         ledGPIO.direction = .OUT
     }
+    
+    public func sendPushNotification(_ notification: PushNotification) async throws {
+        throw RoutesError.unsupportedMethod
+    }
 
     public func updateDigitalOutput(_ digitalOutput: DigitalValue) async throws -> DigitalValue {
         let gpios = SwiftyGPIO.GPIOs(for: .RaspberryPi4)

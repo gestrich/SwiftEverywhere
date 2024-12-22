@@ -16,6 +16,7 @@ public protocol SwiftEverywhereAPI {
     func getHost() async throws -> Host
     func postHost(_ host: Host) async throws -> Host
     func updateDeviceToken(_ token: DeviceToken) async throws
+    func sendPushNotification(_ notification: PushNotification) async throws
 }
 
 public enum PiClientAPIPaths: String, CaseIterable {
@@ -23,4 +24,5 @@ public enum PiClientAPIPaths: String, CaseIterable {
     case deviceToken
     case digitalValues
     case host
+    case pushNotification
 }

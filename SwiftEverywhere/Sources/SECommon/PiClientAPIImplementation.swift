@@ -54,7 +54,7 @@ public struct PiClientAPIImplementation: SwiftEverywhereAPI, Sendable {
         return try await postData(input: host, outputType: Host.self, urlComponent: PiClientAPIPaths.host.rawValue)
     }
     
-    // MARK: LED
+    // MARK: Digital Output
     
     public func getDigitalOutput(channel: Int) async throws -> DigitalValue {
         let pathComponent = [PiClientAPIPaths.digitalValues.rawValue, "\(channel)"].joined(separator: "/")
@@ -63,6 +63,12 @@ public struct PiClientAPIImplementation: SwiftEverywhereAPI, Sendable {
 
     public func updateDigitalOutput(_ state: DigitalValue) async throws -> DigitalValue {
         return try await postData(input: state, outputType: DigitalValue.self, urlComponent: PiClientAPIPaths.digitalValues.rawValue)
+    }
+    
+    // MARK: Push Notification
+    
+    public func sendPushNotification(_ notification: PushNotification) async throws {
+        return try await postData(input: notification, urlComponent: PiClientAPIPaths.pushNotification.rawValue)
     }
     
     // MARK: Utilities

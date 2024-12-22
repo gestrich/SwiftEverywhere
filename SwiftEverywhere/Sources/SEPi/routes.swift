@@ -80,6 +80,15 @@ func routes(_ app: Application, mpc: PiController) throws {
                 let host = try jsonDecoder().decode(Host.self, from: data)
                 return try await piClient().postHost(host)
             }
+        case .pushNotification:
+            app.post(path.rawValue.pathComponents) { request in
+                guard let data = request.body.data else {
+                    throw RoutesError.unexpectedBody
+                }
+                let notification = try jsonDecoder().decode(PushNotification.self, from: data)
+                try await piClient().sendPushNotification(notification)
+                return Response(status: .ok)
+            }
         }
     }
     
@@ -124,5 +133,9 @@ extension DigitalValue: Content {
 }
     
 extension SECommon.Host: Content {
+    
+}
+
+extension PushNotification: Content {
     
 }

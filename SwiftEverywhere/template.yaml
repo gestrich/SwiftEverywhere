@@ -98,6 +98,12 @@ Resources:
             Path: /host
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
+        pushNotificationPost:
+          Type: Api
+          Properties:
+            Path: /pushNotification
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
       Policies:
         - AmazonDynamoDBFullAccess
         - Statement:

@@ -146,6 +146,18 @@ struct APIGWHandler: EventLoopLambdaHandler {
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }
+        case .pushNotification:
+            switch event.httpMethod {
+            case .POST:
+                guard let bodyData = event.bodyData() else {
+                    throw APIGWHandlerError.general(description: "Missing body data")
+                }
+                let pushNotification = try jsonDecoder.decode(PushNotification.self, from: bodyData)
+                try await app.sendPushNotification(pushNotification)
+                return APIGateway.Response(statusCode: .ok)
+            default:
+                throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
+            }
         }
     }
     

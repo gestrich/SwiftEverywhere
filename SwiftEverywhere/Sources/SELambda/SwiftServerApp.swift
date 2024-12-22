@@ -62,15 +62,6 @@ public struct SwiftServerApp: SwiftEverywhereAPI {
         _ = try await dynamoStore.store(item: DynamoDeviceToken(deviceToken: token, endpointARN: endpointArn))
     }
     
-    func sendAPNS(title: String, subtitle: String, message: String) async throws {
-        let arn = try await dynamoStore.getLatest(searchRequest: DynamoDeviceToken.searchRequest())?.endpointARN
-        let publishInput = SNS.PublishInput(message: """
-        {"aps":{"alert":{"title":\(title),"subtitle":"\(subtitle)","body":"\(message)"}}}
-        """, targetArn: arn)
-        
-        try await sns.publish(publishInput)
-    }
-    
     // DigitalValue
     
     public func getDigitalOutput(channel: Int) async throws -> DigitalValue {
@@ -94,6 +85,23 @@ public struct SwiftServerApp: SwiftEverywhereAPI {
     public func postHost(_ host: SECommon.Host) async throws -> SECommon.Host {
         let dynamoHost = DynamoHost(host: host)
         return try await dynamoStore.store(item: dynamoHost).toHost()
+    }
+    
+    //MARK PushNotification
+    
+    public func sendPushNotification(_ notification: SECommon.PushNotification) async throws {
+        let tokens = try await dynamoStore.getItems(
+            searchRequest: DynamoDeviceToken.searchRequest(),
+            oldestDate: Date().addingTimeInterval(-60 * 60 * 24 * 365),
+            latestDate: Date()
+        )
+        for token in tokens {
+            let publishInput = SNS.PublishInput(message: """
+            {"aps":{"alert":{"title":\(notification.title),"subtitle":"\(notification.subtitle)","body":"\(notification.message)"}}}
+            """, targetArn: token.endpointARN)
+            
+            try await sns.publish(publishInput)
+        }
     }
     
     //MARK: S3 Service
