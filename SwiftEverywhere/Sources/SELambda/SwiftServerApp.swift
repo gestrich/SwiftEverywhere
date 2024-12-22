@@ -90,15 +90,16 @@ public struct SwiftServerApp: SwiftEverywhereAPI {
     //MARK PushNotification
     
     public func sendPushNotification(_ notification: SECommon.PushNotification) async throws {
-        let tokens = try await dynamoStore.getItems(
+        let arns = try await dynamoStore.getItems(
             searchRequest: DynamoDeviceToken.searchRequest(),
             oldestDate: Date().addingTimeInterval(-60 * 60 * 24 * 365),
             latestDate: Date()
-        ).uniqued(on: {$0.endpointARN})
-        for token in tokens {
+        ).map {$0.endpointARN}
+        
+        for arn in Set(arns) {
             let publishInput = SNS.PublishInput(message: """
             {"aps":{"alert":{"title":\(notification.title),"subtitle":"\(notification.subtitle)","body":"\(notification.message)"}}}
-            """, targetArn: token.endpointARN)
+            """, targetArn: arn)
             
             try await sns.publish(publishInput)
         }
