@@ -59,13 +59,10 @@ public struct PiController: Sendable {
     }
     
     func getTemperatureFahrenheit(channel: UInt8) -> Double {
-        // Step 1: Read voltage from the sensor
         let voltage = self.mcpVoltage(
             outputCode: self.mcpReadData(a2dChannel: channel),
             voltageReference: 3.3  // Ensure this matches VREF
         )
-        
-        print("Voltage: \(voltage) V") // Debugging
         
         let voltageReference = 3.3
         let temperatureC = (voltage - 0.5) * 100
