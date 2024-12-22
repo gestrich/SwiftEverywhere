@@ -16,36 +16,43 @@ struct DeviceListView: View {
     @Environment(\.scenePhase) var scenePhase
     
     var body: some View {
-        
-        Form {
-            ForEach (viewModel.digitalOutputStates) { digitalOutputState in
-                Section(digitalOutputState.configuration.name) {
-                    Button {
-                        Task {
-                            do {
-                                try await viewModel.toggleDigitalOutputState(digitalOutputState)
-                            } catch {
-                                print("Error: \(error)")
+        List {
+            Section() {
+                ForEach (viewModel.digitalOutputStates) { digitalOutputState in
+                    LabeledContent(digitalOutputState.configuration.name) {
+                        Button {
+                            Task {
+                                do {
+                                    try await viewModel.toggleDigitalOutputState(digitalOutputState)
+                                } catch {
+                                    print("Error: \(error)")
+                                }
                             }
-                        }
-                    } label: {
-                        HStack {
-                            Spacer()
+                        } label: {
                             Image(systemName: "lightbulb.fill")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .foregroundStyle(digitalOutputState.latestValue.on ? Color.yellow : Color.gray )
-                                .frame(width: 25)
+                                .frame(maxWidth: 22)
+                                .padding()
                         }
                     }
+                    
                 }
             }
             ForEach (viewModel.analogStates) { analogState in
-                Section(analogState.configuration.name) {
-                    AnalogReadingsChart(analogState: analogState)
+                Section {
+                    VStack {
+                        NavigationLink(value: analogState) {
+                            HStack {
+                                LabeledContent(analogState.configuration.name, value: analogState.configuration.displayableLabel(reading: analogState.latestReading.value))
+                            }
+                        }
+                        AnalogReadingsChart(analogState: analogState)
+                    }
+                    
                 }
             }
-            
             Section {
                 if let url = viewModel.selectedAPIURL {
                     Text("Connected to: \(url)")
@@ -53,29 +60,39 @@ struct DeviceListView: View {
                         .foregroundColor(.gray)
                 }
             }
-        }.opacity(viewLoaded ? 1.0 : 0.0)
-            .navigationTitle("Swift Everywhere")
-        
-            .task {
-                do {
-                    try await viewModel.loadStates()
-                } catch {
-                    print("Error: \(error)")
-                }
-                viewLoaded = true
+        }
+        .refreshable {
+            Task {
+                try await viewModel.loadStates()
             }
-            .onChange(of: scenePhase) { (oldPhase, newPhase) in
-                if newPhase == .active {
-                    Task {
-                        try await viewModel.loadStates()
-                    }
-                }
+        }
+        .opacity(viewLoaded ? 1.0 : 0.0)
+        .navigationTitle("Swift Everywhere")
+        .task {
+            do {
+                try await viewModel.loadStates()
+            } catch {
+                print("Error: \(error)")
             }
-            .onReceive(timer, perform: { _ in
+            viewLoaded = true
+        }
+        .onChange(of: scenePhase) { (oldPhase, newPhase) in
+            if newPhase == .active {
                 Task {
                     try await viewModel.loadStates()
                 }
-            })
+            }
+        }
+        .onReceive(timer, perform: { _ in
+            Task {
+                try await viewModel.loadStates()
+            }
+        })
+        .navigationDestination(for: AnalogInputState.self) { state in
+            // The values in navigationDestination are not Bindable so we need enough
+            // info for the child view to query it for changes for real-time updates.
+            DeviceDetailView(analogInputName: state.configuration.name, viewModel: viewModel)
+        }
     }
     
     private enum ContentViewError: Error {

@@ -14,6 +14,7 @@ class URLStore {
         didSet {
             if let data = try? JSONEncoder().encode(serverURLs) {
                 UserDefaults.standard.set(data, forKey: urlsKey)
+                urlStoreUpdated?()
             }
         }
     }

@@ -13,7 +13,6 @@ struct AnalogReadingsChart: View {
     let analogState: AnalogInputState
     var body: some View {
         VStack(alignment: .trailing) {
-            Text(analogState.configuration.displayableLabel(reading: analogState.latestReading.value))
             Chart {
                 ForEach(analogState.readings) { (reading: AnalogValue) in
                     LineMark(

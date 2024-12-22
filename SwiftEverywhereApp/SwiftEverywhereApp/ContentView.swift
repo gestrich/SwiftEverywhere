@@ -12,21 +12,14 @@ struct ContentView: View {
     @State private var showSettings = false
     var viewModel = DevicesViewModel()
     var body: some View {
-        NavigationView {
+        NavigationStack {
             DeviceListView(viewModel: viewModel)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Settings") {
-                        showSettings = true
-                    }
-                }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        Task {
-                            try await viewModel.loadStates()
-                        }
+                    Button(role: .none) {
+                        showSettings = true
                     } label: {
-                        Image(systemName: "arrow.clockwise")
+                        Image(systemName: "gear")
                     }
                 }
             }

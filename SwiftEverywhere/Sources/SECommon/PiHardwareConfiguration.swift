@@ -31,15 +31,15 @@ public struct PiHardwareConfiguration: Sendable {
         
         self.digitalOutputs = [
             DigitalOutput(
+                name: "Blue LED",
+                channel: 21,
+                voltage: .v3_3
+                ),
+            DigitalOutput(
                 name: "Red LED",
                 channel: 20,
                 voltage: .v3_3
                 ),
-            DigitalOutput(
-                name: "Blue LED",
-                channel: 21,
-                voltage: .v3_3
-                )
             ]
     }
 }

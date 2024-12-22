@@ -102,13 +102,14 @@ class DevicesViewModel {
     }
 }
 
-struct AnalogInputState: Sendable, Identifiable {
+struct AnalogInputState: Sendable, Identifiable, Hashable {
     let configuration: AnalogInput
+    let readings: [AnalogValue]
+    
     var latestReading: AnalogValue {
         return readings.last ?? AnalogValue(channel: configuration.channel, uploadDate: Date(), value: 0.0)
     }
-    let readings: [AnalogValue]
-    
+
     var id: String {
         return configuration.name + latestReading.uploadDate.description
     }
@@ -129,6 +130,15 @@ struct AnalogInputState: Sendable, Identifiable {
             upperBound = configuration.typicalRange.upperBound
         }
         return lowerBound...upperBound
+    }
+    
+    static func == (lhs: AnalogInputState, rhs: AnalogInputState) -> Bool {
+        lhs.id == rhs.id && lhs.readings == rhs.readings
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(readings)
     }
 }
 
