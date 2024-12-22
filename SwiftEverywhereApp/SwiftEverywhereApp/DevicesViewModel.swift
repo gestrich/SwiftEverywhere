@@ -27,6 +27,18 @@ class DevicesViewModel {
                 try await self.loadStates()
             }
         }
+        NotificationCenter.default.addObserver(forName: Notification.Name("PUSH_NOTIFICATION_REGISTERED"), object: nil, queue: .main) { notification in
+            Task {
+                guard let dict = notification.userInfo as? [String: String], let token = dict["deviceToken"] else {
+                    return
+                }
+                do {
+                    try await self.apiClient?.updateDeviceToken(DeviceToken(token: token, deviceName: UIDevice.current.name))
+                } catch {
+                    print(error)
+                }
+            }
+        }
     }
     
     func loadStates() async throws {
@@ -77,7 +89,7 @@ class DevicesViewModel {
             throw ContentViewError.missingBaseURL
         }
         let newState = DigitalValue(on: !digitalOutputState.latestValue.on, channel: digitalOutputState.configuration.channel)
-        _ = try await apiClient.updateDigitalReading(newState)
+        _ = try await apiClient.updateDigitalOutput(newState)
         try await loadDigitalOutputStates()
     }
     

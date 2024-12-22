@@ -7,26 +7,30 @@
 
 import Foundation
 import SECommon
+import SotoSNS
 
-public struct SwiftServerApp: PiClientAPI {
-    public typealias PiClientSource = () async throws -> PiClientAPI
+public struct SwiftServerApp: SwiftEverywhereAPI {
+    public typealias PiClientSource = () async throws -> SwiftEverywhereAPI
     
     let cloudDataStore: CloudDataStore?
-    let piClientSource: () async throws -> PiClientAPI
+    let piClientSource: () async throws -> SwiftEverywhereAPI
     let dynamoStore: DynamoStoreService
+    let sns: SNS
     let s3FileKey = "hello-world.text"
     
     public init(
         cloudDataStore: CloudDataStore? = nil,
         piClientSource: @escaping PiClientSource,
-        dynamoStore: DynamoStoreService
+        dynamoStore: DynamoStoreService,
+        sns: SNS
     ) {
         self.cloudDataStore = cloudDataStore
         self.piClientSource = piClientSource
         self.dynamoStore = dynamoStore
+        self.sns = sns
     }
     
-    // MARK: Pi Service
+    // MARK: AnalogReading
     
     public func getAnalogReading(channel: Int) async throws -> SECommon.AnalogValue {
         return try await piClientSource().getAnalogReading(channel: channel)
@@ -41,6 +45,44 @@ public struct SwiftServerApp: PiClientAPI {
         return try await dynamoStore.store(item: DynamoAnalogReading(reading: reading)).toReading()
     }
     
+    // MARK: DeviceToken
+    
+    public func updateDeviceToken(_ token: SECommon.DeviceToken) async throws {
+        // TODO: Define in a parameter store and support both sandbox and production
+        let applicationARN = "arn:aws:sns:us-east-1:767387487465:app/APNS_SANDBOX/iOSPushNotificationPlatform"
+        let input = SNS.CreatePlatformEndpointInput(
+            customUserData: token.deviceName,
+            platformApplicationArn: applicationARN,
+            token: token.token
+        )
+        let snsEndpointResult = try await sns.createPlatformEndpoint(input)
+        guard let endpointArn = snsEndpointResult.endpointArn else {
+            return
+        }
+        _ = try await dynamoStore.store(item: DynamoDeviceToken(deviceToken: token, endpointARN: endpointArn))
+    }
+    
+    func sendAPNS(title: String, subtitle: String, message: String) async throws {
+        let arn = try await dynamoStore.getLatest(searchRequest: DynamoDeviceToken.searchRequest())?.endpointARN
+        let publishInput = SNS.PublishInput(message: """
+        {"aps":{"alert":{"title":\(title),"subtitle":"\(subtitle)","body":"\(message)"}}}
+        """, targetArn: arn)
+        
+        try await sns.publish(publishInput)
+    }
+    
+    // DigitalValue
+    
+    public func getDigitalOutput(channel: Int) async throws -> DigitalValue {
+        return try await piClientSource().getDigitalOutput(channel: channel)
+    }
+    
+    public func updateDigitalOutput(_ state: DigitalValue) async throws -> DigitalValue {
+        return try await piClientSource().updateDigitalOutput(state)
+    }
+    
+    // MARK: Host
+    
     public func getHost() async throws -> SECommon.Host {
         let searchRequest = DynamoHost.searchRequest()
         guard let result = try await dynamoStore.getLatest(searchRequest: searchRequest)?.toHost() else {
@@ -52,14 +94,6 @@ public struct SwiftServerApp: PiClientAPI {
     public func postHost(_ host: SECommon.Host) async throws -> SECommon.Host {
         let dynamoHost = DynamoHost(host: host)
         return try await dynamoStore.store(item: dynamoHost).toHost()
-    }
-    
-    public func getDigitalOutput(channel: Int) async throws -> DigitalValue {
-        return try await piClientSource().getDigitalOutput(channel: channel)
-    }
-    
-    public func updateDigitalReading(_ state: DigitalValue) async throws -> DigitalValue {
-        return try await piClientSource().updateDigitalReading(state)
     }
     
     //MARK: S3 Service

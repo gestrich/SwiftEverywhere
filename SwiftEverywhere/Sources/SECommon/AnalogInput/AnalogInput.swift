@@ -19,7 +19,6 @@ public struct AnalogInput: Sendable {
         case .reverse0To100Percent:
             return (voltage.rawValue - reading) / voltage.rawValue * 100
         case .temperatureTMP36Fahrenheit:
-            let voltageReference = 3.3
             let voltageAt0C = 0.5 // TMP 36 has 0.5 at 0C so we need to offset.
             let temperatureC = (reading - voltageAt0C) * 100
             let temperatureF = (temperatureC * 9.0 / 5.0) + 32.0

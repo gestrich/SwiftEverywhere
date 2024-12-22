@@ -10,6 +10,7 @@ import SECommon
 import SotoDynamoDB
 import SotoS3
 import SotoSecretsManager
+import SotoSNS
 
 /*
  Manages the lifecycle and configuration of your services.
@@ -23,7 +24,7 @@ class ServiceComposer {
     let cloudDataService: CloudDataStore
     let secretsService: SecretsService
     let dynamoStore: DynamoStoreService
-    let piClientSource: () async throws -> PiClientAPI
+    let piClientSource: () async throws -> SwiftEverywhereAPI
 
     private static func getEnvironmentVariable(key: String) -> String? {
         guard let rawVal = getenv(key) else {
@@ -59,10 +60,12 @@ class ServiceComposer {
         
         self.dynamoStore = DynamoStoreService(db: DynamoDB(client: awsClient), tableName: "SwiftEverywhere")
         
+        let sns = SNS(client: awsClient)
+        
         let piClientFactory = PiClientFactory(dynamoStore: self.dynamoStore, configurationService: configurationService)
         self.piClientSource = piClientFactory.createClientApiImplementation
 
-        let app = SwiftServerApp(cloudDataStore: cloudDataService, piClientSource: piClientFactory.createClientApiImplementation, dynamoStore: dynamoStore)
+        let app = SwiftServerApp(cloudDataStore: cloudDataService, piClientSource: piClientFactory.createClientApiImplementation, dynamoStore: dynamoStore, sns: sns)
         self.app = app
     }
     
@@ -86,7 +89,7 @@ struct PiClientFactory {
     let dynamoStore: DynamoStoreService
     let configurationService: ConfigurationService // For any secrets
 
-    func createClientApiImplementation() async throws -> PiClientAPI {
+    func createClientApiImplementation() async throws -> SwiftEverywhereAPI {
         guard let host = try await dynamoStore.getLatest(searchRequest: DynamoHost.searchRequest()) else {
             throw PiClientFactory.missingPiHost
         }

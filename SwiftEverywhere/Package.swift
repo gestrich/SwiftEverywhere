@@ -42,6 +42,7 @@ let package = Package(
                 .product(name: "NIOHelpers", package: "swift-server-utilities"),
                 "SECommon",
                 .product(name: "SotoDynamoDB", package: "soto"),
+                .product(name: "SotoSNS", package: "soto"),
                 .product(name: "SotoS3", package: "soto"),
                 .product(name: "SotoSecretsManager", package: "soto"),
             ]

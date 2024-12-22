@@ -104,6 +104,18 @@ struct APIGWHandler: EventLoopLambdaHandler {
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }
+        case .deviceToken:
+            switch event.httpMethod {
+            case .POST:
+                guard let bodyData = event.bodyData() else {
+                    throw APIGWHandlerError.general(description: "Missing body data")
+                }
+                let deviceToken = try jsonDecoder.decode(DeviceToken.self, from: bodyData)
+                try await app.updateDeviceToken(deviceToken)
+                return APIGateway.Response(statusCode: .ok)
+            default:
+                throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
+            }
         case .host:
             switch event.httpMethod {
             case .GET:
@@ -130,7 +142,7 @@ struct APIGWHandler: EventLoopLambdaHandler {
                 }
                 
                 let digitalOutput = try jsonDecoder.decode(DigitalValue.self, from: bodyData)
-                return try await app.updateDigitalReading(digitalOutput).apiGatewayOkResponse()
+                return try await app.updateDigitalOutput(digitalOutput).apiGatewayOkResponse()
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }

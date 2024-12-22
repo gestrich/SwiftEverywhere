@@ -10,7 +10,7 @@ import Foundation
 import FoundationNetworking
 #endif
 
-public struct PiClientAPIImplementation: PiClientAPI, Sendable {
+public struct PiClientAPIImplementation: SwiftEverywhereAPI, Sendable {
     let baseURL: URL
     
     public init(baseURL: URL) {
@@ -37,6 +37,13 @@ public struct PiClientAPIImplementation: PiClientAPI, Sendable {
         return try await postData(input: reading, outputType: AnalogValue.self, urlComponent: pathComponent)
     }
     
+    // MARK: Device Token
+    
+    public func updateDeviceToken(_ token: DeviceToken) async throws {
+        let pathComponent = [PiClientAPIPaths.deviceToken.rawValue].joined(separator: "/")
+        try await postData(input: token, urlComponent: pathComponent)
+    }
+    
     // MARK: Host
     
     public func getHost() async throws -> Host {
@@ -54,11 +61,28 @@ public struct PiClientAPIImplementation: PiClientAPI, Sendable {
         return try await getData(outputType: DigitalValue.self .self, urlComponent: pathComponent)
     }
 
-    public func updateDigitalReading(_ state: DigitalValue) async throws -> DigitalValue {
+    public func updateDigitalOutput(_ state: DigitalValue) async throws -> DigitalValue {
         return try await postData(input: state, outputType: DigitalValue.self, urlComponent: PiClientAPIPaths.digitalValues.rawValue)
     }
     
     // MARK: Utilities
+
+    func postData<Input: Codable>(input: Input, urlComponent: String) async throws {
+        let url = baseURL.appendingPathComponent(urlComponent)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let encodedData = try jsonEncoder.encode(input)
+        request.httpBody = encodedData
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        do {
+        } catch {
+            print(String(data: data, encoding: .utf8) ?? "")
+            throw error
+        }
+    }
     
     func postData<Input: Codable, Output: Codable>(input: Input, outputType: Output.Type, urlComponent: String) async throws -> Output {
         let url = baseURL.appendingPathComponent(urlComponent)

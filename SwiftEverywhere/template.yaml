@@ -5,7 +5,7 @@ Description: Swift Application
 Globals:
   Function:
     Timeout: 10
-    CodeUri: . 
+    CodeUri: .
     Handler: swift.bootstrap
     Runtime: provided.al2
     MemorySize: 512
@@ -48,7 +48,7 @@ Resources:
       BuildMethod: makefile
     Properties:
       Architectures:
-      - arm64
+        - arm64
       Events:
         analogReadingsGet:
           Type: Api
@@ -66,6 +66,12 @@ Resources:
           Type: Api
           Properties:
             Path: /analogReadings/{id}
+            Method: post
+            RestApiId: !Ref SwiftEverywhereAPI
+        deviceTokenPost:
+          Type: Api
+          Properties:
+            Path: /deviceToken
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
         digitalValuesGet:
@@ -93,15 +99,22 @@ Resources:
             Method: post
             RestApiId: !Ref SwiftEverywhereAPI
       Policies:
-      - AmazonDynamoDBFullAccess
-      - Statement:
+        - AmazonDynamoDBFullAccess
+        - Statement:
             Effect: Allow
             Action:
               - secretsmanager:GetSecretValue
             Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pi-url*"
+        - Statement:  # Grant permissions to publish to all APNS_SANDBOX platform applications
+            Effect: Allow
+            Action:
+              - sns:CreatePlatformEndpoint
+              - sns:Publish
+            Resource: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:app/APNS_SANDBOX/*"
       Environment:
         Variables:
           PI_URL_SECRET_NAME: "pi-url"
+
 Outputs:
   ApiEndpoint:
     Description: "API endpoint URL"

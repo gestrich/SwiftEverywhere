@@ -26,9 +26,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     
     func application(_ application: UIApplication,
                      didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        // Convert device token to string
         let tokenString = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
-        print("Device Token: \(tokenString)")
+        NotificationCenter.default.post(name: Notification.Name("PUSH_NOTIFICATION_REGISTERED"), object: nil, userInfo: ["deviceToken": tokenString])
     }
 
 

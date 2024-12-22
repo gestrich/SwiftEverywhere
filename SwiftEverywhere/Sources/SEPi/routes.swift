@@ -49,13 +49,14 @@ func routes(_ app: Application, mpc: PiController) throws {
                 }
                 return try await mpc.getAnalogReadings(channel: channel, range: DateRangeRequest(startDate: startDate, endDate: endDate))
             }
-        case .host:
+        case .deviceToken:
             app.post(path.rawValue.pathComponents) { request in
                 guard let data = request.body.data else {
                     throw RoutesError.unexpectedBody
                 }
-                let host = try jsonDecoder().decode(Host.self, from: data)
-                return try await piClient().postHost(host)
+                let token = try jsonDecoder().decode(DeviceToken.self, from: data)
+                try await piClient().updateDeviceToken(token)
+                return Response(status: .ok)
             }
         case .digitalValues:
             app.get(PathComponent(stringLiteral: path.rawValue), ":channel") { request in
@@ -69,7 +70,15 @@ func routes(_ app: Application, mpc: PiController) throws {
                     throw RoutesError.unexpectedBody
                 }
                 let state = try jsonDecoder().decode(DigitalValue.self, from: data)
-                return try await mpc.updateDigitalReading(state)
+                return try await mpc.updateDigitalOutput(state)
+            }
+        case .host:
+            app.post(path.rawValue.pathComponents) { request in
+                guard let data = request.body.data else {
+                    throw RoutesError.unexpectedBody
+                }
+                let host = try jsonDecoder().decode(Host.self, from: data)
+                return try await piClient().postHost(host)
             }
         }
     }
@@ -105,11 +114,15 @@ func routes(_ app: Application, mpc: PiController) throws {
 extension AnalogValue: Content {
         
 }
-    
-extension SECommon.Host: Content {
+
+extension DeviceToken: Content {
     
 }
 
 extension DigitalValue: Content {
+    
+}
+    
+extension SECommon.Host: Content {
     
 }

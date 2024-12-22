@@ -99,7 +99,8 @@ public struct PiController: Sendable {
     }
 }
 
-extension PiController: PiClientAPI {
+extension PiController: SwiftEverywhereAPI {
+    
     public func getAnalogReading(channel: Int) async throws -> SECommon.AnalogValue {
         let voltage = getVoltage(channel: UInt8(channel))
         return AnalogValue(channel: channel, uploadDate: Date(), value: Double(voltage))
@@ -110,6 +111,10 @@ extension PiController: PiClientAPI {
     }
     
     public func updateAnalogReading(reading: SECommon.AnalogValue) async throws -> SECommon.AnalogValue {
+        throw RoutesError.unsupportedMethod
+    }
+    
+    public func updateDeviceToken(_ token: SECommon.DeviceToken) async throws {
         throw RoutesError.unsupportedMethod
     }
     
@@ -139,7 +144,7 @@ extension PiController: PiClientAPI {
         ledGPIO.direction = .OUT
     }
 
-    public func updateDigitalReading(_ digitalOutput: DigitalValue) async throws -> DigitalValue {
+    public func updateDigitalOutput(_ digitalOutput: DigitalValue) async throws -> DigitalValue {
         let gpios = SwiftyGPIO.GPIOs(for: .RaspberryPi4)
         guard let gpioNumber = GPIOName.gpioName(number: digitalOutput.channel), let ledGPIO = gpios[gpioNumber] else {
             print("Could not read GPIO")
