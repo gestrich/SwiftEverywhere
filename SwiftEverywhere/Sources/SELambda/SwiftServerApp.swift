@@ -94,7 +94,7 @@ public struct SwiftServerApp: SwiftEverywhereAPI {
             searchRequest: DynamoDeviceToken.searchRequest(),
             oldestDate: Date().addingTimeInterval(-60 * 60 * 24 * 365),
             latestDate: Date()
-        )
+        ).uniqued(on: {$0.endpointARN})
         for token in tokens {
             let publishInput = SNS.PublishInput(message: """
             {"aps":{"alert":{"title":\(notification.title),"subtitle":"\(notification.subtitle)","body":"\(notification.message)"}}}
