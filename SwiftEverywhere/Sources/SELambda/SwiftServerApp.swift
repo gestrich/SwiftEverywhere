@@ -59,7 +59,19 @@ public struct SwiftServerApp: SwiftEverywhereAPI {
         guard let endpointArn = snsEndpointResult.endpointArn else {
             return
         }
-        _ = try await dynamoStore.store(item: DynamoDeviceToken(deviceToken: token, endpointARN: endpointArn))
+        let arns = try await self.allDeviceTokenARNs()
+        if !arns.contains(endpointArn) {
+            _ = try await dynamoStore.store(item: DynamoDeviceToken(deviceToken: token, endpointARN: endpointArn))
+        }
+    }
+    
+    private func allDeviceTokenARNs() async throws -> [String] {
+        let arns = try await dynamoStore.getItems(
+            searchRequest: DynamoDeviceToken.searchRequest(),
+            oldestDate: Date().addingTimeInterval(-60 * 60 * 24 * 365),
+            latestDate: Date()
+        ).map {$0.endpointARN}
+        return Array(Set(arns))
     }
     
     // DigitalValue
@@ -90,13 +102,9 @@ public struct SwiftServerApp: SwiftEverywhereAPI {
     //MARK PushNotification
     
     public func sendPushNotification(_ notification: SECommon.PushNotification) async throws {
-        let arns = try await dynamoStore.getItems(
-            searchRequest: DynamoDeviceToken.searchRequest(),
-            oldestDate: Date().addingTimeInterval(-60 * 60 * 24 * 365),
-            latestDate: Date()
-        ).map {$0.endpointARN}
+        let arns = try await allDeviceTokenARNs()
         
-        for arn in Set(arns) {
+        for arn in arns {
             let publishInput = SNS.PublishInput(message: """
             {"aps":{"alert":{"title":\(notification.title),"subtitle":"\(notification.subtitle)","body":"\(notification.message)"}}}
             """, targetArn: arn)
