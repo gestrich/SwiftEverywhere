@@ -72,13 +72,21 @@ public struct PiClientAPIImplementation: SwiftEverywhereAPI, Sendable {
     }
     
     // MARK: Utilities
+    
+    func createRequest(url: URL) -> URLRequest {
+        var request = URLRequest(url: url)
+        let authorizationToken = "12345678"
+        request.setValue("Bearer \(authorizationToken)", forHTTPHeaderField: "Authorization")
+        request.setValue(authorizationToken, forHTTPHeaderField: "authorizationToken")
+        return request
+    }
 
     func postData<Input: Codable>(input: Input, urlComponent: String) async throws {
         let url = baseURL.appendingPathComponent(urlComponent)
-        var request = URLRequest(url: url)
+        var request = createRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
+        
         let encodedData = try jsonEncoder.encode(input)
         request.httpBody = encodedData
 
@@ -92,7 +100,7 @@ public struct PiClientAPIImplementation: SwiftEverywhereAPI, Sendable {
     
     func postData<Input: Codable, Output: Codable>(input: Input, outputType: Output.Type, urlComponent: String) async throws -> Output {
         let url = baseURL.appendingPathComponent(urlComponent)
-        var request = URLRequest(url: url)
+        var request = createRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
@@ -114,7 +122,8 @@ public struct PiClientAPIImplementation: SwiftEverywhereAPI, Sendable {
             url.append(queryItems: queryItems)
         }
 
-        let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
+        var request = createRequest(url: url)
+        let (data, _) = try await URLSession.shared.data(for: request)
         do {
             return try jsonDecoder.decode(outputType, from: data)
         } catch {
