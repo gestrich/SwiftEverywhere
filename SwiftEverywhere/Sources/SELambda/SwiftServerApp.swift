@@ -109,26 +109,46 @@ public struct SwiftServerApp: SwiftEverywhereAPI {
 //            {"aps":{"alert":{"title":\(notification.title),"subtitle":"\(notification.subtitle)","body":"\(notification.message)"}}}
 //            """, targetArn: arn)
 
+//            let message = """
+//             {"APNS_SANDBOX":"{\"aps\":{\"alert\":{\"title\":\"AWSTitle\",\"subtitle\":\"AWSsubtitle\",\"body\":\"AWSbody\"}}}"}
+//            """
+//            """
+            let message = """
+            {"APNS_SANDBOX":"{\\"aps\\":{\\"alert\\":{\\"title\\":\\"\(notification.title)\\",\\"subtitle\\":\\"\(notification.subtitle)\\",\\"body\\":\\"\(notification.message)\\"}}}"}
+            """
+            let apn = APNSNotification(
+                aps: APNSNotification.Aps(
+                    alert: APNSNotification.Alert(
+                        title: notification.title,
+                        body: notification.message
+                    ),
+                    sound: "default",
+                    badge: 1,
+                    contentAvailable: 1
+                )
+            )
+//            let message = """
+//                "{ \"aps\": { \"alert\": { \"title\": \"Check out these awesome deals!!!\", \"body\": \"Don't miss this opportunity!\" }, \"sound\": \"default\", \"badge\": 1, \"content-available\": 1 } }"
+//            """
+//            let notification = APNSNotification(aps: APS()
+//            let jsonData = try JSONEncoder().encode(notification)
+//            let jsonString = String(data: jsonData, encoding: .utf8)
+            
             let publishInput = SNS.PublishInput(
-                message: """
-            {
-            "default": "This is the default message which must be present when publishing a message to a topic. The default message will only be used if a message is not present for  one of the notification platforms.",     
-            "APNS": "{\"aps\":{\"alert\": \"Check out these awesome deals!\",\"url\":\"www.amazon.com\"} }",
-            "GCM": "{\"data\":{\"message\":\"Check out these awesome deals!\",\"url\":\"www.amazon.com\"}}",
-            "ADM": "{\"data\":{\"message\":\"Check out these awesome deals!\",\"url\":\"www.amazon.com\"}}" 
-            }
-            """,
-//                messageAttributes: [:
-//                    "AWS.SNS.MOBILE.APNS.TOPIC":{"DataType":"String","StringValue":"com.amazon.mobile.messaging.myapp"},
-//                    "AWS.SNS.MOBILE.APNS.PUSH_TYPE":{"DataType":"String","StringValue":"background"},
-//                    "AWS.SNS.MOBILE.APNS.PRIORITY":{"DataType":"String","StringValue":"5"}}'
+                message: message,
+//                messageAttributes: [
+//                    "AWS.SNS.MOBILE.APNS.TOPIC": SNS.MessageAttributeValue(dataType: "String", stringValue: "org.gestrich.SwiftEverywhereApp"),
+//                    "AWS.SNS.MOBILE.APNS.PUSH_TYPE": SNS.MessageAttributeValue(dataType: "String", stringValue: "alert"),
+//                    "AWS.SNS.MOBILE.APNS.PRIORITY": SNS.MessageAttributeValue(dataType: "String", stringValue: "10"),
 //                ],
-//                messageStructure: "json",
+                messageStructure: "json",
                 targetArn: arn
             )
             try await sns.publish(publishInput)
         }
     }
+    
+    
     
     //MARK: S3 Service
     
@@ -159,4 +179,27 @@ public struct SwiftServerApp: SwiftEverywhereAPI {
         case noAnalogReading
     }
     
+}
+
+struct APNSNotification: Codable {
+    struct Alert: Codable {
+        let title: String
+        let body: String
+    }
+    
+    struct Aps: Codable {
+        let alert: Alert
+        let sound: String
+        let badge: Int
+        let contentAvailable: Int
+        
+        enum CodingKeys: String, CodingKey {
+            case alert
+            case sound
+            case badge
+            case contentAvailable = "content-available"
+        }
+    }
+    
+    let aps: Aps
 }
