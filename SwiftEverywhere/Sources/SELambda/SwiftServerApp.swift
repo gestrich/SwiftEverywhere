@@ -105,14 +105,6 @@ public struct SwiftServerApp: SwiftEverywhereAPI {
         let arns = try await allDeviceTokenARNs()
         
         for arn in arns {
-//            let publishInput = SNS.PublishInput(message: """
-//            {"aps":{"alert":{"title":\(notification.title),"subtitle":"\(notification.subtitle)","body":"\(notification.message)"}}}
-//            """, targetArn: arn)
-
-//            let message = """
-//             {"APNS_SANDBOX":"{\"aps\":{\"alert\":{\"title\":\"AWSTitle\",\"subtitle\":\"AWSsubtitle\",\"body\":\"AWSbody\"}}}"}
-//            """
-//            """
             let message = """
             {"APNS_SANDBOX":"{\\"aps\\":{\\"alert\\":{\\"title\\":\\"\(notification.title)\\",\\"subtitle\\":\\"\(notification.subtitle)\\",\\"body\\":\\"\(notification.message)\\"}}}"}
             """
