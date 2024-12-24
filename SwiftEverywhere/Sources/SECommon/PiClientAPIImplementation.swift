@@ -73,12 +73,19 @@ public struct PiClientAPIImplementation: SwiftEverywhereAPI, Sendable {
     
     // MARK: Utilities
     
+    func authorizationToken() -> String {
+        return "12345"
+    }
+    
     func createRequest(url: URL) -> URLRequest {
         var request = URLRequest(url: url)
-        let authorizationToken = "12345"
-        // TODO: For some reason both of these are needed
-        request.setValue(authorizationToken, forHTTPHeaderField: "Authorization")
-        request.setValue(authorizationToken, forHTTPHeaderField: "authorizationToken")
+        // All these headers get passed to main lambda, converted to lower case keys
+        
+        // TODO: Some confusion on these authorization headers.
+        // Oddly this is the one that comes from Event.authorizationToken value in Authorization lambda
+        request.setValue(authorizationToken(), forHTTPHeaderField: "Authorization")
+        // However this is needed too
+        request.setValue(authorizationToken(), forHTTPHeaderField: "authorizationToken")
         return request
     }
 
