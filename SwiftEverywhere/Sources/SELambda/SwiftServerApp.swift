@@ -108,17 +108,6 @@ public struct SwiftServerApp: SwiftEverywhereAPI {
             let message = """
             {"APNS_SANDBOX":"{\\"aps\\":{\\"alert\\":{\\"title\\":\\"\(notification.title)\\",\\"subtitle\\":\\"\(notification.subtitle)\\",\\"body\\":\\"\(notification.message)\\"}}}"}
             """
-            let apn = APNSNotification(
-                aps: APNSNotification.Aps(
-                    alert: APNSNotification.Alert(
-                        title: notification.title,
-                        body: notification.message
-                    ),
-                    sound: "default",
-                    badge: 1,
-                    contentAvailable: 1
-                )
-            )
 //            let message = """
 //                "{ \"aps\": { \"alert\": { \"title\": \"Check out these awesome deals!!!\", \"body\": \"Don't miss this opportunity!\" }, \"sound\": \"default\", \"badge\": 1, \"content-available\": 1 } }"
 //            """
@@ -136,7 +125,7 @@ public struct SwiftServerApp: SwiftEverywhereAPI {
                 messageStructure: "json",
                 targetArn: arn
             )
-            try await sns.publish(publishInput)
+            _ = try await sns.publish(publishInput)
         }
     }
     

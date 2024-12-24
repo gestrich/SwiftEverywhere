@@ -11,31 +11,18 @@ import Foundation
 import NIO
 
 public struct AuthorizerLambdaHandler: EventLoopLambdaHandler {
-    
     public typealias In = AuthRequest
     public typealias Out = AuthResponse
 
     //MARK: EventLoopLambdaHandler conformance
+    public func handle(_ event: AuthRequest, context: AWSLambdaRuntimeCore.LambdaContext) async throws -> AuthResponse {
+//        context.logger.log(level: .critical, "AuthRequest token = \(event.authorizationToken)")
 
-    public func handle(context: Lambda.Context, event: In) -> EventLoopFuture<Out> {
-        let future = context.eventLoop.asyncFuture {
-            return try await handle(context: context, event: event)
-        }
-
-        return future
-    }
-
-
-    //Async variant
-    func handle(context: Lambda.Context, event: In) async throws -> Out {
-        
-        context.logger.log(level: .critical, "AuthRequest event received. \(event.authorizationToken)")
-
-        let services = ServiceComposer(eventLoop: context.eventLoop)
-        let app = services.app
+        let services = ServiceComposer()
+//        let app = services.app
 
         do {
-            let response = try await generatePolicy(principalId: event.authorizationToken, effect: event.authorizationToken  == "12345" ? "Allow": "Deny", resource: event.methodArn)
+            let response = generatePolicy(principalId: event.authorizationToken, effect: event.authorizationToken  == "12345" ? "Allow": "Deny", resource: event.methodArn)
             try await services.shutdown()
             return response
         } catch {

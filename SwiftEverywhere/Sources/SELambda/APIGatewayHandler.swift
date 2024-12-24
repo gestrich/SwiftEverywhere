@@ -9,28 +9,21 @@ import AWSLambdaEvents
 import AWSLambdaHelpers
 import AWSLambdaRuntime
 import Foundation
+import HTTPTypes
 import NIO
 import NIOHelpers
 import SECommon
 
 struct APIGWHandler: EventLoopLambdaHandler {
-
-    typealias In = APIGateway.Request
-    typealias Out = APIGateway.Response
+    typealias In = APIGatewayRequest
+    typealias Out = APIGatewayResponse
 
     //MARK: EventLoopLambdaHandler conformance
 
-    func handle(context: Lambda.Context, event: APIGateway.Request) -> EventLoopFuture<APIGateway.Response> {
-        return context.eventLoop.asyncFuture {
-            return try await handle(context: context, event: event)
-        }
-    }
-
-    //Async variant
-    func handle(context: Lambda.Context, event: APIGateway.Request) async throws -> APIGateway.Response {
+    func handle(_ event: AWSLambdaEvents.APIGatewayRequest, context: AWSLambdaRuntimeCore.LambdaContext) async throws -> AWSLambdaEvents.APIGatewayResponse {
         //TODO: The Lambda.InitializationContext can hold resources that can be reused on every request.
         //It may be more performant to use that to hold onto our database connections.
-        let services = ServiceComposer(eventLoop: context.eventLoop)
+        let services = ServiceComposer()
 //        let values = dump(context)
 //        context.logger.log(level: .critical, "APIGateway event context received. \(context)")
         
@@ -47,7 +40,7 @@ struct APIGWHandler: EventLoopLambdaHandler {
         }
     }
 
-    func route(event: In, app: SwiftServerApp) async throws -> APIGateway.Response {
+    func route(event: In, app: SwiftServerApp) async throws -> APIGatewayResponse {
 
         let leadingPathPart = "" // Use this if you there a leading part in your path, like "api" or "stage"
 
@@ -69,20 +62,17 @@ struct APIGWHandler: EventLoopLambdaHandler {
         switch componentAsAPIPath {
         case .analogReadings:
             switch event.httpMethod {
-            case .GET:
+            case .get:
                 if urlComponents.count > 1, let channel = Int(urlComponents[1]) {
                     return try await app.piClientSource().getAnalogReading(channel: channel).apiGatewayOkResponse()
                 } else {
-                    guard let queryStringParameters = event.queryStringParameters else {
-                        throw APIGWHandlerError.general(description: "Missing query parameters")
-                    }
-                    guard let channelQuery = queryStringParameters["channel"], let channel = Int(channelQuery) else {
+                    guard let channelQuery = event.queryStringParameters["channel"], let channel = Int(channelQuery) else {
                         throw APIGWHandlerError.general(description: "Missing channel query parameter")
                     }
-                    guard let startDateQuery = queryStringParameters["startDate"] else {
+                    guard let startDateQuery = event.queryStringParameters["startDate"] else {
                         throw APIGWHandlerError.general(description: "Missing startDate query parameter")
                     }
-                    guard let endDateQuery = queryStringParameters["endDate"] else {
+                    guard let endDateQuery = event.queryStringParameters["endDate"] else {
                         throw APIGWHandlerError.general(description: "Missing endDate query parameter")
                     }
                     let formatter = ISO8601DateFormatter()
@@ -94,8 +84,8 @@ struct APIGWHandler: EventLoopLambdaHandler {
                     }
                     return try await app.getAnalogReadings(channel: channel, range: DateRangeRequest(startDate: startDate, endDate: endDate)).apiGatewayOkResponse()
                 }
-            case .POST:
-                guard urlComponents.count > 1, let channel = Int(urlComponents[1]) else {
+            case .post:
+                guard urlComponents.count > 1, let _ = Int(urlComponents[1]) else {
                     throw APIGWHandlerError.general(description: "Missing channel in \(event.httpMethod)")
                 }
                 guard let bodyData = event.bodyData() else {
@@ -108,21 +98,21 @@ struct APIGWHandler: EventLoopLambdaHandler {
             }
         case .deviceToken:
             switch event.httpMethod {
-            case .POST:
+            case .post:
                 guard let bodyData = event.bodyData() else {
                     throw APIGWHandlerError.general(description: "Missing body data")
                 }
                 let deviceToken = try jsonDecoder.decode(DeviceToken.self, from: bodyData)
                 try await app.updateDeviceToken(deviceToken)
-                return APIGateway.Response(statusCode: .ok)
+                return APIGatewayResponse(statusCode: .ok)
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }
         case .host:
             switch event.httpMethod {
-            case .GET:
+            case .get:
                 return try await app.getHost().apiGatewayOkResponse()
-            case .POST:
+            case .post:
                 guard let bodyData = event.bodyData() else {
                     throw APIGWHandlerError.general(description: "Missing body data")
                 }
@@ -133,12 +123,12 @@ struct APIGWHandler: EventLoopLambdaHandler {
             }
         case .digitalValues:
             switch event.httpMethod {
-            case .GET:
+            case .get:
                 guard urlComponents.count > 1, let channel = Int(urlComponents[1]) else {
                     throw APIGWHandlerError.general(description: "Missing channel")
                 }
                 return try await app.getDigitalOutput(channel: channel).apiGatewayOkResponse()
-            case .POST:
+            case .post:
                 guard let bodyData = event.bodyData() else {
                     throw APIGWHandlerError.general(description: "Missing body data")
                 }
@@ -150,13 +140,13 @@ struct APIGWHandler: EventLoopLambdaHandler {
             }
         case .pushNotification:
             switch event.httpMethod {
-            case .POST:
+            case .post:
                 guard let bodyData = event.bodyData() else {
                     throw APIGWHandlerError.general(description: "Missing body data")
                 }
                 let pushNotification = try jsonDecoder.decode(PushNotification.self, from: bodyData)
                 try await app.sendPushNotification(pushNotification)
-                return APIGateway.Response(statusCode: .ok)
+                return APIGatewayResponse(statusCode: .ok)
             default:
                 throw APIGWHandlerError.general(description: "Method not handled: \(event.httpMethod)")
             }
@@ -183,18 +173,18 @@ enum APIGWHandlerError: LocalizedError {
 
 extension Encodable {
     // TODO: There is some overlap in the swift-server-utilities method name.
-    func apiGatewayOkResponse() throws -> APIGateway.Response {
+    func apiGatewayOkResponse() throws -> APIGatewayResponse {
         return try createAPIGatewayJSONResponse(statusCode: .ok)
     }
 
-    func createAPIGatewayJSONResponse(statusCode: HTTPResponseStatus) throws -> APIGateway.Response {
+    func createAPIGatewayJSONResponse(statusCode: HTTPResponse.Status) throws -> APIGatewayResponse {
 
         guard let jsonData = try? jsonEncoder.encode(self) else {
             throw APIGWHandlerError.general(description: "Could not convert object to json data")
         }
 
         let jsonString = String(data: jsonData, encoding: .utf8)
-        return APIGateway.Response(statusCode: statusCode, headers: ["Content-Type": "application/json"], body: jsonString)
+        return APIGatewayResponse(statusCode: statusCode, headers: ["Content-Type": "application/json"], body: jsonString)
     }
     
     var jsonEncoder: JSONEncoder {

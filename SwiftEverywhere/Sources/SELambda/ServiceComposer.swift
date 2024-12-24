@@ -38,7 +38,7 @@ class ServiceComposer {
         return result
     }
 
-    init(eventLoop: EventLoop) {
+    init() {
 
         let awsClient: AWSClient
         let value = Self.getEnvironmentVariable(key: "MOCK_AWS_CREDENTIALS")

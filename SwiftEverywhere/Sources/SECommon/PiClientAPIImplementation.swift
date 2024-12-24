@@ -97,13 +97,8 @@ public struct PiClientAPIImplementation: SwiftEverywhereAPI, Sendable {
         
         let encodedData = try jsonEncoder.encode(input)
         request.httpBody = encodedData
-
-        let (data, _) = try await URLSession.shared.data(for: request)
-        do {
-        } catch {
-            print(String(data: data, encoding: .utf8) ?? "")
-            throw error
-        }
+        
+        _ = try await URLSession.shared.data(for: request)
     }
     
     func postData<Input: Codable, Output: Codable>(input: Input, outputType: Output.Type, urlComponent: String) async throws -> Output {
@@ -130,7 +125,7 @@ public struct PiClientAPIImplementation: SwiftEverywhereAPI, Sendable {
             url.append(queryItems: queryItems)
         }
 
-        var request = createRequest(url: url)
+        let request = createRequest(url: url)
         let (data, _) = try await URLSession.shared.data(for: request)
         do {
             return try jsonDecoder.decode(outputType, from: data)
