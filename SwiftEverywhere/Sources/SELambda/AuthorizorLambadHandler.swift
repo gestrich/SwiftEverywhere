@@ -55,6 +55,8 @@ public struct AuthorizerLambdaHandler: EventLoopLambdaHandler {
     }
 }
 
+// As a REST API, this uses the 1.0 format here:
+// https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-lambda-authorizer.html
 public struct AuthRequest: Codable {
     public let authorizationToken: String
     public let methodArn: String
