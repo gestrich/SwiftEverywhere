@@ -29,13 +29,13 @@ public struct AuthorizerLambdaHandler: EventLoopLambdaHandler {
     //Async variant
     func handle(context: Lambda.Context, event: In) async throws -> Out {
         
-        context.logger.log(level: .critical, "Cloud Watch (CreateAnalysisRequest) event received")
+        context.logger.log(level: .critical, "AuthRequest event received. \(event.authorizationToken)")
 
         let services = ServiceComposer(eventLoop: context.eventLoop)
         let app = services.app
 
         do {
-            let response = try await generatePolicy(principalId: event.authorizationToken, effect: "Allow", resource: event.methodArn)
+            let response = try await generatePolicy(principalId: event.authorizationToken, effect: event.authorizationToken  == "12345" ? "Allow": "Deny", resource: event.methodArn)
             try await services.shutdown()
             return response
         } catch {
@@ -50,7 +50,8 @@ public struct AuthorizerLambdaHandler: EventLoopLambdaHandler {
     func generatePolicy(principalId: String, effect: String, resource: String?) -> AuthResponse {
         let statement = PolicyStatement(Action: "execute-api:Invoke", Effect: effect, Resource: resource)
         let policyDocument = PolicyDocument(Version: "2012-10-17", Statement: [statement])
-        return AuthResponse(principalId: principalId, policyDocument: policyDocument)
+        let context = ["principalId": principalId]
+        return AuthResponse(principalId: principalId, policyDocument: policyDocument, context: context)
     }
 }
 
@@ -61,6 +62,7 @@ public struct AuthRequest: Codable {
 public struct AuthResponse: Codable {
     public let principalId: String
     public let policyDocument: PolicyDocument
+    public let context: [String: String]
 }
 
 public struct PolicyDocument: Codable {

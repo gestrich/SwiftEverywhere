@@ -75,8 +75,9 @@ public struct PiClientAPIImplementation: SwiftEverywhereAPI, Sendable {
     
     func createRequest(url: URL) -> URLRequest {
         var request = URLRequest(url: url)
-        let authorizationToken = "12345678"
-        request.setValue("Bearer \(authorizationToken)", forHTTPHeaderField: "Authorization")
+        let authorizationToken = "12345"
+        // TODO: For some reason both of these are needed
+        request.setValue(authorizationToken, forHTTPHeaderField: "Authorization")
         request.setValue(authorizationToken, forHTTPHeaderField: "authorizationToken")
         return request
     }
