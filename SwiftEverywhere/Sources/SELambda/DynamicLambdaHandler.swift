@@ -1,61 +1,23 @@
 //
-//  DynamicLambdaHandler.swift
+//  File.swift
+//  SwiftEverywhere
 //
+//  Created by Bill Gestrich on 12/24/24.
 //
-//  Created by Bill Gestrich on 1/29/22.
-//
+
+import Foundation
 
 import AWSLambdaRuntime
 import Foundation
 import NIO
 
-public struct DynamicLambdaHandler: StreamingLambdaHandler {
-
-    private let handlers: [AnyLambdaHandler]
-
-    public init(handlers: [AnyLambdaHandler]){
-        self.handlers = handlers
-    }
-
-    public func handle(
-        _ event: ByteBuffer,
-        responseWriter: some LambdaResponseStreamWriter,
-        context: LambdaContext
-    ) async throws {
-        for handler in handlers {
-            if handler.supportsInput(event) {
-                let byteBuffer = try await handler.handle(context: context, event: event)
-                try await responseWriter.write(byteBuffer)
-                try await responseWriter.finish()
-                /*
-                 // Partial writes are available
-                 for i in 1...10 {
-                     // Send partial data
-                     try await responseWriter.write(ByteBuffer(string: "\(i)\n"))
-                     // Perform some long asynchronous work
-                     try await Task.sleep(for: .milliseconds(1000))
-                 }
-                 */
-
-                return
-            }
-        }
-
-        throw DynamicLambdaHandler.unmatchedHandler
-    }
-
-    enum DynamicLambdaHandler: Error {
-        case unmatchedHandler
-    }
-}
-
-public protocol EventLoopLambdaHandler<In> {
+public protocol DynamicLambdaHandler<In> {
     associatedtype In: Codable
     associatedtype Out: Codable
     func handle(_ event: In, context: LambdaContext) async throws -> Out
 }
 
-public extension EventLoopLambdaHandler {
+public extension DynamicLambdaHandler {
     func handle(byteBuffer: ByteBuffer, context: LambdaContext) async throws -> ByteBuffer {
         let decodedInput = try decodeInputByteBuffer(byteBuffer)
         let output = try await handle(decodedInput, context: context)
@@ -81,7 +43,7 @@ public struct AnyLambdaHandler {
     fileprivate let handlerBlock: (_ context: LambdaContext, _ byteBuffer: ByteBuffer) async throws -> ByteBuffer
     fileprivate let supportsInputBlock: (ByteBuffer) -> Bool
 
-    public init(handler: any EventLoopLambdaHandler) {
+    public init(handler: any DynamicLambdaHandler) {
         self.handlerBlock = { (context: LambdaContext, byteBuffer: ByteBuffer) async throws -> ByteBuffer in
             return try await handler.handle(byteBuffer: byteBuffer, context: context)
         }
@@ -96,12 +58,11 @@ public struct AnyLambdaHandler {
         }
     }
     
-    fileprivate func handle(context : LambdaContext, event: ByteBuffer) async throws -> ByteBuffer {
+    func handle(context : LambdaContext, event: ByteBuffer) async throws -> ByteBuffer {
         return try await handlerBlock(context, event)
     }
 
-    fileprivate func supportsInput(_ input: ByteBuffer) -> Bool {
+    func supportsInput(_ input: ByteBuffer) -> Bool {
         return supportsInputBlock(input)
     }
 }
-

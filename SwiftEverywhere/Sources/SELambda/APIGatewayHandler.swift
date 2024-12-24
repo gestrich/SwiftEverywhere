@@ -14,11 +14,11 @@ import NIO
 import NIOHelpers
 import SECommon
 
-struct APIGWHandler: EventLoopLambdaHandler {
+struct APIGWHandler: DynamicLambdaHandler {
     typealias In = APIGatewayRequest
     typealias Out = APIGatewayResponse
 
-    //MARK: EventLoopLambdaHandler conformance
+    //MARK: DynamicLambdaHandler conformance
 
     func handle(_ event: AWSLambdaEvents.APIGatewayRequest, context: AWSLambdaRuntimeCore.LambdaContext) async throws -> AWSLambdaEvents.APIGatewayResponse {
         //TODO: The Lambda.InitializationContext can hold resources that can be reused on every request.

@@ -10,11 +10,12 @@ import AWSLambdaRuntime
 import Foundation
 import NIO
 
-public struct AuthorizerLambdaHandler: EventLoopLambdaHandler {
+public struct AuthorizerLambdaHandler: DynamicLambdaHandler {
     public typealias In = AuthRequest
     public typealias Out = AuthResponse
 
-    //MARK: EventLoopLambdaHandler conformance
+    //MARK: DynamicLambdaHandler conformance
+    
     public func handle(_ event: AuthRequest, context: AWSLambdaRuntimeCore.LambdaContext) async throws -> AuthResponse {
 //        context.logger.log(level: .critical, "AuthRequest token = \(event.authorizationToken)")
 
